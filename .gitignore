@@ -1,0 +1,5 @@
+.venv/
+*.bak
+*.sqlite3
+__pycache__/
+daten/

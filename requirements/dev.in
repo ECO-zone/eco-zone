@@ -1,0 +1,3 @@
+-c main.txt
+pip-tools==7.4.1
+pre-commit==3.7.1
