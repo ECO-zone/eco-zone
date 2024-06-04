@@ -20,7 +20,8 @@ COPY ./ ./
 
 RUN : \
     # Make scripts executable
-    && find ./bin -type f -iname "*.sh" -exec chmod +x {} \;
+    && find ./bin -type f -iname "*.sh" -exec chmod +x {} \; \
+    && mv ./dokku/* ./
 
 ARG GIT_REV="N/A"
 ENV GIT_REV=${GIT_REV}
