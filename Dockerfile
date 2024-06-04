@@ -36,6 +36,4 @@ RUN : \
 ARG GIT_REV="N/A"
 ENV GIT_REV=${GIT_REV}
 
-# ENTRYPOINT [ "./bin/prerun.sh" ]
-
-ENTRYPOINT [ echo "Ready..." && exec "$@" ]
+ENTRYPOINT [ "/bin/bash" ]
