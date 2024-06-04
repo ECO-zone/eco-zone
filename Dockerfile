@@ -1,4 +1,4 @@
-FROM python:3.12.3-slim-buster as python
+FROM python:3.12.3-slim-bullseye as python
 
 # ARG APP_GROUP=eco_zone
 # ARG APP_USER=eco_zone
