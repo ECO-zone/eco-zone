@@ -1,0 +1,4 @@
+*.sqlite3
+data/
+daten/
+Dockerfile
