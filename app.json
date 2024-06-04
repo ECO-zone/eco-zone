@@ -1,4 +1,9 @@
 {
+  "scripts": {
+    "dokku": {
+      "predeploy": "/app/bin/prerun.sh",
+    }
+  },
   "healthchecks": {
     "web": [
       {
