@@ -1,16 +1,9 @@
 FROM python:3.12.3-slim-bullseye as python
 
-# ARG APP_GROUP=eco_zone
-# ARG APP_USER=eco_zone
-ENV PYTHONUNBUFFERED 1
-
-# ARG APP_DIR=/app
-
 WORKDIR /app
 
 # Install dependencies to build uwsgi and then remove them
 # Install vim while we're at it
-# And create a non-root user
 RUN : \
     && BUILD_DEPS='build-essential gcc libc6-dev' \
     && apt-get update \
@@ -18,10 +11,6 @@ RUN : \
     && pip install uwsgi==2.0.25.1 \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $BUILD_DEPS \
     && rm -rf /var/lib/apt/lists/*
-    # # Create a non-root user
-    # && mkdir $APP_DIR \
-    # && groupadd -r $APP_GROUP \
-    # && useradd --no-log-init -m -d $APP_DIR -g $APP_GROUP $APP_USER
 
 # Install Python dependencies
 COPY ./requirements/main.txt ./requirements/prod.txt ./requirements/
@@ -32,8 +21,6 @@ COPY ./ ./
 RUN : \
     # Make scripts executable
     && find ./bin -type f -iname "*.sh" -exec chmod +x {} \;
-    # # Move Dokku resources into place
-    # && mv ./dokku/* . && rm -rf ./dokku && pwd && ls .
 
 ARG GIT_REV="N/A"
 ENV GIT_REV=${GIT_REV}
