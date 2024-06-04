@@ -1,3 +1,4 @@
+from datetime import timedelta
 import logging
 from uuid import uuid4
 
@@ -131,3 +132,47 @@ class Redispatch(models.Model):
 
     def make_record_comparison_str(self) -> str:
         return f"{self.start.strftime("%Y-%m-%dT%H:%M")}-{self.end.strftime("%Y-%m-%dT%H:%M")}-{self.reason}-{self.direction}-{self.power_mid_mw}-{self.power_max_mw}-{self.work_total_mwh}-{self.tso_supplying_id}-{self.tso_requesting_id}-{self.power_plant_id}"
+
+
+class TimeseriesRedispatchManager(models.Manager):
+
+    def update_from_redispatch_records(self, redispatch_records):
+        timeseries_records = []
+        for redispatch_record in redispatch_records:
+            start = redispatch_record.start
+            end = redispatch_record.end
+            while start < end:
+                timeseries_records.append(
+                    TimeseriesRedispatch(
+                        start=start,
+                        direction=redispatch_record.direction,
+                        power_mid_mw=redispatch_record.power_mid_mw,
+                        redispatch_id=redispatch_record.id,
+                    )
+                )
+                start = start + timedelta(minutes=15)
+        self.bulk_create(timeseries_records, batch_size=1000)
+
+
+class TimeseriesRedispatch(models.Model):
+    start = models.DateTimeField(null=False)
+    direction = models.CharField(max_length=40, null=False)
+    power_mid_mw = models.FloatField(null=False)
+    redispatch = models.ForeignKey(Redispatch, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    objects = TimeseriesRedispatchManager()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["start", "direction"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "start",
+                    "redispatch",
+                ],
+                name="unique_timeseries_redispatch_record",
+            )
+        ]

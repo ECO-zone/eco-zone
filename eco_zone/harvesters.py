@@ -12,7 +12,7 @@ from requests_oauthlib import OAuth2Session
 from django.db import transaction
 from django.db.models import Q
 
-from .models import GridRegion, PowerPlant, Redispatch, TSO
+from .models import GridRegion, PowerPlant, Redispatch, TimeseriesRedispatch, TSO
 
 
 logger = logging.getLogger(__name__)
@@ -126,19 +126,23 @@ def harvest_redispatch() -> int:
             # There are duplicate entries in the Netztranzparenz data, so we need to filter them too.
             record_check_set.add(record_comparison_str)
     with transaction.atomic():
-        new_redispatch_records = {
-            x.id for x in Redispatch.objects.bulk_create(redispatches, batch_size=1000)
-        }
+        new_redispatch_records = Redispatch.objects.bulk_create(
+            redispatches, batch_size=1000
+        )
+        new_redispatch_records_set = {x.id for x in new_redispatch_records}
         redispatch_region_relations_to_create = [
             x
             for x in redispatch_region_relations
-            if x.redispatch_id in new_redispatch_records
+            if x.redispatch_id in new_redispatch_records_set
         ]
         Redispatch.grid_regions.through.objects.bulk_create(
             redispatch_region_relations_to_create, batch_size=1000
         )
+        TimeseriesRedispatch.objects.update_from_redispatch_records(
+            new_redispatch_records
+        )
 
-    return len(new_redispatch_records)
+    return len(new_redispatch_records_set)
 
 
 def harvest_redispatch_to_present() -> int:
