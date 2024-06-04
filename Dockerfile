@@ -17,7 +17,6 @@ COPY ./requirements/main.txt ./requirements/prod.txt ./requirements/
 RUN pip install -r ./requirements/main.txt -r ./requirements/prod.txt
 ENV DJANGO_SETTINGS_MODULE="config.settings.production"
 COPY ./ ./
-COPY ./dokku/app.json ./dokku/Procfile ./dokku/uwsgi.ini ./
 
 RUN : \
     # Make scripts executable
