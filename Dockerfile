@@ -1,8 +1,8 @@
 FROM python:3.12.3-slim-bookworm as python
 
 ARG APP_DIR=/app
-ARG APP_GROUP=qsystem
-ARG APP_USER=qsystem
+# ARG APP_GROUP=eco_zone
+# ARG APP_USER=eco_zone
 ENV PYTHONUNBUFFERED 1
 
 # Install dependencies to build uwsgi and then remove them
@@ -15,10 +15,10 @@ RUN : \
     && pip install uwsgi==2.0.25.1 \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false $BUILD_DEPS \
     && rm -rf /var/lib/apt/lists/* \
-    # Create a non-root user
-    && mkdir $APP_DIR \
-    && groupadd -r $APP_GROUP \
-    && useradd --no-log-init -m -d $APP_DIR -g $APP_GROUP $APP_USER
+    # # Create a non-root user
+    # && mkdir $APP_DIR \
+    # && groupadd -r $APP_GROUP \
+    # && useradd --no-log-init -m -d $APP_DIR -g $APP_GROUP $APP_USER
 
 WORKDIR $APP_DIR
 # Install Python dependencies
