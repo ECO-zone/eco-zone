@@ -31,9 +31,9 @@ COPY ./ ./
 
 RUN : \
     # Make scripts executable
-    && find ./bin -type f -iname "*.sh" -exec chmod +x {} \; \
-    # Move Dokku resources into place
-    && mv ./dokku/* . && rm -rf ./dokku && pwd && ls .
+    && find ./bin -type f -iname "*.sh" -exec chmod +x {} \;
+    # # Move Dokku resources into place
+    # && mv ./dokku/* . && rm -rf ./dokku && pwd && ls .
 
 ARG GIT_REV="N/A"
 ENV GIT_REV=${GIT_REV}
