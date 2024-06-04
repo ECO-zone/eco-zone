@@ -17,11 +17,11 @@ COPY ./requirements/main.txt ./requirements/prod.txt ./requirements/
 RUN pip install -r ./requirements/main.txt -r ./requirements/prod.txt
 ENV DJANGO_SETTINGS_MODULE="config.settings.production"
 COPY ./ ./
+COPY ./dokku/app.json ./dokku/Procfile ./dokku/uwsgi.ini ./
 
 RUN : \
     # Make scripts executable
-    && find ./bin -type f -iname "*.sh" -exec chmod +x {} \; \
-    && mv ./dokku/* ./
+    && find ./bin -type f -iname "*.sh" -exec chmod +x {} \;
 
 ARG GIT_REV="N/A"
 ENV GIT_REV=${GIT_REV}
