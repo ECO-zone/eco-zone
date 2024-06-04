@@ -1,6 +1,13 @@
 {
-  "scripts": {
-    "dokku": {
-    }
+  "healthchecks": {
+    "web": [
+        {
+            "type":        "startup",
+            "name":        "web check",
+            "description": "Checking if the app responds to the homepage endpoint",
+            "path":        "/",
+            "attempts": 3
+        }
+    ]
   }
 }
