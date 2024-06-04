@@ -35,8 +35,6 @@ RUN : \
     # # Move Dokku resources into place
     # && mv ./dokku/* . && rm -rf ./dokku && pwd && ls .
 
-COPY ./app.json ./Procfile ./
-
 ARG GIT_REV="N/A"
 ENV GIT_REV=${GIT_REV}
 
