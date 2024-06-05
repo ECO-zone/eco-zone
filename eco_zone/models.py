@@ -1,8 +1,11 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 import logging
+from typing import Optional
 from uuid import uuid4
 
 from django.db import models
+from django.db.models import Q, Sum
+from django.db.models.functions import Coalesce
 
 
 logger = logging.getLogger(__name__)
@@ -152,6 +155,41 @@ class TimeseriesRedispatchManager(models.Manager):
                 )
                 start = start + timedelta(minutes=15)
         self.bulk_create(timeseries_records, batch_size=1000)
+
+    def get_timeseries_data(self, start: Optional[datetime], end: Optional[datetime]):
+        header = ["start", "power_mid_mw_decrease", "power_mid_mw_increase"]
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        records = (
+            TimeseriesRedispatch.objects.filter(timerange_query)
+            .values(
+                "start",
+            )
+            .order_by("start")
+            .annotate(
+                power_mid_mw_decrease=Coalesce(
+                    Sum(
+                        "power_mid_mw",
+                        filter=Q(direction="Wirkleistungseinspeisung reduzieren"),
+                    ),
+                    0.0,
+                )
+            )
+            .annotate(
+                power_mid_mw_increase=Coalesce(
+                    Sum(
+                        "power_mid_mw",
+                        filter=Q(direction="Wirkleistungseinspeisung erhöhen"),
+                    ),
+                    0.0,
+                )
+            )
+            .values_list(*header)
+        )
+        return [header] + list(records)
 
 
 class TimeseriesRedispatch(models.Model):
