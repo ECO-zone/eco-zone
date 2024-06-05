@@ -3,6 +3,7 @@ import re
 
 from .base import *
 
+DEBUG = False
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL:
@@ -25,4 +26,4 @@ DATABASES = {
     }
 }
 
-STATIC_ROOT = os.path.join(Path(BASE_DIR).parent, "staticfiles")
+STATIC_ROOT = BASE_DIR / "staticfiles"
