@@ -1,0 +1,20 @@
+body {
+    font-family: "Source Sans 3";
+}
+
+h1, h2, h3, h4, h5, h6, .navbar-brand {
+    font-family: "Roboto Slab";
+    font-weight: bolder;
+}
+
+.navbar {
+    background-color: #f4cce5 !important;
+}
+
+.navbar-brand {
+    font-size: x-large;
+    font-weight: 400;
+    text-decoration-color: #c7017f;
+    text-decoration-line: underline;
+    text-decoration-thickness: 3px;
+}
