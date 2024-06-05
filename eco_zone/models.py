@@ -19,7 +19,7 @@ class GridRegionManager(models.Manager):
 
 class GridRegion(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = GridRegionManager()
@@ -44,7 +44,7 @@ class TSOManager(models.Manager):
 
 class TSO(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = TSOManager()
@@ -69,7 +69,7 @@ class PowerPlantManager(models.Manager):
 
 class PowerPlant(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = PowerPlantManager()
@@ -95,8 +95,8 @@ class Redispatch(models.Model):
     start = models.DateTimeField(null=False)
     end = models.DateTimeField(null=False)
     grid_regions = models.ManyToManyField(GridRegion)
-    reason = models.CharField(max_length=30, null=False)
-    direction = models.CharField(max_length=40, null=False)
+    reason = models.CharField(max_length=100, null=False)
+    direction = models.CharField(max_length=100, null=False)
     power_mid_mw = models.FloatField(null=False)
     power_max_mw = models.FloatField(null=False)
     work_total_mwh = models.FloatField(null=False)
@@ -194,7 +194,7 @@ class TimeseriesRedispatchManager(models.Manager):
 
 class TimeseriesRedispatch(models.Model):
     start = models.DateTimeField(null=False)
-    direction = models.CharField(max_length=40, null=False)
+    direction = models.CharField(max_length=100, null=False)
     power_mid_mw = models.FloatField(null=False)
     redispatch = models.ForeignKey(Redispatch, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
