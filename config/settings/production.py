@@ -24,3 +24,5 @@ DATABASES = {
         "PORT": int(PORT),
     }
 }
+
+STATIC_ROOT = os.path.join(Path(BASE_DIR).parent, "staticfiles")
