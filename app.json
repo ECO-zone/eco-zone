@@ -1,4 +1,10 @@
 {
+  "cron": [
+    {
+      "command": "/app/bin/harvest.sh",
+      "schedule": "@hourly"
+    }
+  ],
   "scripts": {
     "dokku": {
       "predeploy": "/app/bin/prerun.sh"
