@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 "indexes": [
-                    models.Index(fields=["name"], name="eco_zone_gr_name_f1196a_idx")
+                    models.Index(fields=["name"], name="ecozone_gr_name_f1196a_idx")
                 ],
             },
         ),
@@ -99,7 +99,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddIndex(
             model_name="powerplant",
-            index=models.Index(fields=["name"], name="eco_zone_po_name_91a105_idx"),
+            index=models.Index(fields=["name"], name="ecozone_po_name_91a105_idx"),
         ),
         migrations.AddConstraint(
             model_name="powerplant",
@@ -110,18 +110,18 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="redispatch",
             name="grid_regions",
-            field=models.ManyToManyField(to="eco_zone.gridregion"),
+            field=models.ManyToManyField(to="ecozone.gridregion"),
         ),
         migrations.AddField(
             model_name="redispatch",
             name="power_plant",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, to="eco_zone.powerplant"
+                on_delete=django.db.models.deletion.CASCADE, to="ecozone.powerplant"
             ),
         ),
         migrations.AddIndex(
             model_name="tso",
-            index=models.Index(fields=["name"], name="eco_zone_ts_name_ced377_idx"),
+            index=models.Index(fields=["name"], name="ecozone_ts_name_ced377_idx"),
         ),
         migrations.AddConstraint(
             model_name="tso",
@@ -135,7 +135,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="redispatch_tso_requesting",
-                to="eco_zone.tso",
+                to="ecozone.tso",
             ),
         ),
         migrations.AddField(
@@ -144,14 +144,14 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="redispatch_tso_supplying",
-                to="eco_zone.tso",
+                to="ecozone.tso",
             ),
         ),
         migrations.AddIndex(
             model_name="redispatch",
             index=models.Index(
                 fields=["start", "end", "power_plant"],
-                name="eco_zone_re_start_c20c31_idx",
+                name="ecozone_re_start_c20c31_idx",
             ),
         ),
         migrations.AddConstraint(

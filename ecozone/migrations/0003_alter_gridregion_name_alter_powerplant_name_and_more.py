@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("eco_zone", "0002_timeseriesredispatch_and_more"),
+        ("ecozone", "0002_timeseriesredispatch_and_more"),
     ]
 
     operations = [

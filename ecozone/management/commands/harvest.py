@@ -2,7 +2,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from eco_zone.harvesters import harvest_redispatch_to_present
+from ecozone.harvesters import harvest_redispatch_to_present
 
 
 logger = logging.getLogger(__name__)

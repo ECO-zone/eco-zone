@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("eco_zone", "0001_initial"),
+        ("ecozone", "0001_initial"),
     ]
 
     operations = [
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                     "redispatch",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="eco_zone.redispatch",
+                        to="ecozone.redispatch",
                     ),
                 ),
             ],
@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                 "indexes": [
                     models.Index(
                         fields=["start", "direction"],
-                        name="eco_zone_ti_start_7bbac6_idx",
+                        name="ecozone_ti_start_7bbac6_idx",
                     )
                 ],
             },
