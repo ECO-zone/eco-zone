@@ -9,9 +9,9 @@
 ## Set up development environment
 
 ```bash
-git pull git@gitlab.com:qantic/eco_zone.git
+git pull git@gitlab.com:qantic/ecozone.git
 cd eco_zone
-python<3.12.3> -m venv .venv --prompt=eco_zone
+python<3.12.3> -m venv .venv --prompt=ecozone
 . ./.venv/bin/activate
 python -m pip install -r ./requirements/dev.txt -r ./requirements/main.txt
 pre-commit init
