@@ -1,7 +1,15 @@
 import os
 import re
 
+import sentry_sdk
+
 from .base import *
+
+
+sentry_sdk.init(
+    dsn="https://3f5894b6ebf51aa161706c7b546e5327@o467902.ingest.us.sentry.io/4507407118893056",
+)
+
 
 DEBUG = False
 

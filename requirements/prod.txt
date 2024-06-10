@@ -4,11 +4,23 @@
 #
 #    pip-compile ./requirements/prod.in
 #
+asgiref==3.8.1
+    # via django
+certifi==2024.6.2
+    # via sentry-sdk
+django==5.0.6
+    # via sentry-sdk
 psycopg[binary]==3.1.19
     # via -r ./requirements/prod.in
 psycopg-binary==3.1.19
     # via psycopg
+sentry-sdk[django]==2.5.1
+    # via -r ./requirements/prod.in
+sqlparse==0.5.0
+    # via django
 typing-extensions==4.12.0
     # via psycopg
+urllib3==2.2.1
+    # via sentry-sdk
 uwsgi==2.0.25.1
     # via -r ./requirements/prod.in
