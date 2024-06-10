@@ -75,8 +75,8 @@ python manage.py runserver
     ```
   - Set up the Sentry environment variables
     ```
-    dokku config:set ecozone SENTRY_ENVIRONMENT=<NAME OF ENVIRONMENT> E.G., "dev">
-    dokku config:set ecozone SENTRY_RELEASE_URL=<URL>
+    dokku config:set --no-restart ecozone SENTRY_ENVIRONMENT=<NAME OF ENVIRONMENT> E.G., "dev">
+    dokku config:set --no-restart ecozone SENTRY_RELEASE_URL=<URL>
     ```
 
 - On your machine:
@@ -108,6 +108,6 @@ In order to harvest redispatch data, `NETZTRANZPARENZ_CLIENT_ID` and `NETZTRANZP
 To ensure that the environment variables are set every time Dokku deploys the app (or runs it for a cron job, etc.), use the following Dokku commands. You only have to run them once; Dokku will remember them for all future deployments.
 
 ```bash
-dokku config:set ecozone NETZTRANZPARENZ_CLIENT_SECRET=<THE SECRET>
-dokku config:set ecozone NETZTRANZPARENZ_CLIENT_ID=<THE ID>
+dokku config:set --no-restart ecozone NETZTRANZPARENZ_CLIENT_SECRET=<THE SECRET>
+dokku config:set --no-restart ecozone NETZTRANZPARENZ_CLIENT_ID=<THE ID>
 ```
