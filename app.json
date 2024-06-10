@@ -7,7 +7,8 @@
   ],
   "scripts": {
     "dokku": {
-      "predeploy": "/app/bin/prerun.sh"
+      "predeploy": "/app/bin/prerun.sh",
+      "postdeploy": "/app/bin/postdeploy.sh"
     }
   },
   "healthchecks": {
