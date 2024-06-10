@@ -9,4 +9,4 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 curl https://us.sentry.io/api/hooks/release/builtin/4507407118893056/88770a9376df40d110be8845180139f9f28b707df7672136841e7406f26b9090/ \
   -X POST \
   -H 'Content-Type: application/json' \
-  -d {\"version\": \"${GIT_REV}\"}"
+  -d "{\"version\": \"${GIT_REV}\"}"
