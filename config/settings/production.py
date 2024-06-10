@@ -3,14 +3,13 @@ import re
 
 import sentry_sdk
 
-from django.conf import settings
-
 from .base import *
+from .base import GIT_REV
 
 
 sentry_sdk.init(
-    dsn="https://3f5894b6ebf51aa161706c7b546e5327@o467902.ingest.us.sentry.io/4507407118893056",
-    release=settings.GIT_REV,
+    dsn=os.getenv("SENTRY_DSN"),
+    release=GIT_REV,
 )
 
 

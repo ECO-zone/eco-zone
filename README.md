@@ -73,6 +73,12 @@ python manage.py runserver
     ```bash
     dokku postgres:link ecozone-db ecozone
     ```
+  - Set up the Sentry environment variables
+    ```
+    dokku config:set ecozone SENTRY_ENVIRONMENT=<NAME OF ENVIRONMENT> E.G., "dev">
+    dokku config:set ecozone SENTRY_RELEASE_URL=<URL>
+    ```
+
 - On your machine:
   - Add a Git remote to the repository
     ```bash
