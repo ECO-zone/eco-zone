@@ -6,9 +6,11 @@
   <p class="fs-5">Das Projekt „ECO zone – Energiesteuerung und Emissionsreduktion durch zonale Analysen“ strebt die Entwicklung eines marginalen zonalen CO2-Emissionsmodells für das deutsche Stromnetz an. Durch die genaue Erfassung und Analyse lokaler Emissionsdaten soll eine zeitliche bzw. räumliche Verschiebung von Lasten ermöglicht werden, um die Abregelung erneuerbarer Erzeugungseinheiten im Redispatch zu minimieren. Die begleitende Webanwendung soll deutschlandweit eine intelligentere und umweltfreundlichere Energieverteilung ermöglichen.</p>
   <p>Das Projekt zielt darauf ab, den beteiligten Akteuren diversifizierte Handlungsmöglichkeiten aufzuzeigen und einen nachhaltigen und kontinuierlichen Betrieb erneuerbarer Energien im Netz zu gewährleisten, während gleichzeitig Emissionen und Betriebskosten minimiert werden.</p>
 </div>
-<hr class="col-1 my-4">
-<div id="chart-timeseries-redispatch"></div>
-<hr class="col-1 my-4">
+{% include "snippets/divider.html" %}
+{% include "snippets/chart.html" with id="timeseries-redispatch" %}
+{% include "snippets/divider.html" %}
+{% include "snippets/chart.html" with id="timeseries-emission-intensity" %}
+{% include "snippets/divider.html" %}
 <a href="https://future-energy-lab.de/projects/eco-zone/" class="btn btn-primary">Mehr Infos bei Future Energy Lab</a>
 <a href="/api/docs" class="btn btn-secondary">API ansehen</a>
 {% endblock %}

@@ -12,7 +12,7 @@ from requests_oauthlib import OAuth2Session
 from django.db import transaction
 from django.db.models import Q
 
-from .models import GridRegion, PowerPlant, Redispatch, TimeseriesRedispatch, TSO
+from ..models import GridRegion, PowerPlant, Redispatch, TimeseriesRedispatch, TSO
 
 
 logger = logging.getLogger(__name__)

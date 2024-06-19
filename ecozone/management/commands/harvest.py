@@ -2,7 +2,8 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from ecozone.harvesters import harvest_redispatch_to_present
+from ecozone.harvesters.entsoe import harvest_psr_generation
+from ecozone.harvesters.netztrasparenz import harvest_redispatch_to_present
 
 
 logger = logging.getLogger(__name__)
@@ -28,6 +29,14 @@ class Command(BaseCommand):
                     self.stdout.write(
                         self.style.SUCCESS(f"Harvested {results} redispatch records")
                     )
+                case "psr":
+                    self.stdout.write(f"Harvesting {data_type}")
+                    results = harvest_psr_generation()
+                    self.stdout.write(
+                        self.style.SUCCESS(
+                            f"Harvested {results} psr generation records"
+                        )
+                    )
                 case _:
                     self.stderr.write(
                         self.style.ERROR(
@@ -35,4 +44,5 @@ class Command(BaseCommand):
                         )
                     )
         except Exception as e:
+            raise e
             self.stderr.write(self.style.ERROR(f"Error: {e}"))

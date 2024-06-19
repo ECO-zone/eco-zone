@@ -132,3 +132,51 @@ Highcharts.chart("chart-timeseries-redispatch", {
     },
   },
 });
+
+Highcharts.chart("chart-timeseries-emission-intensity", {
+  credits: {
+    enabled: false,
+  },
+  data: {
+    rowsURL: "/api/timeseries/emission-intensity?start=2024-01-01T00%3A00%2B01%3A00",
+    complete: function (parsedData) {
+      for (let series of parsedData.series) {
+        let newName = {
+          emission_intensity: "Emissionsintensität",
+        }[series.name];
+        if (newName) {
+          series.name = newName;
+        }
+      }
+    },
+  },
+  legend: {
+    layout: "horizontal",
+    align: "left",
+    verticalAlign: "bottom",
+  },
+  subtitle: {
+    text: 'Emissionsintensität pro MWh. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
+    align: "left",
+  },
+  title: {
+    text: "Emissionsintensität als Timeseries",
+    align: "left",
+  },
+  tooltip: {
+    shared: true,
+  },
+  xAxis: {
+    title: {
+      text: "Auflösung: 15-Minuten",
+    },
+    accessibility: {
+      rangeDescription: "Auflösung: 15-Minuten",
+    },
+  },
+  yAxis: {
+    title: {
+      text: "Emissionsintensität pro MWh",
+    },
+  },
+});
