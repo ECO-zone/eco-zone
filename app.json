@@ -1,8 +1,12 @@
 {
   "cron": [
     {
-      "command": "/app/bin/harvest.sh",
+      "command": "/app/bin/harvest-redispatch.sh",
       "schedule": "@hourly"
+    },
+    {
+      "command": "/app/bin/harvest-psr.sh",
+      "schedule": "*/15 * * * *"
     }
   ],
   "scripts": {
