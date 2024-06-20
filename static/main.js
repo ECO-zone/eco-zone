@@ -89,7 +89,7 @@ Highcharts.chart("chart-timeseries-redispatch", {
     enabled: false,
   },
   data: {
-    rowsURL: "/api/timeseries/redispatch?start=2024-01-01T00%3A00%2B01%3A00",
+    rowsURL: "/api/timeseries/redispatch?start=2024-01-01T00%3A00%2B02%3A00",
     complete: function (parsedData) {
       for (let series of parsedData.series) {
         let newName = {
@@ -128,7 +128,7 @@ Highcharts.chart("chart-timeseries-redispatch", {
   },
   yAxis: {
     title: {
-      text: "Mittlere Leistung MW",
+      text: "Mittlere Leistung [MW]",
     },
   },
 });
@@ -138,7 +138,7 @@ Highcharts.chart("chart-timeseries-emission-intensity", {
     enabled: false,
   },
   data: {
-    rowsURL: "/api/timeseries/emission-intensity?start=2024-01-01T00%3A00%2B01%3A00",
+    rowsURL: "/api/timeseries/emission-intensity?start=2024-01-01T00%3A00%2B02%3A00",
     complete: function (parsedData) {
       for (let series of parsedData.series) {
         let newName = {
@@ -177,6 +177,152 @@ Highcharts.chart("chart-timeseries-emission-intensity", {
   yAxis: {
     title: {
       text: "Emissionsintensität pro MWh",
+    },
+  },
+});
+
+Highcharts.chart("chart-timeseries-generation", {
+  chart: {
+    type: "area",
+  },
+  credits: {
+    enabled: false,
+  },
+  data: {
+    rowsURL: "/api/timeseries/generation?start=2024-01-01T00%3A00%2B02%3A00",
+    complete: function (parsedData) {
+      for (let series of parsedData.series) {
+        let newName = {
+          B01: "Biomasse",
+          B02: "Braunkohle",
+          // B03: "Fossil Coal-derived gas",
+          B04: "Erdgas",
+          B05: "Steinkohle",
+          B06: "Mineralöl",
+          // B07: "Fossil Oil shale",
+          // B08: "Fossil Peat",
+          B09: "Geothermie",
+          B10: "Pumpspeicher",
+          B11: "Wasserkraft (Laufwasser)",
+          B12: "Wasserspeicher",
+          // B13: "Marine",
+          // B14: "Kernenergie",
+          B15: "Sonstige Erneuerbare Energien",
+          B16: "Photovoltaik",
+          B17: "Abfall",
+          B18: "Windenergie (Offshore-Anlage)",
+          B19: "Windenergie (Onshore-Anlage)",
+          B20: "Sonstige konventionelle Energien",
+        }[series.name];
+        if (newName) {
+          series.name = newName;
+        }
+        series.label = false;
+        series.stacking = "normal";
+        series.type = "area";
+      }
+    },
+  },
+  legend: {
+    layout: "horizontal",
+    align: "left",
+    verticalAlign: "bottom",
+  },
+  subtitle: {
+    text: 'Nettostromerzeugung pro Energieträger. Hochrechnung durch ECO zone. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
+    align: "left",
+  },
+  title: {
+    text: "Nettostromerzeugung pro Energieträger als Timeseries",
+    align: "left",
+  },
+  tooltip: {
+    shared: true,
+  },
+  xAxis: {
+    title: {
+      text: "Auflösung: 15-Minuten",
+    },
+    accessibility: {
+      rangeDescription: "Auflösung: 15-Minuten",
+    },
+  },
+  yAxis: {
+    title: {
+      text: "Nettostromerzeugung [MW]",
+    },
+  },
+});
+
+Highcharts.chart("chart-timeseries-emissions", {
+  chart: {
+    type: "area",
+  },
+  credits: {
+    enabled: false,
+  },
+  data: {
+    rowsURL: "/api/timeseries/emissions?start=2024-01-01T00%3A00%2B02%3A00",
+    complete: function (parsedData) {
+      for (let series of parsedData.series) {
+        let newName = {
+          B01: "Biomasse",
+          B02: "Braunkohle",
+          // B03: "Fossil Coal-derived gas",
+          B04: "Erdgas",
+          B05: "Steinkohle",
+          B06: "Mineralöl",
+          // B07: "Fossil Oil shale",
+          // B08: "Fossil Peat",
+          B09: "Geothermie",
+          B10: "Pumpspeicher",
+          B11: "Wasserkraft (Laufwasser)",
+          B12: "Wasserspeicher",
+          // B13: "Marine",
+          // B14: "Kernenergie",
+          B15: "Sonstige Erneuerbare Energien",
+          B16: "Photovoltaik",
+          B17: "Abfall",
+          B18: "Windenergie (Offshore-Anlage)",
+          B19: "Windenergie (Onshore-Anlage)",
+          B20: "Sonstige konventionelle Energien",
+        }[series.name];
+        if (newName) {
+          series.name = newName;
+        }
+        series.label = false;
+        series.stacking = "normal";
+        series.type = "area";
+      }
+    },
+  },
+  legend: {
+    layout: "horizontal",
+    align: "left",
+    verticalAlign: "bottom",
+  },
+  subtitle: {
+    text: 'Nettoemissionen pro Energieträger. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
+    align: "left",
+  },
+  title: {
+    text: "Nettoemissionen pro Energieträger als Timeseries",
+    align: "left",
+  },
+  tooltip: {
+    shared: true,
+  },
+  xAxis: {
+    title: {
+      text: "Auflösung: 15-Minuten",
+    },
+    accessibility: {
+      rangeDescription: "Auflösung: 15-Minuten",
+    },
+  },
+  yAxis: {
+    title: {
+      text: "Nettoemissionen",
     },
   },
 });

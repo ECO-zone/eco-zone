@@ -21,3 +21,17 @@ def get_emission_intensity(
     request, start: Optional[datetime] = None, end: Optional[datetime] = None
 ):
     return PSRGeneration.objects.get_emission_intensity_data(start, end)
+
+
+@api.get("/timeseries/generation", response=List[list])
+def get_generation(
+    request, start: Optional[datetime] = None, end: Optional[datetime] = None
+):
+    return PSRGeneration.objects.get_generation_data(start, end)
+
+
+@api.get("/timeseries/emissions", response=List[list])
+def get_generation(
+    request, start: Optional[datetime] = None, end: Optional[datetime] = None
+):
+    return PSRGeneration.objects.get_emissions_data(start, end)

@@ -247,6 +247,13 @@ class PsrType(models.TextChoices):
     B20 = "b20", "Sonstige konventionelle Energien"
 
 
+PSR_TYPES_POST_2024 = [
+    x
+    for x in PsrType
+    if x not in {PsrType.B03, PsrType.B07, PsrType.B08, PsrType.B13, PsrType.B14}
+]
+
+
 class PSRGenerationManager(models.Manager):
 
     def import_records(self, xml):
@@ -351,6 +358,66 @@ class PSRGenerationManager(models.Manager):
             )
             .values_list(*header)
         )
+        return [header] + list(records)
+
+    def get_generation_data(self, start: Optional[datetime], end: Optional[datetime]):
+        header = ["start"] + [psr.value.upper() for psr in PSR_TYPES_POST_2024]
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        query = (
+            self.filter(timerange_query)
+            .values(
+                "start",
+            )
+            .order_by("start")
+        )
+        for psr in PSR_TYPES_POST_2024:
+            query = query.annotate(
+                **{
+                    psr.value.upper(): Coalesce(
+                        Sum(
+                            "power_mw",
+                            filter=Q(psr=psr),
+                        ),
+                        0.0,
+                    )
+                }
+            )
+        records = query.values_list(*header)
+
+        return [header] + list(records)
+
+    def get_emissions_data(self, start: Optional[datetime], end: Optional[datetime]):
+        header = ["start"] + [psr.value.upper() for psr in PSR_TYPES_POST_2024]
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        query = (
+            self.filter(timerange_query)
+            .values(
+                "start",
+            )
+            .order_by("start")
+        )
+        for psr in PSR_TYPES_POST_2024:
+            query = query.annotate(
+                **{
+                    psr.value.upper(): Coalesce(
+                        Sum(
+                            "emissions",
+                            filter=Q(psr=psr),
+                        ),
+                        0.0,
+                    )
+                }
+            )
+        records = query.values_list(*header)
+
         return [header] + list(records)
 
 
