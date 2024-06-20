@@ -84,7 +84,10 @@ Highcharts.setOptions({
   },
 });
 
-Highcharts.chart("chart-timeseries-redispatch", {
+Highcharts.stockChart("chart-timeseries-redispatch", {
+  chart: {
+    height: 500,
+  },
   credits: {
     enabled: false,
   },
@@ -103,9 +106,15 @@ Highcharts.chart("chart-timeseries-redispatch", {
     },
   },
   legend: {
+    enabled: true,
     layout: "horizontal",
     align: "left",
     verticalAlign: "bottom",
+  },
+  rangeSelector: {
+    verticalAlign: 'top',
+    x: 0,
+    y: 0
   },
   subtitle: {
     text: 'Mittlere Leistung in MW pro Richtung. Hochrechnung durch ECO zone. Datenquelle: <a href="https://www.netztransparenz.de/de-de/Systemdienstleistungen/Betriebsf%C3%BChrung/Redispatch" target="_blank">Netztransparenz.de</a>.',
@@ -117,6 +126,7 @@ Highcharts.chart("chart-timeseries-redispatch", {
   },
   tooltip: {
     shared: true,
+    split: false,
     valueDecimals: 2,
   },
   xAxis: {
@@ -128,13 +138,17 @@ Highcharts.chart("chart-timeseries-redispatch", {
     },
   },
   yAxis: {
+    opposite: false,
     title: {
       text: "Mittlere Leistung [MW]",
     },
   },
 });
 
-Highcharts.chart("chart-timeseries-emission-intensity", {
+Highcharts.stockChart("chart-timeseries-emission-intensity", {
+  chart: {
+    height: 500,
+  },
   credits: {
     enabled: false,
   },
@@ -152,9 +166,15 @@ Highcharts.chart("chart-timeseries-emission-intensity", {
     },
   },
   legend: {
+    enabled: true,
     layout: "horizontal",
     align: "left",
     verticalAlign: "bottom",
+  },
+  rangeSelector: {
+    verticalAlign: 'top',
+    x: 0,
+    y: 0
   },
   subtitle: {
     text: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
@@ -166,6 +186,7 @@ Highcharts.chart("chart-timeseries-emission-intensity", {
   },
   tooltip: {
     shared: true,
+    split: false,
     valueDecimals: 2,
   },
   xAxis: {
@@ -177,14 +198,16 @@ Highcharts.chart("chart-timeseries-emission-intensity", {
     },
   },
   yAxis: {
+    opposite: false,
     title: {
       text: "Emissionsintensität [kgCO2/MWh]",
     },
   },
 });
 
-Highcharts.chart("chart-timeseries-generation", {
+Highcharts.stockChart("chart-timeseries-generation", {
   chart: {
+    height: 500,
     type: "area",
   },
   credits: {
@@ -226,9 +249,15 @@ Highcharts.chart("chart-timeseries-generation", {
     },
   },
   legend: {
+    enabled: true,
     layout: "horizontal",
     align: "left",
     verticalAlign: "bottom",
+  },
+  rangeSelector: {
+    verticalAlign: 'top',
+    x: 0,
+    y: 0
   },
   subtitle: {
     text: 'Nettostromerzeugung pro Energieträger. Hochrechnung durch ECO zone. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
@@ -240,6 +269,7 @@ Highcharts.chart("chart-timeseries-generation", {
   },
   tooltip: {
     shared: true,
+    split: false,
     valueDecimals: 2,
   },
   xAxis: {
@@ -251,14 +281,16 @@ Highcharts.chart("chart-timeseries-generation", {
     },
   },
   yAxis: {
+    opposite: false,
     title: {
       text: "Nettostromerzeugung [MW]",
     },
   },
 });
 
-Highcharts.chart("chart-timeseries-emissions", {
+Highcharts.stockChart("chart-timeseries-emissions", {
   chart: {
+    height: 500,
     type: "area",
   },
   credits: {
@@ -300,9 +332,15 @@ Highcharts.chart("chart-timeseries-emissions", {
     },
   },
   legend: {
+    enabled: true,
     layout: "horizontal",
     align: "left",
     verticalAlign: "bottom",
+  },
+  rangeSelector: {
+    verticalAlign: 'top',
+    x: 0,
+    y: 0
   },
   subtitle: {
     text: 'Emissionen pro Energieträger [kgCO2]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
@@ -314,6 +352,7 @@ Highcharts.chart("chart-timeseries-emissions", {
   },
   tooltip: {
     shared: true,
+    split: false,
     valueDecimals: 2,
   },
   xAxis: {
@@ -325,6 +364,7 @@ Highcharts.chart("chart-timeseries-emissions", {
     },
   },
   yAxis: {
+    opposite: false,
     title: {
       text: "Emissionen [kgCO2]",
     },
