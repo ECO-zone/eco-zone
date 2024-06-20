@@ -117,6 +117,7 @@ Highcharts.chart("chart-timeseries-redispatch", {
   },
   tooltip: {
     shared: true,
+    valueDecimals: 2,
   },
   xAxis: {
     title: {
@@ -156,7 +157,7 @@ Highcharts.chart("chart-timeseries-emission-intensity", {
     verticalAlign: "bottom",
   },
   subtitle: {
-    text: 'Emissionsintensität pro MWh. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
+    text: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
     align: "left",
   },
   title: {
@@ -165,6 +166,7 @@ Highcharts.chart("chart-timeseries-emission-intensity", {
   },
   tooltip: {
     shared: true,
+    valueDecimals: 2,
   },
   xAxis: {
     title: {
@@ -176,7 +178,7 @@ Highcharts.chart("chart-timeseries-emission-intensity", {
   },
   yAxis: {
     title: {
-      text: "Emissionsintensität pro MWh",
+      text: "Emissionsintensität [kgCO2/MWh]",
     },
   },
 });
@@ -238,6 +240,7 @@ Highcharts.chart("chart-timeseries-generation", {
   },
   tooltip: {
     shared: true,
+    valueDecimals: 2,
   },
   xAxis: {
     title: {
@@ -302,15 +305,16 @@ Highcharts.chart("chart-timeseries-emissions", {
     verticalAlign: "bottom",
   },
   subtitle: {
-    text: 'Nettoemissionen pro Energieträger. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
+    text: 'Emissionen pro Energieträger [kgCO2]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
     align: "left",
   },
   title: {
-    text: "Nettoemissionen pro Energieträger als Timeseries",
+    text: "Emissionen pro Energieträger als Timeseries",
     align: "left",
   },
   tooltip: {
     shared: true,
+    valueDecimals: 2,
   },
   xAxis: {
     title: {
@@ -322,7 +326,7 @@ Highcharts.chart("chart-timeseries-emissions", {
   },
   yAxis: {
     title: {
-      text: "Nettoemissionen",
+      text: "Emissionen [kgCO2]",
     },
   },
 });

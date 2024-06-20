@@ -353,8 +353,10 @@ class PSRGenerationManager(models.Manager):
             )
             .order_by("start")
             .annotate(
-                emission_intensity=Coalesce(Sum("emissions"), 0.0)
-                / Coalesce(Sum("power_mw"), 0.0)
+                emission_intensity=(
+                    Coalesce(Sum("emissions"), 0.0) / Coalesce(Sum("power_mw"), 0.0)
+                )
+                * 4
             )
             .values_list(*header)
         )
