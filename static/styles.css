@@ -1,3 +1,5 @@
+/* Bootstrap */
+
 body {
   font-family: "Source Sans 3";
 }
@@ -83,4 +85,19 @@ footer {
   text-decoration-color: #c7017f;
   text-decoration-line: underline;
   text-decoration-thickness: 3px;
+}
+
+/* Highcharts */
+
+.highcharts-loading {
+  height: 100% !important;
+  left: 0px !important;
+  top: 0px !important;
+  width: 100% !important;
+}
+
+/* Custom */
+
+.chart {
+  height: 500px;
 }

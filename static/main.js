@@ -84,289 +84,217 @@ Highcharts.setOptions({
   },
 });
 
-Highcharts.stockChart("chart-timeseries-redispatch", {
-  chart: {
-    height: 500,
-  },
-  credits: {
-    enabled: false,
-  },
-  data: {
-    rowsURL: "/api/timeseries/redispatch?start=2024-01-01T00%3A00%2B02%3A00",
-    complete: function (parsedData) {
-      for (let series of parsedData.series) {
-        let newName = {
-          power_mid_mw_decrease: "Wirkleistungseinspeisung reduzieren",
-          power_mid_mw_increase: "Wirkleistungseinspeisung erhöhen",
-        }[series.name];
-        if (newName) {
-          series.name = newName;
+function makeChart(config) {
+  Highcharts.stockChart(config.id, {
+    chart: {
+      events: {
+        load() {
+          this.showLoading();
+        },
+        redraw() {
+          this.hideLoading();
+        },
+      },
+      height: 500,
+      type: config.type,
+    },
+    credits: {
+      enabled: false,
+    },
+    data: {
+      rowsURL: config.url,
+      complete: function (parsedData) {
+        for (let series of parsedData.series) {
+          let newName = config.seriesNames[series.name];
+          if (newName) {
+            series.name = newName;
+          }
+          series.showInNavigator = true;
+          if (config.type === 'area') {
+            series.label = false;
+            series.stacking = "normal";
+            series.type = "area";
+          }
         }
-      }
+      },
     },
-  },
-  legend: {
-    enabled: true,
-    layout: "horizontal",
-    align: "left",
-    verticalAlign: "bottom",
-  },
-  rangeSelector: {
-    verticalAlign: 'top',
-    x: 0,
-    y: 0
-  },
-  subtitle: {
-    text: 'Mittlere Leistung in MW pro Richtung. Hochrechnung durch ECO zone. Datenquelle: <a href="https://www.netztransparenz.de/de-de/Systemdienstleistungen/Betriebsf%C3%BChrung/Redispatch" target="_blank">Netztransparenz.de</a>.',
-    align: "left",
-  },
-  title: {
-    text: "Redispatch-Leistung als Timeseries",
-    align: "left",
-  },
-  tooltip: {
-    shared: true,
-    split: false,
-    valueDecimals: 2,
-  },
-  xAxis: {
+    legend: {
+      enabled: true,
+      layout: "horizontal",
+      align: "left",
+      verticalAlign: "bottom",
+    },
+    loading: {
+      hideDuration: 500,
+      labelStyle: {"fontWeight": "bold", "position": "relative", "top": "-55%",},
+      showDuration: 10,
+      style: {"position": "relative", "backgroundColor": "#ffffff", "opacity": 0.7,}
+    },
+    navigator: {
+      enabled: true,
+      series: (config.type == "area") ? {stacking: "normal", type: "area", fillOpacity: 1,} : {}
+    },
+    rangeSelector: {
+      buttons: [
+        {
+          type: 'month',
+          count: 1,
+          text: '1 Mo.',
+          title: '1 Monat anzeigen'
+        }, {
+          type: 'month',
+          count: 3,
+          text: '3 Mo.',
+          title: '3 Monate anzeigen'
+        }, {
+          type: 'month',
+          count: 6,
+          text: '6 Mo.',
+          title: '6 Monate anzeigen'
+        }, {
+          type: 'ytd',
+          text: 'YTD',
+          title: 'Aktuellen Jahresverlauf anzeigen'
+        }, {
+          type: 'year',
+          count: 1,
+          text: '1 Jahr',
+          title: '1 Jahr anzeigen'
+        }, {
+            type: 'all',
+            text: 'Alles',
+            title: 'Alles anzeigen'
+        }
+      ],
+      selected: 0,
+      verticalAlign: 'top',
+      x: 0,
+      y: 0
+    },
+    subtitle: {
+      text: config.subtitleText,
+      align: "left",
+    },
     title: {
-      text: "Auflösung: 15-Minuten",
+      text: config.titleText,
+      align: "left",
     },
-    accessibility: {
-      rangeDescription: "Auflösung: 15-Minuten",
+    tooltip: {
+      shared: true,
+      split: false,
+      valueDecimals: 2,
     },
+    xAxis: {
+      title: {
+        text: "Auflösung: 15-Minuten",
+      },
+      accessibility: {
+        rangeDescription: "Auflösung: 15-Minuten",
+      },
+    },
+    yAxis: {
+      opposite: false,
+      title: {
+        text: config.yAxisText,
+      },
+    },
+  });
+}
+
+function isVisibleInViewport(value) {
+  let item = value.getBoundingClientRect();
+  return item.top + 40 <= window.innerHeight
+}
+
+let generationChartEl = document.getElementById('chart-timeseries-generation');
+let emissionsChartEl = document.getElementById('chart-timeseries-emissions');
+
+function makeGenerationChart() {
+  if (isVisibleInViewport(generationChartEl) == true) {
+    window.removeEventListener("scroll", makeGenerationChart)
+    makeChart({
+      id: "chart-timeseries-generation",
+      type: "area",
+      seriesNames: {
+        B01: "Biomasse",
+        B02: "Braunkohle",
+        B04: "Erdgas",
+        B05: "Steinkohle",
+        B06: "Mineralöl",
+        B09: "Geothermie",
+        B10: "Pumpspeicher",
+        B11: "Wasserkraft (Laufwasser)",
+        B12: "Wasserspeicher",
+        B15: "Sonstige Erneuerbare Energien",
+        B16: "Photovoltaik",
+        B17: "Abfall",
+        B18: "Windenergie (Offshore-Anlage)",
+        B19: "Windenergie (Onshore-Anlage)",
+        B20: "Sonstige konventionelle Energien",
+      },
+      subtitleText: 'Nettostromerzeugung pro Energieträger. Hochrechnung durch ECO zone. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
+      titleText: 'Nettostromerzeugung pro Energieträger als Timeseries',
+      url: "/api/timeseries/generation?start=2024-01-01T00%3A00%2B02%3A00",
+      yAxisText: 'Nettostromerzeugung [MW]',
+    });
+  }
+}
+
+function makeEmissionsChart() {
+  if (isVisibleInViewport(emissionsChartEl) == true) {
+    window.removeEventListener("scroll", makeEmissionsChart)
+    makeChart({
+      id: "chart-timeseries-emissions",
+      type: "area",
+      seriesNames: {
+        B01: "Biomasse",
+        B02: "Braunkohle",
+        B04: "Erdgas",
+        B05: "Steinkohle",
+        B06: "Mineralöl",
+        B09: "Geothermie",
+        B10: "Pumpspeicher",
+        B11: "Wasserkraft (Laufwasser)",
+        B12: "Wasserspeicher",
+        B15: "Sonstige Erneuerbare Energien",
+        B16: "Photovoltaik",
+        B17: "Abfall",
+        B18: "Windenergie (Offshore-Anlage)",
+        B19: "Windenergie (Onshore-Anlage)",
+        B20: "Sonstige konventionelle Energien",
+      },
+      subtitleText: 'Emissionen pro Energieträger [kgCO2]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
+      titleText: 'Emissionen pro Energieträger als Timeseries',
+      url: '/api/timeseries/emissions?start=2024-01-01T00%3A00%2B02%3A00',
+      yAxisText: 'Emissionen [kgCO2]',
+    });
+  }
+}
+
+window.addEventListener('scroll', makeGenerationChart);
+window.addEventListener('scroll', makeEmissionsChart);
+
+makeChart({
+  id: 'chart-timeseries-redispatch',
+  type: "line",
+  seriesNames: {
+    power_mid_mw_decrease: "Wirkleistungseinspeisung reduzieren",
+    power_mid_mw_increase: "Wirkleistungseinspeisung erhöhen",
   },
-  yAxis: {
-    opposite: false,
-    title: {
-      text: "Mittlere Leistung [MW]",
-    },
-  },
+  subtitleText: 'Mittlere Leistung in MW pro Richtung. Hochrechnung durch ECO zone. Datenquelle: <a href="https://www.netztransparenz.de/de-de/Systemdienstleistungen/Betriebsf%C3%BChrung/Redispatch" target="_blank">Netztransparenz.de</a>.',
+  titleText: 'Redispatch-Leistung als Timeseries',
+  url: '/api/timeseries/redispatch?start=2024-01-01T00%3A00%2B02%3A00',
+  yAxisText: 'Mittlere Leistung [MW]',
 });
 
-Highcharts.stockChart("chart-timeseries-emission-intensity", {
-  chart: {
-    height: 500,
+makeChart({
+  id: "chart-timeseries-emission-intensity",
+  type: "line",
+  seriesNames: {
+    emission_intensity: "Emissionsintensität",
   },
-  credits: {
-    enabled: false,
-  },
-  data: {
-    rowsURL: "/api/timeseries/emission-intensity?start=2024-01-01T00%3A00%2B02%3A00",
-    complete: function (parsedData) {
-      for (let series of parsedData.series) {
-        let newName = {
-          emission_intensity: "Emissionsintensität",
-        }[series.name];
-        if (newName) {
-          series.name = newName;
-        }
-      }
-    },
-  },
-  legend: {
-    enabled: true,
-    layout: "horizontal",
-    align: "left",
-    verticalAlign: "bottom",
-  },
-  rangeSelector: {
-    verticalAlign: 'top',
-    x: 0,
-    y: 0
-  },
-  subtitle: {
-    text: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
-    align: "left",
-  },
-  title: {
-    text: "Emissionsintensität als Timeseries",
-    align: "left",
-  },
-  tooltip: {
-    shared: true,
-    split: false,
-    valueDecimals: 2,
-  },
-  xAxis: {
-    title: {
-      text: "Auflösung: 15-Minuten",
-    },
-    accessibility: {
-      rangeDescription: "Auflösung: 15-Minuten",
-    },
-  },
-  yAxis: {
-    opposite: false,
-    title: {
-      text: "Emissionsintensität [kgCO2/MWh]",
-    },
-  },
-});
-
-Highcharts.stockChart("chart-timeseries-generation", {
-  chart: {
-    height: 500,
-    type: "area",
-  },
-  credits: {
-    enabled: false,
-  },
-  data: {
-    rowsURL: "/api/timeseries/generation?start=2024-01-01T00%3A00%2B02%3A00",
-    complete: function (parsedData) {
-      for (let series of parsedData.series) {
-        let newName = {
-          B01: "Biomasse",
-          B02: "Braunkohle",
-          // B03: "Fossil Coal-derived gas",
-          B04: "Erdgas",
-          B05: "Steinkohle",
-          B06: "Mineralöl",
-          // B07: "Fossil Oil shale",
-          // B08: "Fossil Peat",
-          B09: "Geothermie",
-          B10: "Pumpspeicher",
-          B11: "Wasserkraft (Laufwasser)",
-          B12: "Wasserspeicher",
-          // B13: "Marine",
-          // B14: "Kernenergie",
-          B15: "Sonstige Erneuerbare Energien",
-          B16: "Photovoltaik",
-          B17: "Abfall",
-          B18: "Windenergie (Offshore-Anlage)",
-          B19: "Windenergie (Onshore-Anlage)",
-          B20: "Sonstige konventionelle Energien",
-        }[series.name];
-        if (newName) {
-          series.name = newName;
-        }
-        series.label = false;
-        series.stacking = "normal";
-        series.type = "area";
-      }
-    },
-  },
-  legend: {
-    enabled: true,
-    layout: "horizontal",
-    align: "left",
-    verticalAlign: "bottom",
-  },
-  rangeSelector: {
-    verticalAlign: 'top',
-    x: 0,
-    y: 0
-  },
-  subtitle: {
-    text: 'Nettostromerzeugung pro Energieträger. Hochrechnung durch ECO zone. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
-    align: "left",
-  },
-  title: {
-    text: "Nettostromerzeugung pro Energieträger als Timeseries",
-    align: "left",
-  },
-  tooltip: {
-    shared: true,
-    split: false,
-    valueDecimals: 2,
-  },
-  xAxis: {
-    title: {
-      text: "Auflösung: 15-Minuten",
-    },
-    accessibility: {
-      rangeDescription: "Auflösung: 15-Minuten",
-    },
-  },
-  yAxis: {
-    opposite: false,
-    title: {
-      text: "Nettostromerzeugung [MW]",
-    },
-  },
-});
-
-Highcharts.stockChart("chart-timeseries-emissions", {
-  chart: {
-    height: 500,
-    type: "area",
-  },
-  credits: {
-    enabled: false,
-  },
-  data: {
-    rowsURL: "/api/timeseries/emissions?start=2024-01-01T00%3A00%2B02%3A00",
-    complete: function (parsedData) {
-      for (let series of parsedData.series) {
-        let newName = {
-          B01: "Biomasse",
-          B02: "Braunkohle",
-          // B03: "Fossil Coal-derived gas",
-          B04: "Erdgas",
-          B05: "Steinkohle",
-          B06: "Mineralöl",
-          // B07: "Fossil Oil shale",
-          // B08: "Fossil Peat",
-          B09: "Geothermie",
-          B10: "Pumpspeicher",
-          B11: "Wasserkraft (Laufwasser)",
-          B12: "Wasserspeicher",
-          // B13: "Marine",
-          // B14: "Kernenergie",
-          B15: "Sonstige Erneuerbare Energien",
-          B16: "Photovoltaik",
-          B17: "Abfall",
-          B18: "Windenergie (Offshore-Anlage)",
-          B19: "Windenergie (Onshore-Anlage)",
-          B20: "Sonstige konventionelle Energien",
-        }[series.name];
-        if (newName) {
-          series.name = newName;
-        }
-        series.label = false;
-        series.stacking = "normal";
-        series.type = "area";
-      }
-    },
-  },
-  legend: {
-    enabled: true,
-    layout: "horizontal",
-    align: "left",
-    verticalAlign: "bottom",
-  },
-  rangeSelector: {
-    verticalAlign: 'top',
-    x: 0,
-    y: 0
-  },
-  subtitle: {
-    text: 'Emissionen pro Energieträger [kgCO2]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
-    align: "left",
-  },
-  title: {
-    text: "Emissionen pro Energieträger als Timeseries",
-    align: "left",
-  },
-  tooltip: {
-    shared: true,
-    split: false,
-    valueDecimals: 2,
-  },
-  xAxis: {
-    title: {
-      text: "Auflösung: 15-Minuten",
-    },
-    accessibility: {
-      rangeDescription: "Auflösung: 15-Minuten",
-    },
-  },
-  yAxis: {
-    opposite: false,
-    title: {
-      text: "Emissionen [kgCO2]",
-    },
-  },
+  subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
+  titleText: 'Emissionsintensität als Timeseries',
+  url: '/api/timeseries/emission-intensity?start=2024-01-01T00%3A00%2B02%3A00',
+  yAxisText: 'Emissionsintensität [kgCO2/MWh]',
 });
