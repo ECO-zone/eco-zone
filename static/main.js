@@ -166,7 +166,6 @@ function makeChart(config) {
             title: 'Alles anzeigen'
         }
       ],
-      // inputEditDateFormat: "%d-%m-%Y",
       selected: 0,
       verticalAlign: 'top',
       x: 0,

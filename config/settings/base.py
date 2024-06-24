@@ -65,6 +65,9 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "config.context_processors.git_rev",
+                "config.context_processors.sentry_cdn_url",
+                "config.context_processors.sentry_env",
+                "config.context_processors.sentry_release",
             ],
         },
     },
@@ -128,3 +131,15 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 GIT_REV = os.getenv("GIT_REV", "N/A")
+
+# The URL of the app
+APP_URL = os.getenv("SITE_URL", "localhost:8000")
+
+# Allow Sentry to make CORS requests
+CORS_ALLOWED_ORIGINS = [APP_URL]
+
+SENTRY_CDN_URL = os.getenv("SENTRY_CDN_URL")
+
+SENTRY_ENVIRONMENT = os.getenv("SENTRY_ENVIRONMENT")
+
+SENTRY_DSN_BACKEND = os.getenv("SENTRY_DSN_BACKEND")

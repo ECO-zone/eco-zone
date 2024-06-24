@@ -2,14 +2,21 @@ import os
 import re
 
 import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from .base import *
-from .base import GIT_REV
+from .base import GIT_REV, SENTRY_DSN_BACKEND, SENTRY_ENVIRONMENT
 
 
 sentry_sdk.init(
-    dsn=os.getenv("SENTRY_DSN"),
+    dsn=SENTRY_DSN_BACKEND,
+    environment=SENTRY_ENVIRONMENT,
+    integrations=[DjangoIntegration()],
     release=GIT_REV,
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True,
+    traces_sample_rate=0,  # Don't send any transactions to Sentry while we're on the free plan
 )
 
 

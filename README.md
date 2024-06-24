@@ -74,9 +74,13 @@ python manage.py runserver
     dokku postgres:link ecozone-db ecozone
     ```
   - Set up the Sentry environment variables
-    ```
-    dokku config:set --no-restart ecozone SENTRY_ENVIRONMENT=<NAME OF ENVIRONMENT> E.G., "dev">
-    dokku config:set --no-restart ecozone SENTRY_RELEASE_URL=<URL>
+    ```bash
+    # This is the URL to download Sentry for the frontend. It is preconfigured with the DSN for the frontend.
+    dokku config:set --no-restart ecozone SENTRY_CDN_URL=<URL>
+    dokku config:set --no-restart ecozone SENTRY_DSN_BACKEND=<URL>
+    dokku config:set --no-restart ecozone SENTRY_ENVIRONMENT=<NAME OF ENVIRONMENT> # E.G., "dev"
+    dokku config:set --no-restart ecozone SENTRY_RELEASE_URL_BACKEND=<URL>
+    dokku config:set --no-restart ecozone SENTRY_RELEASE_URL_FRONTEND=<URL>
     ```
 
 - On your machine:
