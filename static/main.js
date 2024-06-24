@@ -166,6 +166,7 @@ function makeChart(config) {
             title: 'Alles anzeigen'
         }
       ],
+      // inputEditDateFormat: "%d-%m-%Y",
       selected: 0,
       verticalAlign: 'top',
       x: 0,
@@ -232,7 +233,7 @@ function makeGenerationChart() {
         B19: "Windenergie (Onshore-Anlage)",
         B20: "Sonstige konventionelle Energien",
       },
-      subtitleText: 'Nettostromerzeugung pro Energieträger. Hochrechnung durch ECO zone. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
+      subtitleText: 'Nettostromerzeugung pro Energieträger. Hochrechnung durch ECO zone. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
       titleText: 'Nettostromerzeugung pro Energieträger als Timeseries',
       url: "/api/timeseries/generation?start=2024-01-01T00%3A00%2B02%3A00",
       yAxisText: 'Nettostromerzeugung [MW]',
@@ -263,7 +264,7 @@ function makeEmissionsChart() {
         B19: "Windenergie (Onshore-Anlage)",
         B20: "Sonstige konventionelle Energien",
       },
-      subtitleText: 'Emissionen pro Energieträger [kgCO2]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
+      subtitleText: 'Emissionen pro Energieträger [kgCO2]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
       titleText: 'Emissionen pro Energieträger als Timeseries',
       url: '/api/timeseries/emissions?start=2024-01-01T00%3A00%2B02%3A00',
       yAxisText: 'Emissionen [kgCO2]',
@@ -293,7 +294,7 @@ makeChart({
   seriesNames: {
     emission_intensity: "Emissionsintensität",
   },
-  subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.de</a>.',
+  subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
   titleText: 'Emissionsintensität als Timeseries',
   url: '/api/timeseries/emission-intensity?start=2024-01-01T00%3A00%2B02%3A00',
   yAxisText: 'Emissionsintensität [kgCO2/MWh]',
