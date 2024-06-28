@@ -10,7 +10,7 @@ RUN_DJANGO_COMMAND='python /app/manage.py'
 
 # Collect static files
 echo "Collecting static files..."
-$RUN_DJANGO_COMMAND collectstatic
+$RUN_DJANGO_COMMAND collectstatic --noinput
 
 # Run migrations
 echo "Running migrations..."
