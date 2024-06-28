@@ -65,7 +65,12 @@ def harvest_redispatch() -> int:
         Q(start__gte=start - timedelta(days=7)) & Q(start__lte=end + timedelta(days=7))
     ).all()
     record_check_set = {x.make_record_comparison_str() for x in records_to_check}
-    r = client.get(f"https://ds.netztransparenz.de/api/v1/data/redispatch/{timespan}")
+    try:
+        r = client.get(
+            f"https://ds.netztransparenz.de/api/v1/data/redispatch/{timespan}"
+        )
+    except Exception:
+        logger.exception("Harvester error: unable to get netztransparenz.de data.")
     reader = DictReader(StringIO(r.text), delimiter=";")
     redispatches = []
     redispatch_region_relations = []
