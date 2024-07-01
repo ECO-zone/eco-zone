@@ -71,6 +71,7 @@ def harvest_redispatch() -> int:
         )
     except Exception:
         logger.exception("Harvester error: unable to get netztransparenz.de data.")
+        return 0
     reader = DictReader(StringIO(r.text), delimiter=";")
     redispatches = []
     redispatch_region_relations = []

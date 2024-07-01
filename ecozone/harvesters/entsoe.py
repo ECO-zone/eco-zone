@@ -79,6 +79,7 @@ def harvest_psr_generation(**kwargs):
                 r.raise_for_status()
             except Exception:
                 logger.exception("Harvester error: unable to get ENTSO-E data.")
+                return
             PSRGeneration.objects.import_records(
                 r.content,
             )
