@@ -25,7 +25,7 @@ DEBUG = False
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if DATABASE_URL:
     USER, PASSWORD, HOST, PORT, NAME = re.match(  # type: ignore
-        "^postgres://(?P<username>.*?)\:(?P<password>.*?)\@(?P<host>.*?)\:(?P<port>\d+)\/(?P<db>.*?)$",  # noqa: W605
+        r"^postgres://(?P<username>.*?)\:(?P<password>.*?)\@(?P<host>.*?)\:(?P<port>\d+)\/(?P<db>.*?)$",  # noqa: W605
         DATABASE_URL,
     ).groups()
 else:
