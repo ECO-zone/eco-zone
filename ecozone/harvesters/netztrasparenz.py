@@ -69,10 +69,11 @@ def harvest_redispatch() -> int:
         r = client.get(
             f"https://ds.netztransparenz.de/api/v1/data/redispatch/{timespan}"
         )
+        text = r.text
     except Exception:
-        logger.exception("Harvester error: unable to get netztransparenz.de data.")
+        logger.warning("Harvester error: unable to get netztransparenz.de data.")
         return 0
-    reader = DictReader(StringIO(r.text), delimiter=";")
+    reader = DictReader(StringIO(text), delimiter=";")
     redispatches = []
     redispatch_region_relations = []
     for row in reader:
