@@ -325,7 +325,9 @@ class PSRGenerationManager(models.Manager):
             with transaction.atomic():
                 self.bulk_create(records_to_create, batch_size=1000)
                 self.bulk_update(
-                    records_to_update, ["power_mw", "updated_at"], batch_size=1000
+                    records_to_update,
+                    ["power_mw", "emissions", "updated_at"],
+                    batch_size=1000,
                 )
 
     def update_emissions(self):

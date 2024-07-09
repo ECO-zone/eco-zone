@@ -6,7 +6,11 @@
     },
     {
       "command": "/app/bin/harvest-psr.sh",
-      "schedule": "*/15 * * * *"
+      "schedule": "*/15 0-1,3-23 * * *"
+    },
+    {
+      "command": "/app/bin/harvest-psr-historical.sh",
+      "schedule": "0 2 * * *"
     }
   ],
   "scripts": {

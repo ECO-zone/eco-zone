@@ -9,5 +9,5 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 RUN_DJANGO_COMMAND='python /app/manage.py'
 
 # Harvest psr data
-echo "Harvesting psr data..."
-$RUN_DJANGO_COMMAND harvest psr
+echo "Harvesting historical psr data..."
+$RUN_DJANGO_COMMAND harvest psr --historical

@@ -19,22 +19,33 @@ class Command(BaseCommand):
             "data_type", nargs=1, type=str, help="The type of data to be harvested."
         )
 
+        parser.add_argument(
+            "--historical",
+            action="store_true",
+            help="Harvest historical data, updating existing data if necessary.",
+        )
+
     def handle(self, *args, **options):
         data_type = options["data_type"][0]
+        historical = options["historical"]
         try:
             match data_type:
                 case "redispatch":
-                    self.stdout.write(f"Harvesting {data_type}")
+                    self.stdout.write(f"Harvesting {data_type}.")
+                    if historical:
+                        self.stdout.write(f'Ignoring "--historical" flag.')
                     results = harvest_redispatch_to_present()
                     self.stdout.write(
-                        self.style.SUCCESS(f"Harvested {results} redispatch records")
+                        self.style.SUCCESS(f"Harvested {results} redispatch records.")
                     )
                 case "psr":
-                    self.stdout.write(f"Harvesting {data_type}")
-                    results = harvest_psr_generation()
+                    self.stdout.write(f"Harvesting {data_type}.")
+                    if historical:
+                        self.stdout.write("Historical data will be updated if necessary.")
+                    results = harvest_psr_generation(historical)
                     self.stdout.write(
                         self.style.SUCCESS(
-                            f"Harvested {results} psr generation records"
+                            f"Harvested {results} psr generation records."
                         )
                     )
                 case _:
