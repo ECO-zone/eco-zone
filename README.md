@@ -26,6 +26,13 @@ export NETZTRANZPARENZ_CLIENT_SECRET=<your client secret>
 python manage.py harvest redispatch
 ```
 
+## Harvest generation data
+
+```bash
+export ENTSOE_SECURITY_TOKEN=<your ENTSOE token>
+python manage.py harvest psr
+```
+
 ## Start development server
 
 ```bash
@@ -109,9 +116,12 @@ python manage.py runserver
 
 In order to harvest redispatch data, `NETZTRANZPARENZ_CLIENT_ID` and `NETZTRANZPARENZ_CLIENT_SECRET` environment variables must be set. (See ["Harvest redispatch data"](#harvest-redispatch-data) for more about the harvesting process.)
 
+In order to harvest redispatch data, the `ENTSOE_SECURITY_TOKEN` environment variable must be set. (See ["Harvest generation data"](#harvest-generation-data) for more about the harvesting process.)
+
 To ensure that the environment variables are set every time Dokku deploys the app (or runs it for a cron job, etc.), use the following Dokku commands. You only have to run them once; Dokku will remember them for all future deployments.
 
 ```bash
 dokku config:set --no-restart ecozone NETZTRANZPARENZ_CLIENT_SECRET=<THE SECRET>
 dokku config:set --no-restart ecozone NETZTRANZPARENZ_CLIENT_ID=<THE ID>
+dokku config:set --no-restart ecozone ENTSOE_SECURITY_TOKEN=<THE TOKEN>
 ```
