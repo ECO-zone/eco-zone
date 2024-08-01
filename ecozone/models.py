@@ -1,7 +1,7 @@
 import csv
 from datetime import UTC, datetime, timedelta
 import logging
-from typing import Optional
+from typing import Optional, Union
 from pathlib import Path
 from uuid import uuid4
 from xml.etree import ElementTree
@@ -69,6 +69,14 @@ class TSO(models.Model):
         ]
 
 
+def is_float(value):
+    try:
+        float(value)
+        return True
+    except Exception:
+        return False
+
+
 class PowerPlantManager(models.Manager):
 
     def get_dict_of_names_to_ids(self):
@@ -93,7 +101,18 @@ class PowerPlantManager(models.Manager):
                         region_north_south = RegionNorthSouth(_region_north_south)
                     except Exception:
                         logger.info(f"{name} has invalid north/south region '{_region_north_south}'")
-                        continue
+                        region_north_south = None
+                        pass
+                _region_dena = row["Dena Regionen"]
+                region_dena = Optional[str]
+                if not _region_dena:
+                    region_dena = None
+                else:
+                    if len(_region_dena) == 2 and is_float(_region_dena[0]) and is_float(_region_dena[1]):
+                        region_dena = _region_dena
+                    else:
+                        logger.info(f"{name} has invalid dena region '{_region_dena}'")
+                        region_dena = None
                 _is_renewable=row["EE/nicht EE"]
                 is_renewable: Optional[bool]
                 if not _is_renewable:
@@ -101,21 +120,23 @@ class PowerPlantManager(models.Manager):
                 else:
                     if _is_renewable not in {"EE", "nicht EE"}:
                         logger.info(f"{name} has invalid renewable status '{_is_renewable}'")
-                        continue
-                    if _is_renewable == "EE":
-                        is_renewable = True
+                        pass
                     else:
-                        is_renewable = False
+                        if _is_renewable == "EE":
+                            is_renewable = True
+                        else:
+                            is_renewable = False
                 plants_from_file.append(
                     PowerPlant(
                         name=name,
+                        region_dena=region_dena,
                         region_north_south=region_north_south,
                         is_renewable=is_renewable,
                     )
                 )
             current_plants = {x.name: x for x in self.all()}
             plants_to_update = []
-            attrs = ["region_north_south", "is_renewable"]
+            attrs = ["region_dena", "region_north_south", "is_renewable"]
             for plant_from_file in plants_from_file:
                 update = False
                 current_plant = current_plants.get(plant_from_file.name)
@@ -134,10 +155,18 @@ class PowerPlantManager(models.Manager):
             
             return len(plants_to_update)
 
+    def get_regions_dena(self):
+        return PowerPlant.objects.filter(region_dena__isnull=False).values("region_dena").distinct().order_by("region_dena").values_list("region_dena", flat=True)
+
 
 class PowerPlant(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=100)
+    region_dena = models.CharField(
+        verbose_name="Region (dena)",
+        max_length=2,
+        null=True
+    )
     region_north_south = models.CharField(
         verbose_name="Region (Nord/Süd)",
         max_length=5,
@@ -163,17 +192,44 @@ class PowerPlant(models.Model):
         ]
 
 
+RegionDena = str
+
+
 class RedispatchManager(models.Manager):
-    
-    def get_timeranges(self, region: RegionNorthSouth, start: Optional[datetime], end: Optional[datetime]):
+
+    def get_valid_regions_dena(self, start: Optional[datetime], end: Optional[datetime]):
         timerange_query = Q()
         if start:
             timerange_query &= Q(start__gte=start)
         if end:
             timerange_query &= Q(start__lt=end)
         records = (
-            Redispatch.objects.filter(direction="Wirkleistungseinspeisung reduzieren")
-            .filter(power_plant__region_north_south=region)
+            self.filter(timerange_query)
+            .filter(direction="Wirkleistungseinspeisung reduzieren")
+            .filter(power_plant__region_dena__isnull=False)
+            .filter(power_plant__is_renewable=True)
+            .values("power_plant__region_dena")
+            .distinct()
+            .order_by("power_plant__region_dena")
+            .values_list("power_plant__region_dena", flat=True)
+        )
+
+        return records
+
+    def get_timeranges(self, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime], end: Optional[datetime]):
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        if region in RegionNorthSouth:
+            region_lookup = "region_north_south"
+        elif isinstance(region, RegionDena):
+            region_lookup = "region_dena"
+        records = (
+            self.filter(timerange_query)
+            .filter(direction="Wirkleistungseinspeisung reduzieren")
+            .filter(**{f"power_plant__{region_lookup}": region})
             .filter(power_plant__is_renewable=True)
             .values("start")
             .order_by("start")
@@ -513,13 +569,15 @@ class PSRGenerationManager(models.Manager):
         return [header] + list(records)
     
     def get_emission_intensity_data_for_region(
-        self, region: RegionNorthSouth, start: Optional[datetime]=None, end: Optional[datetime]=None
+        self, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime]=None, end: Optional[datetime]=None
     ):
+        header = ["start", f"emission_intensity_{region}"]
         timeranges = Redispatch.objects.get_timeranges(region, start, end)
+        if not timeranges:
+            return [header] + []
         redispatch_timerange_query = Q()
         for timerange in timeranges:
             redispatch_timerange_query |= Q(start__range=timerange)
-        header = ["start", f"emission_intensity_{region}"]
         timerange_query = Q()
         if start:
             timerange_query &= Q(start__gte=start)
@@ -540,6 +598,7 @@ class PSRGenerationManager(models.Manager):
             )
             .values_list(*header)
         )
+        # ["start", f"Emissionsintensität {region.label if isinstance(region, RegionNorthSouth) else "dena " * region}"]
         return [header] + list(records)
 
     def get_generation_data(self, start: Optional[datetime], end: Optional[datetime]):

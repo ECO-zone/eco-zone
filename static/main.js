@@ -228,24 +228,11 @@ let emissionIntensityRegionalChart = makeChart({
 
 let dropdownRegionSelect = document.getElementById('dropdown-region-select');
 dropdownRegionSelect.addEventListener('change', function() {
-  switch (this.value) {
-    case 'north':
-      emissionIntensityRegionalChart.update({
-        data: {
-          rowsURL: '/api/timeseries/emission-intensity-regional?region=north&start=2024-01-01T00%3A00%2B02%3A00'
-        }
-      });
-      break;
-    case 'south':
-      emissionIntensityRegionalChart.update({
-        data: {
-          rowsURL: '/api/timeseries/emission-intensity-regional?region=south&start=2024-01-01T00%3A00%2B02%3A00'
-        }
-      });
-      break;
-    default:
-      console.log(`No action selected_value ${this.value}.`);
-  }
+  emissionIntensityRegionalChart.update({
+    data: {
+      rowsURL: `/api/timeseries/emission-intensity-regional?region=${this.value}&start=2024-01-01T00%3A00%2B02%3A00`
+    }
+  });
 });
 
 function makeGenerationChart() {

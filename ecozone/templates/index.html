@@ -10,6 +10,9 @@
 <select id="dropdown-region-select" class="form-select" aria-label="Region wählen">
   <option selected value="north">Nord</option>
   <option value="south">Süd</option>
+  {% for region in regions_dena %}
+  <option value="{{ region }}">dena {{ region }}</option>
+  {% endfor %}
 </select>
 {% include "snippets/chart.html" with id="timeseries-emission-intensity-regional" %}
 {% include "snippets/divider.html" %}
