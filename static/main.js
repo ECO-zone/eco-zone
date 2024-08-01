@@ -85,7 +85,7 @@ Highcharts.setOptions({
 });
 
 function makeChart(config) {
-  Highcharts.stockChart(config.id, {
+  let chart = Highcharts.stockChart(config.id, {
     chart: {
       events: {
         load() {
@@ -199,6 +199,7 @@ function makeChart(config) {
       },
     },
   });
+  return chart;
 }
 
 function isVisibleInViewport(value) {
@@ -208,6 +209,44 @@ function isVisibleInViewport(value) {
 
 let generationChartEl = document.getElementById('chart-timeseries-generation');
 let emissionsChartEl = document.getElementById('chart-timeseries-emissions');
+let regionalEmissionsChartEl = document.getElementById('chart-timeseries-emissions-regional');
+
+
+let emissionIntensityRegionalChart = makeChart({
+  id: "chart-timeseries-emission-intensity-regional",
+  type: "line",
+  seriesNames: {
+    emission_intensity: "Emissionsintensität",
+    emission_intensity_north: "Emissionsintensität Regional [Nord]",
+    emission_intensity_south: "Emissionsintensität Regional [Süd]",
+  },
+  subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
+  titleText: 'Emissionsintensität Regional als Timeseries',
+  url: '/api/timeseries/emission-intensity-regional?region=north&start=2024-01-01T00%3A00%2B02%3A00',
+  yAxisText: 'Emissionsintensität [kgCO2/MWh]',
+});
+
+let dropdownRegionSelect = document.getElementById('dropdown-region-select');
+dropdownRegionSelect.addEventListener('change', function() {
+  switch (this.value) {
+    case 'north':
+      emissionIntensityRegionalChart.update({
+        data: {
+          rowsURL: '/api/timeseries/emission-intensity-regional?region=north&start=2024-01-01T00%3A00%2B02%3A00'
+        }
+      });
+      break;
+    case 'south':
+      emissionIntensityRegionalChart.update({
+        data: {
+          rowsURL: '/api/timeseries/emission-intensity-regional?region=south&start=2024-01-01T00%3A00%2B02%3A00'
+        }
+      });
+      break;
+    default:
+      console.log(`No action selected_value ${this.value}.`);
+  }
+});
 
 function makeGenerationChart() {
   if (isVisibleInViewport(generationChartEl) == true) {

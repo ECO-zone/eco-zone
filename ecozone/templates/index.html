@@ -7,6 +7,12 @@
   <p>Das Projekt zielt darauf ab, den beteiligten Akteuren diversifizierte Handlungsmöglichkeiten aufzuzeigen und einen nachhaltigen und kontinuierlichen Betrieb erneuerbarer Energien im Netz zu gewährleisten, während gleichzeitig Emissionen und Betriebskosten minimiert werden.</p>
 </div>
 {% include "snippets/divider.html" %}
+<select id="dropdown-region-select" class="form-select" aria-label="Region wählen">
+  <option selected value="north">Nord</option>
+  <option value="south">Süd</option>
+</select>
+{% include "snippets/chart.html" with id="timeseries-emission-intensity-regional" %}
+{% include "snippets/divider.html" %}
 {% include "snippets/chart.html" with id="timeseries-redispatch" %}
 {% include "snippets/divider.html" %}
 {% include "snippets/chart.html" with id="timeseries-emission-intensity" %}

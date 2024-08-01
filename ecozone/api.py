@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from ninja import NinjaAPI
 
-from .models import PSRGeneration, TimeseriesRedispatch
+from .models import PSRGeneration, RegionNorthSouth, TimeseriesRedispatch
 
 
 api = NinjaAPI(title="ECO zone API")
@@ -21,6 +21,12 @@ def get_emission_intensity(
     request, start: Optional[datetime] = None, end: Optional[datetime] = None
 ):
     return PSRGeneration.objects.get_emission_intensity_data(start, end)
+
+@api.get("/timeseries/emission-intensity-regional", response=List[list])
+def get_emission_intensity_for_region(
+    request, region: RegionNorthSouth, start: Optional[datetime] = None, end: Optional[datetime] = None
+):
+    return PSRGeneration.objects.get_emission_intensity_data_for_region(region, start, end)
 
 
 @api.get("/timeseries/generation", response=List[list])

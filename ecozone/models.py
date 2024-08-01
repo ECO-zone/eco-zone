@@ -164,8 +164,43 @@ class PowerPlant(models.Model):
 
 
 class RedispatchManager(models.Manager):
-    pass
-
+    
+    def get_timeranges(self, region: RegionNorthSouth, start: Optional[datetime], end: Optional[datetime]):
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        records = (
+            Redispatch.objects.filter(direction="Wirkleistungseinspeisung reduzieren")
+            .filter(power_plant__region_north_south=region)
+            .filter(power_plant__is_renewable=True)
+            .values("start")
+            .order_by("start")
+            .values_list("start", "end")
+        )
+        timeranges = []
+        for r in records:
+            if not timeranges:
+                timeranges.append([r[0], r[1]])
+            else:
+                last = timeranges[-1]
+                rend = r[1]
+                rstart = r[0]
+                # If the end of the new timerange is less than or equal
+                # to the end of the last time range, then it falls within
+                # the last timerange. If it is greater than the last end,
+                # then we either need to extend the last timerange by replacing
+                # the end or create a new time range. We extend the last
+                # timerange if the the start is less than or equal to the last
+                # end and we create a new timerange if the start is greater
+                # than the last end.
+                if rend > last[1]:
+                    if rstart <= last[0]:
+                        last[1] = rend
+                    else:
+                        timeranges.append([rstart, rend])
+        return timeranges
 
 class Redispatch(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
@@ -262,6 +297,34 @@ class TimeseriesRedispatchManager(models.Manager):
                     Sum(
                         "power_mid_mw",
                         filter=Q(direction="Wirkleistungseinspeisung erhöhen"),
+                    ),
+                    0.0,
+                )
+            )
+            .values_list(*header)
+        )
+        return [header] + list(records)
+    
+    def get_timeseries_renewable_status(self, region: RegionNorthSouth, start: Optional[datetime], end: Optional[datetime]):
+        header = ["start", "renewable_factor"]
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        records = (
+            TimeseriesRedispatch.objects.filter(timerange_query)
+            .filter(region_north_south=region)
+            .filter(is_renewable=True)
+            .values(
+                "start",
+            )
+            .order_by("start")
+            .annotate(
+                renewable_factor=Coalesce(
+                    Sum(
+                        "is_renewable",
+                        filter=Q(direction="Wirkleistungseinspeisung reduzieren"),
                     ),
                     0.0,
                 )
@@ -448,6 +511,36 @@ class PSRGenerationManager(models.Manager):
             .values_list(*header)
         )
         return [header] + list(records)
+    
+    def get_emission_intensity_data_for_region(
+        self, region: RegionNorthSouth, start: Optional[datetime]=None, end: Optional[datetime]=None
+    ):
+        timeranges = Redispatch.objects.get_timeranges(region, start, end)
+        redispatch_timerange_query = Q()
+        for timerange in timeranges:
+            redispatch_timerange_query |= Q(start__range=timerange)
+        header = ["start", f"emission_intensity_{region}"]
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        records = (
+            self.filter(timerange_query)
+            .values(
+                "start",
+            )
+            .order_by("start")
+            .annotate(
+                **{f"emission_intensity_{region}": models.Case(
+                    models.When(redispatch_timerange_query, then=models.Value(0.0)),
+                    default=(Coalesce(Sum("emissions"), 0.0) / Coalesce(Sum("power_mw"), 0.0)) * 4,
+                    output_field=models.FloatField()
+                )}
+            )
+            .values_list(*header)
+        )
+        return [header] + list(records)
 
     def get_generation_data(self, start: Optional[datetime], end: Optional[datetime]):
         header = ["start"] + [psr.value.upper() for psr in PSR_TYPES_POST_2024]
@@ -537,6 +630,7 @@ class PSRGeneration(models.Model):
         indexes = [
             models.Index(fields=["start", "control_area", "psr"]),
             models.Index(fields=["start", "psr"]),
+            models.Index(fields=["start"]),
         ]
         constraints = [
             models.UniqueConstraint(
