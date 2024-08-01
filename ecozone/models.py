@@ -86,14 +86,12 @@ class PowerPlantManager(models.Manager):
                     region_north_south = None
                 else:
                     try:
-                        print(_region_north_south)
                         if _region_north_south == "Nord":
                             _region_north_south = "north"
                         elif _region_north_south == "Süd":
                             _region_north_south = "south"
                         region_north_south = RegionNorthSouth(_region_north_south)
                     except Exception:
-                        print("bad reg")
                         logger.info(f"{name} has invalid north/south region '{_region_north_south}'")
                         continue
                 _is_renewable=row["EE/nicht EE"]
@@ -102,7 +100,6 @@ class PowerPlantManager(models.Manager):
                     is_renewable = None
                 else:
                     if _is_renewable not in {"EE", "nicht EE"}:
-                        print(f"bad renew: {_is_renewable}")
                         logger.info(f"{name} has invalid renewable status '{_is_renewable}'")
                         continue
                     if _is_renewable == "EE":
@@ -121,10 +118,8 @@ class PowerPlantManager(models.Manager):
             attrs = ["region_north_south", "is_renewable"]
             for plant_from_file in plants_from_file:
                 update = False
-                # print(plant_from_file.name)
                 current_plant = current_plants.get(plant_from_file.name)
                 if not current_plant:
-                    print('ff')
                     logger.info(f"Could not find plant '{plants_from_file.name}'")
                 else:
                     for attr in attrs:

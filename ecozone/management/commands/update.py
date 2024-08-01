@@ -26,7 +26,7 @@ class Command(BaseCommand):
                     self.stdout.write(f"Updating {data_type}.")
                     results = PowerPlant.objects.update_zone_data()
                     self.stdout.write(
-                        self.style.SUCCESS(f"Update zone data for {results} records.")
+                        self.style.SUCCESS(f"Updated zone data for {results} records.")
                     )
                 case _:
                     self.stderr.write(
