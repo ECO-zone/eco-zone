@@ -1,6 +1,8 @@
+import csv
 from datetime import UTC, datetime, timedelta
 import logging
 from typing import Optional
+from pathlib import Path
 from uuid import uuid4
 from xml.etree import ElementTree
 
@@ -10,6 +12,11 @@ from django.db.models.functions import Coalesce
 
 
 logger = logging.getLogger(__name__)
+
+
+class RegionNorthSouth(models.TextChoices):
+    NORTH = "north", "Nord"
+    SOUTH = "south", "Süd"
 
 
 class GridRegionManager(models.Manager):
@@ -67,10 +74,84 @@ class PowerPlantManager(models.Manager):
     def get_dict_of_names_to_ids(self):
         return {x["name"]: x["id"] for x in self.values("name", "id").all()}
 
+    def update_zone_data(self) -> int:
+        with open(Path(__file__).parent.parent / "data" / "zones_2024_07_31.csv", "r") as f:
+            reader = csv.DictReader(f)
+            plants_from_file = []
+            for row in reader:
+                name = row["Name"]
+                _region_north_south = row["Nord-Süd"]
+                region_north_south: Optional[RegionNorthSouth]
+                if not _region_north_south:
+                    region_north_south = None
+                else:
+                    try:
+                        print(_region_north_south)
+                        if _region_north_south == "Nord":
+                            _region_north_south = "north"
+                        elif _region_north_south == "Süd":
+                            _region_north_south = "south"
+                        region_north_south = RegionNorthSouth(_region_north_south)
+                    except Exception:
+                        print("bad reg")
+                        logger.info(f"{name} has invalid north/south region '{_region_north_south}'")
+                        continue
+                _is_renewable=row["EE/nicht EE"]
+                is_renewable: Optional[bool]
+                if not _is_renewable:
+                    is_renewable = None
+                else:
+                    if _is_renewable not in {"EE", "nicht EE"}:
+                        print(f"bad renew: {_is_renewable}")
+                        logger.info(f"{name} has invalid renewable status '{_is_renewable}'")
+                        continue
+                    if _is_renewable == "EE":
+                        is_renewable = True
+                    else:
+                        is_renewable = False
+                plants_from_file.append(
+                    PowerPlant(
+                        name=name,
+                        region_north_south=region_north_south,
+                        is_renewable=is_renewable,
+                    )
+                )
+            current_plants = {x.name: x for x in self.all()}
+            plants_to_update = []
+            attrs = ["region_north_south", "is_renewable"]
+            for plant_from_file in plants_from_file:
+                update = False
+                # print(plant_from_file.name)
+                current_plant = current_plants.get(plant_from_file.name)
+                if not current_plant:
+                    print('ff')
+                    logger.info(f"Could not find plant '{plants_from_file.name}'")
+                else:
+                    for attr in attrs:
+                        new_value = getattr(plant_from_file, attr)
+                        if getattr(current_plant, attr) != new_value:
+                            update = True
+                            setattr(current_plant, attr, new_value)
+                if update:
+                    plants_to_update.append(current_plant)
+            if plants_to_update:
+                self.bulk_update(plants_to_update, attrs)
+            
+            return len(plants_to_update)
+
 
 class PowerPlant(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=100)
+    region_north_south = models.CharField(
+        verbose_name="Region (Nord/Süd)",
+        max_length=5,
+        choices=RegionNorthSouth.choices,
+        null=True
+    )
+    is_renewable = models.BooleanField(
+        verbose_name="EE Anlage",
+        null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = PowerPlantManager()
@@ -151,6 +232,8 @@ class TimeseriesRedispatchManager(models.Manager):
                         start=start,
                         direction=redispatch_record.direction,
                         power_mid_mw=redispatch_record.power_mid_mw,
+                        region_north_south=redispatch_record.power_plant.region_north_south,
+                        is_renewable=redispatch_record.power_plant.is_renewable,
                         redispatch_id=redispatch_record.id,
                     )
                 )
@@ -197,6 +280,13 @@ class TimeseriesRedispatch(models.Model):
     start = models.DateTimeField(null=False)
     direction = models.CharField(max_length=100, null=False)
     power_mid_mw = models.FloatField(null=False)
+    region_north_south = models.CharField(
+        verbose_name="Region (Nord/Süd)",
+        max_length=5,
+        choices=RegionNorthSouth.choices,
+        null=True
+    )
+    is_renewable = models.BooleanField(null=True)
     redispatch = models.ForeignKey(Redispatch, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

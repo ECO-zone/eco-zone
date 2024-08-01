@@ -1,5 +1,4 @@
 *.sqlite3
+.env
 .venv/
-data/
-daten/
 Dockerfile
