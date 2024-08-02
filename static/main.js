@@ -228,6 +228,7 @@ let emissionIntensityRegionalChart = makeChart({
 });
 
 dropdownRegionSelect.addEventListener('change', function() {
+  this.blur();
   emissionIntensityRegionalChart.update({
     data: {
       rowsURL: `/api/timeseries/emission-intensity-zonal?region=${this.value}&start=2024-01-01T00%3A00%2B02%3A00`
