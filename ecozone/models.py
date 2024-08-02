@@ -599,7 +599,7 @@ class PSRGenerationManager(models.Manager):
             .values_list(*header)
         )
         # ["start", f"Emissionsintensität {region.label if isinstance(region, RegionNorthSouth) else "dena " * region}"]
-        return [header] + list(records)
+        return [["start", f"Emissionsintensität {RegionNorthSouth(region).label if region in RegionNorthSouth else 'dena ' + region}"]] + list(records)
 
     def get_generation_data(self, start: Optional[datetime], end: Optional[datetime]):
         header = ["start"] + [psr.value.upper() for psr in PSR_TYPES_POST_2024]

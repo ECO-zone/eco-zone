@@ -22,7 +22,7 @@ def get_emission_intensity(
 ):
     return PSRGeneration.objects.get_emission_intensity_data(start, end)
 
-@api.get("/timeseries/emission-intensity-regional", response=List[list])
+@api.get("/timeseries/emission-intensity-zonal", response=List[list])
 def get_emission_intensity_for_region(
     request, region: str, start: Optional[datetime] = None, end: Optional[datetime] = None
 ):

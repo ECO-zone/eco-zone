@@ -209,11 +209,12 @@ function isVisibleInViewport(value) {
 
 let generationChartEl = document.getElementById('chart-timeseries-generation');
 let emissionsChartEl = document.getElementById('chart-timeseries-emissions');
-let regionalEmissionsChartEl = document.getElementById('chart-timeseries-emissions-regional');
+let regionalEmissionsChartEl = document.getElementById('chart-timeseries-emissions-zonal');
 
+let dropdownRegionSelect = document.getElementById('dropdown-region-select');
 
 let emissionIntensityRegionalChart = makeChart({
-  id: "chart-timeseries-emission-intensity-regional",
+  id: "chart-timeseries-emission-intensity-zonal",
   type: "line",
   seriesNames: {
     emission_intensity: "Emissionsintensität",
@@ -221,16 +222,15 @@ let emissionIntensityRegionalChart = makeChart({
     emission_intensity_south: "Emissionsintensität Regional [Süd]",
   },
   subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
-  titleText: 'Emissionsintensität Regional als Timeseries',
-  url: '/api/timeseries/emission-intensity-regional?region=north&start=2024-01-01T00%3A00%2B02%3A00',
+  titleText: 'Emissionsintensität zonal als Timeseries',
+  url: `/api/timeseries/emission-intensity-zonal?region=${dropdownRegionSelect.value}&start=2024-01-01T00%3A00%2B02%3A00`,
   yAxisText: 'Emissionsintensität [kgCO2/MWh]',
 });
 
-let dropdownRegionSelect = document.getElementById('dropdown-region-select');
 dropdownRegionSelect.addEventListener('change', function() {
   emissionIntensityRegionalChart.update({
     data: {
-      rowsURL: `/api/timeseries/emission-intensity-regional?region=${this.value}&start=2024-01-01T00%3A00%2B02%3A00`
+      rowsURL: `/api/timeseries/emission-intensity-zonal?region=${this.value}&start=2024-01-01T00%3A00%2B02%3A00`
     }
   });
 });
