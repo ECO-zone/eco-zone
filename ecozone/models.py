@@ -83,7 +83,7 @@ class PowerPlantManager(models.Manager):
         return {x["name"]: x["id"] for x in self.values("name", "id").all()}
 
     def update_zone_data(self) -> int:
-        with open(Path(__file__).parent.parent / "data" / "zones_2024_07_31.csv", "r") as f:
+        with open(Path(__file__).parent.parent / "data" / "zones_2024_08_05.csv", "r") as f:
             reader = csv.DictReader(f)
             plants_from_file = []
             for row in reader:
@@ -598,7 +598,7 @@ class PSRGenerationManager(models.Manager):
             )
             .values_list(*header)
         )
-        # ["start", f"Emissionsintensität {region.label if isinstance(region, RegionNorthSouth) else "dena " * region}"]
+
         return [["start", f"Emissionsintensität {RegionNorthSouth(region).label if region in RegionNorthSouth else 'dena ' + region}"]] + list(records)
 
     def get_generation_data(self, start: Optional[datetime], end: Optional[datetime]):
