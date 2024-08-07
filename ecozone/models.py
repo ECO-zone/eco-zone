@@ -83,7 +83,7 @@ class PowerPlantManager(models.Manager):
         return {x["name"]: x["id"] for x in self.values("name", "id").all()}
 
     def update_zone_data(self) -> int:
-        with open(Path(__file__).parent.parent / "data" / "zones_2024_08_05.csv", "r") as f:
+        with open(Path(__file__).parent.parent / "data" / "zones_2024_08_07.csv", "r") as f:
             reader = csv.DictReader(f)
             plants_from_file = []
             for row in reader:

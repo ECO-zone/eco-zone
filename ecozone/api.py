@@ -26,8 +26,6 @@ def get_emission_intensity(
 def get_emission_intensity_for_region(
     request, region: str, start: Optional[datetime] = None, end: Optional[datetime] = None
 ):
-    print(region)
-    print(start)
     return PSRGeneration.objects.get_emission_intensity_data_for_region(region, start, end)
 
 
