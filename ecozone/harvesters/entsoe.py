@@ -19,7 +19,7 @@ if not ENTSOE_SECURITY_TOKEN:
 API_URL = "https://web-api.tp.entsoe.eu/api"
 
 
-DEFAULT_START_DATE = datetime(year=2023, month=12, day=31, hour=23, tzinfo=UTC)
+DEFAULT_START_DATE = datetime(year=2022, month=12, day=31, hour=23, tzinfo=UTC)
 
 
 def get_last_start_date(control_area: ControlArea, psr: PsrType) -> datetime:
