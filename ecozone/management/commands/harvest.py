@@ -3,7 +3,7 @@ import logging
 from django.core.management.base import BaseCommand
 
 from ecozone.harvesters.entsoe import harvest_psr_generation
-from ecozone.harvesters.netztrasparenz import harvest_redispatch_to_present
+from ecozone.harvesters.netztrasparenz import harvest_redispatch
 
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class Command(BaseCommand):
                     self.stdout.write(f"Harvesting {data_type}.")
                     if historical:
                         self.stdout.write(f'Ignoring "--historical" flag.')
-                    results = harvest_redispatch_to_present()
+                    results = harvest_redispatch()
                     self.stdout.write(
                         self.style.SUCCESS(f"Harvested {results} redispatch records.")
                     )
