@@ -1,24 +1,58 @@
 # ECO zone
 
-# Requirements
+Das Projekt „ECO zone – Energiesteuerung und Emissionsreduktion durch zonale Analysen“ strebt die Entwicklung eines marginalen zonalen CO2-Emissionsmodells für das deutsche Stromnetz an. Durch die genaue Erfassung und Analyse lokaler Emissionsdaten soll eine zeitliche bzw. räumliche Verschiebung von Lasten ermöglicht werden, um die Abregelung erneuerbarer Erzeugungseinheiten im Redispatch zu minimieren.
+
+Dieses Repository enthält den Quellcode für die begleitende Webanwendung. Die Webanwendung soll deutschlandweit eine intelligentere und umweltfreundlichere Energieverteilung ermöglichen. Weitere Informationen finden Sie hier: https://future-energy-lab.de/projects/eco-zone/.
+
+# Inhalt
+- [ECO zone](#eco-zone)
+- [Inhalt](#inhalt)
+- [Anforderungen](#anforderungen)
+- [Entwicklung](#entwicklung)
+  - [Entwicklungsumgebung einrichten](#entwicklungsumgebung-einrichten)
+- [Daten abrufen](#daten-abrufen)
+  - [Redispatch-Daten sammeln](#redispatch-daten-sammeln)
+  - [Erzeugungsdaten sammeln](#erzeugungsdaten-sammeln)
+  - [Zonen aktualisieren](#zonen-aktualisieren)
+  - [Entwicklungsserver starten](#entwicklungsserver-starten)
+- [Bereitstellung](#bereitstellung)
+  - [Server einrichten](#server-einrichten)
+  - [Umgebungsvariablen](#umgebungsvariablen)
+
+
+# Anforderungen
 
 - Python 3.12.3
 
-# Development
+# Entwicklung
 
-## Set up development environment
+## Entwicklungsumgebung einrichten
+
+Diese Anweisungen setzen voraus, dass Sie Python 3.12.3 installiert und konfiguriert haben. Wenn Sie mehr als eine Version von Python auf Ihrem Computer haben, ersetzen Sie beim Erstellen der virtuellen Umgebung `python` durch die richtige Version, z. B. `python3.12`.
+
+Nachdem Sie die folgenden Schritte abgeschlossen haben, haben Sie 1) eine virtuelle Umgebung erstellt, 2) alle Entwicklungsanforderungen installiert, 3) die Pre-Commit-Hooks installiert, die eine konsistente Codequalität für das Projekt gewährleisten, und 4) eine SQLite-Datenbank für die lokale Entwicklungsarbeit erstellt.
 
 ```bash
-git pull git@gitlab.com:qantic/ecozone.git
-cd eco_zone
-python<3.12.3> -m venv .venv --prompt=ecozone
+git pull git@github.com:ECO-zone/eco-zone.git
+cd eco-zone
+python -m venv .venv --prompt=eco-zone
 . ./.venv/bin/activate
 python -m pip install -r ./requirements/dev.txt -r ./requirements/main.txt
 pre-commit init
 python manage.py migrate
 ```
 
-## Harvest redispatch data
+# Daten abrufen
+
+Die Anwendung basiert auf Daten, die von netztranzparenz.de und ENTSO-E gesammelt wurden. Die Daten sind nicht in diesem Repo enthalten. Netztranzparenz.de und ENTSO-E aktualisieren die Daten regelmäßig und in der Produktion holen Harvester mehrmals täglich neue Daten ab. Um sicherzustellen, dass Sie mit korrekten und aktuellen Daten arbeiten, müssen Sie auch von netztranzparenz.de und ENTSO-E Daten sammeln.
+
+Beachten Sie, dass sowohl Redispatch-Daten als auch Erzeugungsdaten erforderlich sind, um die Emissionsintensität zu berechnen.
+
+## Redispatch-Daten sammeln
+
+Um Redispatch-Daten von netztranzparenz.de zu sammeln, benötigen Sie eine Client-ID und ein Client-Geheimnis. Sie müssen sich unter https://extranet.netztransparenz.de/APIRegistrierung registrieren.
+
+Verwenden Sie die folgenden Befehle, um Redispatch-Daten zu sammeln.
 
 ```bash
 export NETZTRANZPARENZ_CLIENT_ID=<your client id>
@@ -26,102 +60,127 @@ export NETZTRANZPARENZ_CLIENT_SECRET=<your client secret>
 python manage.py harvest redispatch
 ```
 
-## Harvest generation data
+## Erzeugungsdaten sammeln
+
+Um Erzeugungsdaten von ENTSO-E zu sammeln, benötigen Sie ein Sicherheitstoken. Sie müssen sich unter https://transparency.entsoe.eu/ registrieren (klicken Sie oben rechts auf den Link „Anmelden“ und dann unten im Anmeldeformular auf „Registrieren“).
+
+Verwenden Sie die folgenden Befehle, um Erzeugungsdaten zu sammeln.
 
 ```bash
 export ENTSOE_SECURITY_TOKEN=<your ENTSOE token>
 python manage.py harvest psr
 ```
 
-## Start development server
+## Zonen aktualisieren
+
+Die Anlagen, die in den Redispatch-Daten erscheinen, müssen Zonen zugewiesen werden. Die Zonenzuweisungen sind im Repository enthalten, müssen aber manuell zur Datenbank hinzugefügt werden.
+
+Verwenden Sie den folgenden Befehl, um die Zonenzuweisungen in der Datenbank zu aktualisieren.
+
+```bash
+python manage.py update zones
+```
+
+## Entwicklungsserver starten
+
+Nachdem Sie die Redispatch- und Generierungsdaten erfasst und die Zonen aktualisiert haben, können Sie den Entwicklungsserver starten, um mit der Anwendung zu interagieren. Beachten Sie, dass Sie die Daten nicht bei jedem Start des Entwicklungsservers erneut erfassen müssen. Sie müssen sie nur erneut erfassen, wenn Sie die neuesten Daten zu Ihrer Datenbank hinzufügen möchten.
+
+Verwenden Sie den folgenden Befehl, um den Entwicklungsserver zu starten. Wenn dies erfolgreich ist, können Sie über Ihren Webbrowser unter http://localhost:8000/ auf die Anwendung zugreifen.
 
 ```bash
 python manage.py runserver
 ```
 
-# Deployment
+# Bereitstellung
 
-## Set up server
+Die Anwendung kann auf jedem Linux-Server bereitgestellt werden, auf dem Python 3.12.3 (für eine Bare-Metal-Installation) oder Docker (oder ein System, das auf Docker basiert) läuft. Wie Sie die Anwendung bereitstellen, hängt von Ihren Anforderungen und den verfügbaren Ressourcen ab. Die folgenden Abschnitte beschreiben eine leichte, aber robuste Bereitstellung mit Dokku, die Sie schnell replizieren können sollten.
 
-- Create a server on Hetzner (recommended: shared CPX31 with 4 VCPU, 8 GB RAM, 160 GB storage)
-  - Enable backup for server via Hetzner panel
-  - Include your public SSH key
-- SSH into the server and install Dokku and plugins for Postgres and LetsEncrypt (use `sudo` if you are not root):
-  - (See https://dokku.com/ for Dokku documentation)
+## Server einrichten
+
+- Einen Server erstellen (empfohlen: ein gemeinsam genutzter Hetzner CPX31 mit 4 VCPU, 8 GB RAM, 160 GB Speicher)
+  - Backups für den Server über das Control Panel aktivieren
+  - Ihren öffentlichen SSH-Schlüssel hochladen
+- Per SSH auf den Server zugreifen und Dokku und Plugins für Postgres und LetsEncrypt installieren (verwenden Sie `sudo`, wenn Sie nicht root sind):
+  - (Die Dokku-Dokumentation finden Sie unter https://dokku.com/)
     ```bash
     wget -NP . https://dokku.com/bootstrap.sh
     DOKKU_TAG=v0.34.4 bash bootstrap.sh
     dokku plugin:install https://github.com/dokku/dokku-postgres.git
     dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git
     ```
-  - If the server already has a domain:
+  - Wenn der Server bereits eine Domäne hat:
     ```bash
-    dokku domains:set-global <DOMAIN NAME>
+    dokku domains:set-global <DOMAINNAME>
     ```
-    - If you don't set a domain, Dokku will just use the IP address
-    - You can configure a domain later
-    - Id a domain is set, apps will be deployed to a subdomain by default (e.g., `ecozone-dev.domainname.com`)
-    - If no domain is set, apps will be deployed to a port by default (e.g., `<IP-ADDRESS:1234>`)
-  - Add your public key to Dokku (to deploy you'll need to `git push` as the `dokku` user, not at as `root`)
+    - Wenn Sie keine Domäne festlegen, verwendet Dokku einfach die IP-Adresse
+    - Sie können später eine Domäne konfigurieren
+    - Wenn eine Domäne festgelegt ist, werden Apps standardmäßig in einer Subdomäne bereitgestellt (z. B. `ecozone-dev.domainname.com`)
+    - Wenn keine Domäne festgelegt ist, werden Apps standardmäßig in einem Port bereitgestellt (z. B. `<IP-ADRESSE:1234>`)
+  - Fügen Sie Ihren öffentlichen Schlüssel zu Dokku hinzu (zum Bereitstellen müssen Sie `git push` als `dokku`-Benutzer ausführen, nicht als `root`)
     ```bash
-    PUBLIC_KEY="your-public-key-contents-here"
-    echo "$PUBLIC_KEY" | dokku ssh-keys:add <UNIQUE NAME FOR KEY>
+    PUBLIC_KEY="Ihr-öffentlicher-Schlüssel-Inhalt-hier"
+    echo "$PUBLIC_KEY" | dokku ssh-keys:add <EINDEUTIGER NAME FÜR SCHLÜSSEL>
     ```
-    - If you want other users to be able to deploy, repeat the process for their keys
-  - Create the Dokku app
+    - Wenn Sie möchten, dass andere Benutzer bereitstellen können, wiederholen Sie den Vorgang für ihre Schlüssel
+  - Erstellen Sie die Dokku-App
     ```bash
     dokku apps:create ecozone
     ```
-  - Create a database for the app
+  - Erstellen Sie eine Datenbank für die App
     ```bash
     dokku postgres:create ecozone-db
     ```
-  - Link the db to the app
+  - Verknüpfen Sie die Datenbank mit der App
     ```bash
     dokku postgres:link ecozone-db ecozone
     ```
-  - Set up the Sentry environment variables
+  - Um sicherzustellen, dass die Umgebungsvariablen jedes Mal festgelegt werden, wenn Dokku die App bereitstellt (oder sie für einen Cron-Job usw. ausführt), verwenden Sie die folgenden Dokku-Befehle. Sie müssen sie nur einmal ausführen; Dokku merkt sie sich für alle zukünftigen Bereitstellungen. Weitere Informationen zu den einzelnen Umgebungsvariablen finden Sie unter ["Umgebungsvariablen"](#environment-variables).
     ```bash
-    # This is the URL to download Sentry for the frontend. It is preconfigured with the DSN for the frontend.
+    dokku config:set --no-restart ecozone NETZTRANZPARENZ_CLIENT_SECRET=<DAS GEHEIMNIS>
+    dokku config:set --no-restart ecozone NETZTRANZPARENZ_CLIENT_ID=<DIE ID>
+    dokku config:set --no-restart ecozone ENTSOE_SECURITY_TOKEN=<DAS TOKEN>
     dokku config:set --no-restart ecozone SENTRY_CDN_URL=<URL>
     dokku config:set --no-restart ecozone SENTRY_DSN_BACKEND=<URL>
-    dokku config:set --no-restart ecozone SENTRY_ENVIRONMENT=<NAME OF ENVIRONMENT> # E.G., "dev"
+    dokku config:set --no-restart ecozone SENTRY_ENVIRONMENT=<NAME DER UMGEBUNG> # Z. B. „dev“
     dokku config:set --no-restart ecozone SENTRY_RELEASE_URL_BACKEND=<URL>
     dokku config:set --no-restart ecozone SENTRY_RELEASE_URL_FRONTEND=<URL>
     ```
-
-- On your machine:
-  - Add a Git remote to the repository
+- Auf Ihrem Computer:
+  - Fügen Sie dem Repository ein Git-Remote hinzu
     ```bash
-    git remote add <NAME OF REMOTE> dokku@<IP ADDRESS OR DOMAIN>:ecozone
+    git remote add <NAME DES REMOTE> dokku@<IP-ADRESSE ODER DOMÄNE>:ecozone
     ```
-   - If you will be deploying to more than one server, create a different remote for each (e.g., one remote named `ecozone-dev`, one named `ecozone-staging`, etc.). Note that the user will always be `dokku` (the `dokku@` part will remain the same for each remote)
-- To deploy a new version, `git push` a local branch to the desired Dokku remote. You will always be pushing to the `main` branch on the Dokku remote.
-  - Examples (assuming you are deploying to the `ecozone-dev` remote):
-    - Deploy your `main` branch (i.e., deploy you `main` to the remote's `main`)
-      ```bash
+    - Wenn Sie auf mehr als einem Server bereitstellen, erstellen Sie für jeden ein anderes Remote (z. B. ein Remote mit dem Namen `ecozone-dev`, ein Remote mit dem Namen `ecozone-staging` usw.). Beachten Sie, dass der Benutzer immer `dokku` sein wird (der Teil `dokku@` bleibt für jedes Remote gleich)
+- Um eine neue Version bereitzustellen, `git push` Sie einen lokalen Branch zum gewünschten Dokku-Remote. Sie pushen immer zum `main`-Branch auf dem Dokku-Remote.
+  - Beispiele (vorausgesetzt, Sie stellen auf dem Remote-Server `ecozone-dev` bereit):
+    - Stellen Sie Ihren `main`-Branch bereit (d. h. stellen Sie Ihren `main` auf dem `main` des Remote-Servers bereit)
+      ``bash
       git push --force ecozone-dev main
       ```
-    - Deploy your `dev` branch (regardless of whether you have currently checked out the `dev` branch)
+    - Stellen Sie Ihren `dev`-Branch bereit (unabhängig davon, ob Sie den `dev`-Branch aktuell ausgecheckt haben)
       ```bash
       git push --force ecozone-dev dev:main
       ```
-    - Deploy whatever branch is currently checked out
+    - Stellen Sie den aktuell ausgecheckten Branch bereit
       ```bash
       git push --force ecozone-dev $(git branch --show-current):main
       ```
-  - Note: Using the `--force` flag is not strictly necessary in all cases but you'll probably need it. For example, if you deploy your `dev` branch, commit some changes to it locally, and then want to deploy them, you don't need to use `--force` because there will be no conflicts when you push. However, if you need to deploy different versions for testing or demonstration purposes and those branches do have conflicts, you'll need to use `--force` to ensure that the new version overwrites the old, conflicting version so that the deployment can continue.
+  - Hinweis: Die Verwendung des Flags `--force` ist nicht in allen Fällen unbedingt erforderlich, aber Sie werden es wahrscheinlich brauchen. Wenn Sie beispielsweise Ihren `dev`-Branch bereitstellen, einige Änderungen lokal daran committen und sie dann bereitstellen möchten, müssen Sie `--force` nicht verwenden, da beim Pushen keine Konflikte auftreten. Wenn Sie jedoch zu Test- oder Demonstrationszwecken unterschiedliche Versionen bereitstellen müssen und diese Branches Konflikte aufweisen, müssen Sie „--force“ verwenden, um sicherzustellen, dass die neue Version die alte, konfliktbehaftete Version überschreibt, damit die Bereitstellung fortgesetzt werden kann.
 
-## Set environment variables
+## Umgebungsvariablen
 
-In order to harvest redispatch data, `NETZTRANZPARENZ_CLIENT_ID` and `NETZTRANZPARENZ_CLIENT_SECRET` environment variables must be set. (See ["Harvest redispatch data"](#harvest-redispatch-data) for more about the harvesting process.)
+Um Redispatch-Daten zu sammeln, müssen die Umgebungsvariablen `NETZTRANZPARENZ_CLIENT_ID` und `NETZTRANZPARENZ_CLIENT_SECRET` festgelegt werden. (Weitere Informationen zum Sammelvorgang finden Sie unter ["Redispatch-Daten sammeln"](#redispatch-daten-sammeln).)
 
-In order to harvest redispatch data, the `ENTSOE_SECURITY_TOKEN` environment variable must be set. (See ["Harvest generation data"](#harvest-generation-data) for more about the harvesting process.)
+Um Generationsdaten zu sammeln, muss die Umgebungsvariable `ENTSOE_SECURITY_TOKEN` festgelegt werden. (Weitere Informationen zum Sammelvorgang finden Sie unter ["Erzeugungsdaten sammeln"](#erzeugungsdaten-sammeln).)
 
-To ensure that the environment variables are set every time Dokku deploys the app (or runs it for a cron job, etc.), use the following Dokku commands. You only have to run them once; Dokku will remember them for all future deployments.
+Um Fehler im Frontend und Backend zu überwachen, ist die Anwendung so konfiguriert, dass sie [Sentry](https://sentry.io) verwendet. Die folgenden Umgebungsvariablen sind erforderlich, wenn die Anwendung auf einem Staging- oder Produktionsserver ausgeführt wird, werden jedoch weder benötigt noch verwendet, wenn ein lokaler Entwicklungsserver ausgeführt wird. Wir empfehlen, ein Django-Projekt auf Sentry für das Backend und ein Vanilla-JavaScript-Projekt auf Sentry für das Frontend zu erstellen.
 
-```bash
-dokku config:set --no-restart ecozone NETZTRANZPARENZ_CLIENT_SECRET=<THE SECRET>
-dokku config:set --no-restart ecozone NETZTRANZPARENZ_CLIENT_ID=<THE ID>
-dokku config:set --no-restart ecozone ENTSOE_SECURITY_TOKEN=<THE TOKEN>
-```
+- `SENTRY_CDN_URL` ist die URL zum Herunterladen von Sentry für das Frontend. Sie ist mit dem DSN für das Frontend vorkonfiguriert.
+
+- `SENTRY_DSN_BACKEND` ist die DSN-URL für das Backend.
+
+- `SENTRY_ENVIRONMENT` ist der Name der Umgebung, in der die Anwendung bereitgestellt wird, z. B. „dev“ oder „staging“.
+
+- `SENTRY_RELEASE_URL_BACKEND` ist die Webhook-URL zum Registrieren einer Version für das Backend-Projekt.
+
+- `SENTRY_RELEASE_URL_FRONTEND` ist die Webhook-URL zum Registrieren einer Version für das Frontend-Projekt.
