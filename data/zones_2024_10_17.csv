@@ -1,0 +1,343 @@
+Name,Nord-Süd,DE2 (BZR ID2),Dena Regionen,Kraftwerksart,Energieträger,EE/nicht EE,Bundesland,spez. Standort,Unerklärte Ziffer,DEHST-ID,DEHST-Nummer,VET 2022 (Block),VET 2022 (Plant)
+50H Berlin Lichterfelde,Nord,Nord,81,Heizkraftwerk (GuD),Erdgas,nicht EE,Berlin,"52° 25′ 32″ N, 13° 18′ 36″ O",,209842,14310-1926,514.106,
+50H Berlin Marzahn,Nord,Nord,81,Heizkraftwerk (GuD),Erdgas,nicht EE,Berlin,"52° 31′ 26″ N, 13° 31′ 19″ O",,1176,14310-0619,667.865,
+50H Berlin Mitte,Nord,Nord,81,Heizkraftwerk (GuD),Erdgas,nicht EE,Berlin,"52° 30′ 41″ N, 13° 25′ 16″ O",,1194,14310-0638,627.240,
+50H Berlin Reuter West,Nord,Nord,81,Heizkraftwerk,Steinkohle,nicht EE,Berlin,"52° 32′ 7″ N, 13° 14′ 34″ O",13599,1179,14310-0622,1.637.895,
+50H Dresden-Nossen,Nord,Nord,84,,,Nicht EE,,,,739,14310-0129,616.282,
+50H EnviaTherm Bitterfeld-Wolfen GuD,Nord,Nord,83/84,,,Nicht EE,,,,1403,14310-0860,93.704,
+50H Erfurt-Ost HKW GuD,Nord,Nord,83,Heizkraftwerk (GuD),Erdgas,nicht EE,Thüringen,"51° 1′ 7″ N, 11° 2′ 22″ O",,1777,14310-1335,292.955,
+50H Halle-Dieselstr HKW-BlockA,Nord,Nord,83,Heizkraftwerk,Erdgas,nicht EE,Sachsen-Anhalt,,6130,1886,14310-1406,,197.038
+50H Halle-Dieselstr HKW-BlockB,Nord,Nord,83,,,Nicht EE,Sachsen-Anhalt,,,1886,14310-1406,,197.038
+50H Halle-Dieselstr HKW-BlockC,Nord,Nord,83,,,Nicht EE,Sachsen-Anhalt,,,1886,14310-1406,,197.038
+50H Halle-Trotha HKW,Nord,Nord,83,Heizkraftwerk,Erdgas,nicht EE,Sachsen-Anhalt,,6188,1157,14310-0599,,73.304
+50H Hamburg MMB BHKW P2H,Nord,Nord,82,,,Nicht EE,Hamburg,,,206180,14310-1863,,7.065
+50H Hamburg MMB BHKW PtH,Nord,Nord,82,,,Nicht EE,Hamburg,,,206180,14310-1864,,7.065
+50H Hamburg Tiefstack 2 HKW SK,Nord,Nord,82,Heizkraftwerk,Kohle,nicht EE,Hamburg,"53° 31′ 37″ N, 10° 3′ 49″ O",22113,951,14310-0369,,1.213.015
+50H Hamburg Tiefstack GuD,Nord,Nord,82,Heizkraftwerk (GuD),Erdgas,nicht EE,Hamburg,"53° 31′ 37″ N, 10° 3′ 49″ O",22113,951,14310-0370,,1.213.015
+50H Hamburg Wedel1,Nord,Nord,82,Heizkraftwerk,Steinkohle,nicht EE,Schleswig-Holstein,,22880,952,14310-0370,,1.269.477
+50H Hamburg Wedel1 Block1,Nord,Nord,82,,,Nicht EE,,,,952,14310-0371,,1.269.477
+50H InfraLeuna IKW,Nord,Nord,83,,,Nicht EE,,,,,,,
+50H Leipzig Nord GuD,Nord,Nord,83/84,,,Nicht EE,,,,1444,14310-0904,,189.968
+50H Leipzig Süd GuD,Nord,Nord,83/84,,,Nicht EE,,,,,14310-1965,,22.568
+50H Neubrandenburg GuD,Nord,Nord,81,Heizkraftwerk (GuD),Erdgas,nicht EE,,,,1235,14310-0679,,119.389
+50H OWP Arcadis Ost 1,Nord,,80,Offshore Windpark,Wind,EE,Mecklenburg-Vorpommern,"54° 48′ 0″ N, 13° 41′ 0″ O",,,,,
+50H OWP Arkona,Nord,,80,Offshore Windpark,Wind,EE,Ostsee,"54° 46′ 55″ N, 14° 7′ 16″ O",,,,,
+50H OWP Baltic 1+2 Süd MIO,Nord,,80,Offshore Windpark,Wind,EE,Mecklenburg-Vorpommern,"54° 36′ 50″ N, 12° 40′ 0″ O (1) 54° 58′ 24″ N, 13° 10′ 40″ O (2)",,,,,
+50H OWP MIO Baltic 1+2,Nord,,80,,Wind,EE,,,,,,,
+50H OWP Wikinger,Nord,,80,Offshore Windpark,Wind,EE,Ostsee,"54° 50′ 2″ N, 14° 4′ 5″ O",,,,,
+50H PV Witznitz,Nord,,83,Freiflächen PV,Sonne,EE,Sachsen,"51° 10′ 1,9″ N, 12° 28′ 44,8″ O",,,,,
+50H Rostock Marienehe,Nord,Nord,81,Heizkraftwerk (GuD),Erdgas,nicht EE,Mecklenburg-Vorpommern,"54,088451,  12,129207",18055,825,14310-0226,,236.350
+50H Stralsund BHKW+P2H,Nord,Nord,81,Blockheizkraftwerk,,Nicht EE,Mecklenburg-Vorpommern,"ca. 54,337817,  13,057407",18435,,,,
+50H Stralsund BHKW+PtH,Nord,Nord,81,,,Nicht EE,,,,,,,
+50H UW Altentreptow,Nord,,81,Umspannwerk Wind,Wind,EE,Mecklenburg-Vorpommern,"53° 42′ N, 13° 15′ O",17087,,,,
+50H UW Bertikow,Nord,,81,Umspannwerk EE,Erneuerbare,EE,Brandenburg,"53° 15' 9"" N, 13° 57' 25"" O",,,,,
+50H UW Iven,Nord,,81,Umspannwerk Wind,Wind,EE,Schleswig-Holstein,"54° 22′ N, 9° 49′ O",,,,,
+50H UW Putlitz,Nord,,81,Umspannwerk,,EE,Brandenburg,"53° 15' 3"" N, 12° 5' 16"" O",16949,,,,
+50H UW Schönewalde,Nord,,81,Umspannwerk EE,Erneuerbare,EE,Brandenburg,"51°49'41""N   13°9'26""E",,,,,
+50H UW Wessin,Nord,,81,Umspannwerk EE,Erneuerbare,EE,Mecklenburg-Vorpommern,"53° 34' 20"" N, 11° 41' 55"" O",,,,,
+50H UW Wustermark,Nord,,81,Umspannwerk EE,Erneuerbare,EE,Brandenburg,"52° 33' 40"" N, 12° 56' 26"" O",,,,,
+50H_AVA_CR_FOE,Nord,,81,,,EE,,,,,,,
+50H_AVA_CR_STW,Nord,,81,,,EE,,,,,,,
+50H_AVA_CR_WOL,Nord,,81,,,EE,,,,,,,
+50H_EDIS_CR_ATS,Nord,,81,,,EE,,,,,,,
+50H_EDIS_CR_BW,Nord,,81,,,EE,,,,,,,
+50H_EDIS_CR_EH,Nord,,84,,,EE,,,,,,,
+50H_EDIS_CR_GUE_Nord,Nord,,81,,,EE,,,,,,,
+50H_EDIS_CR_GUE_Sued,Nord,,81,,,EE,,,,,,,
+50H_EDIS_CR_LHG,Nord,,81,,,EE,,,,,,,
+50H_EDIS_CR_NHG_Nord,Nord,,81,,,EE,,,,,,,
+50H_EDIS_CR_PAS,Nord,,81,,,EE,,,,,,,
+50H_EDIS_CR_PE,Nord,,81,,,EE,,,,,,,
+50H_EDIS_CR_PZS,Nord,,81,,,EE,,,,,,,
+50H_EDIS_CR_SOW_Nord,Nord,,84,,,EE,,,,,,,
+50H_EDIS_CR_SOW_Sued,Nord,,84,,,EE,,,,,,,
+50H_EDIS_CR_WU,Nord,,81,,,EE,,,,,,,
+50H_MNS_CR_ADB,Nord,,81,,,EE,,,,,,,
+50H_MNS_CR_FRN,Nord,,81,,,EE,,,,,,,
+50H_MNS_CR_GRS,Nord,,84,,,EE,,,,,,,
+50H_MNS_CR_HER,Nord,,84,,,EE,,,,,,,
+50H_MNS_CR_JEN,Nord,,84,,,EE,,,,,,,
+50H_MNS_CR_JSN,Nord,,84,,,EE,,,,,,,
+50H_MNS_CR_KLM,Nord,,81,,,EE,,,,,,,
+50H_MNS_CR_LAU_Nord,Nord,,84,,,EE,,,,,,,
+50H_MNS_CR_LAU_Sued,Nord,,84,,,EE,,,,,,,
+50H_MNS_CR_MA_Nord,Nord,,84,,,EE,,,,,,,
+50H_MNS_CR_MA_Sued,Nord,,84,,,EE,,,,,,,
+50H_MNS_CR_PRL,Nord,,84,,,EE,,,,,,,
+50H_MNS_CR_PRL_TU,Nord,,84,,,EE,,,,,,,
+50H_MNS_CR_PUL,Nord,,81,,,EE,,,,,,,
+50H_MNS_CR_RAG,Nord,,81,,,EE,,,,,,,
+50H_MNS_CR_ROE,Nord,,81,,,EE,,,,,,,
+50H_MNS_CR_STR,Nord,,81,,,EE,,,,,,,
+50H_MNS_CR_ZW,Nord,,81,,,EE,,,,,,,
+50H_TEN_CR_M1_EI,Nord,,83,,,EE,,,,,,,
+50H_TEN_CR_M2_VIB,Nord,,83,,,EE,,,,,,,
+50H_TEN_CR_S1_ATF,Nord,,83,,,EE,,,,,,,
+50H_TEN_CR_S2_WD,Nord,,83,,,EE,,,,,,,
+50H_WEMA_CR_GOE,Nord,,81,,,EE,,,,,,,
+50H_WEMA_CR_GUE,Nord,,81,,,EE,,,,,,,
+50H_WEMA_CR_PE,Nord,,81,,,EE,,,,,,,
+50H_WEMA_CR_PMS,Nord,,81,,,EE,,,,,,,
+50H_WEMA_CR_WE,Nord,,81,,,EE,,,,,,,
+Ahrensfelde A (KapRes),Nord,Nord,81,Gasturbinenkraftwerk (GTKW),Erdgas,nicht EE,Brandenburg,"52°35'20.8""N 13°33'31.8""E",,1227,14310-0671,,509
+Ahrensfelde B (KapRes),Nord,Nord,81,Gasturbinenkraftwerk (GTKW),Erdgas,nicht EE,Brandenburg,"52°35'20.8""N 13°33'31.8""E",,1227,14310-0672,,509
+Ahrensfelde C (KapRes),Nord,Nord,81,Gasturbinenkraftwerk (GTKW),Erdgas,nicht EE,Brandenburg,"52°35'20.8""N 13°33'31.8""E",,1227,14310-0673,,509
+Ahrensfelde D (KapRes),Nord,Nord,81,Gasturbinenkraftwerk (GTKW),Erdgas,nicht EE,Brandenburg,"52°35'20.8""N 13°33'31.8""E",,1227,14310-0674,,509
+AMP_LEW_VERTEILNETZ_NORD_CR_WIND,Süd,,76,,Wind,EE,,,,,,,
+AMP_LEW_VERTEILNETZ_SUED_CR_WIND,Süd,,76,,Wind,EE,,,,,,,
+AMP_SYNA_TAUNUS_CR_WIND,Süd,,24,,Wind,EE,,,,,,,
+AMP_VSE_CR_WIND,Süd,,75,,Wind,EE,,,,,,,
+AMP_WESTNETZ_EMSLAND_CR_PHOTOVOLTAIK,Nord,,22,,Solar,EE,,,,,,,
+AMP_WESTNETZ_EMSLAND_CR_SONSTIGE_EE,Nord,,22,,,EE,,,,,,,
+AMP_WESTNETZ_EMSLAND_CR_WIND,Nord,,22,,Wind,EE,,,,,,,
+AMP_WESTNETZ_MUENSTERLAND_TEL,Nord,,71,,,EE,,,,,,,
+AMP_WESTNETZ_NAHE_CR_WIND,Süd,,72,,Wind,EE,,,,,,,
+AMP_WESTNETZ_NIKE_CR_PHOTOVOLTAIK,Nord,,71,,Solar,EE,,,,,,,
+AMP_WESTNETZ_NIKE_CR_SONSTIGE_EE,Nord,,71,,,EE,,,,,,,
+AMP_WESTNETZ_NIKE_CR_WIND,Nord,,71,,Wind,EE,,,,,,,
+AMP_WESTNETZ_SAUERLAND_CR_WIND,Nord,,73,,Wind,EE,,,,,,,
+AMP_WESTNETZ_SAUERLAND_TEL,Nord,,73,,,EE,,,,,,,
+AMP_WESTNETZ_TRIER_CR_WIND,Nord,,75,,Wind,EE,,,,,,,
+Audorf,Nord,Nord,21,Gasturbinenkraftwerk (GTKW),Erdgas,nicht EE,Schleswig-Holstein,"54°17'25.6""N 9°43'23.1""E",,1004,14310-0429,,2.318
+AVA Cluster Dollern,Nord,,22,,,EE,,,,,,,
+AVA Cluster Elsen,Nord,,73,,,EE,,,,,,,
+AVA Cluster Lehrte,Nord,,23,,,EE,,,,,,,
+AVA Cluster Lüneburg T412,Nord,,23,,,EE,,,,,,,
+AVA Cluster Lüneburg T413,Nord,,23,,,EE,,,,,,,
+AVA Cluster Ohlensehlen,Nord,,22,,,EE,,,,,,,
+AVA Cluster Sottrum T411 T413,Nord,,22,,,EE,,,,,,,
+AVA Cluster Wechold,Nord,,23,,,EE,,,,,,,
+BASF-GESAMTEINSPEISG,Nord,,23/81,,,Nicht EE,,,,,,,
+BERGKAMEN_A,Süd,Süd,73,Heinzkraftwerk,Steinkohle,nicht EE,NRW,"51° 38′ 13″ N, 7° 37′ 8″ O",,1399,14310-0856,,1.989.681
+Bexbach A,Süd,Süd,75,Dampfkraftwerk,Steinkohle,nicht EE,Saarland,"49° 21′ 47″ N, 7° 14′ 16″ O",,852,14310-0257,,774.976
+BIBLIS_GT (bnBm),Süd,Süd,75,Gasturbinenkraftwerk (GTKW),Ergas,nicht EE,Hessen,"49°42'19.4""N 8°24'57.6""E",,,14310-2007,,7.550
+Börse,Börse,,Börse,Börse,Börse,Börse,,,,,,,
+Boxberg (Standort),Süd,Süd,84,Wärmekraftwerk,Braunkohle,nicht EE,Sachsen,"51° 25′ 7″ N, 14° 34′ 6″ O",,1453 & 1454,14310-0915 & 14310-0916,,19127966
+Braunschweig GT,Nord,Nord,23,Wärmekraftwerk,Braunkohle,nicht EE,Sachsen,"51° 25′ 7″ N, 14° 34′ 6″ O",,,,,
+Braunschweig HKWM GT31,Nord,Nord,23,,,Nicht EE,,,,,,,
+Bremen 15,Nord,Nord,22,Kohlekraftwerk ,Kohle,Nicht EE,,,,,,,
+Bremen BHKW,Nord,Nord,22,Blockheizkraftwerk,Erdgas,nicht EE,Bremen,"53° 3′ 35″ N, 8° 52′ 23″ O",,,,,
+Burghausen,Süd,,26,Wasser,Wasser,EE,Bayern,,,,,,
+Datteln_4,Süd,Süd,72,Kohlekraftwerk ,Steinkohle,nicht EE,Nordrhein-Westfalen,"51°37'57.0""N 7°20'27.0""E",,208968,14310-1899,3.823.696,
+EE Bayern,Süd,,26,Erneuerbare Pool,Erneuerbare,EE,Bayern,,,,,,
+EE Hessen,Süd,,24,Erneuerbare Pool,Erneuerbare,EE,Hessen,,,,,,
+EE Niedersachsen,Nord,,23,Erneuerbare Pool,Erneuerbare,EE,Niedersachsen,,,,,,
+EGM_DTS,,,,Mühlheizkraftwerk,,Nicht EE,Rheinland-Pfalz,Mainz,,,,,
+Emden 4 GT (KapRes),Nord,Nord,22,Heizkraftwerk (GuD / CCGT),Erdgas,nicht EE,Niedersachsen,"53°21'29.0""N 7°12'55.0""E",,,,,
+Emsland Block B,Nord,Nord,22,Heizkraftwerk (GuD / CCGT),Erdgas,nicht EE,Niedersachsen,"52°28'51.9""N 7°18'06.5""E",,,,,
+Emsland Block C,Nord,Nord,22,Heizkraftwerk (GuD / CCGT),Erdgas,nicht EE,Niedersachsen,"52°28'51.9""N 7°18'06.5""E",,,,,
+Emsland Block C pool,Nord,Nord,22,,,Nicht EE,,,,,,,
+Emsland Block D,Nord,Nord,22,GuD-Kraftwerk,Erdgas,nicht EE,Niedersachsen,"52° 28′ 51″ N, 7° 18′ 21″ O",,,,,
+Emsland Block D pool,Nord,Nord,22,,,Nicht EE,,,,,,,
+EMSLAND_DTB0,Nord,Nord,22,,,Nicht EE,,,,,,,
+EMSLAND_DTC0,Nord,Nord,22,,,Nicht EE,,,,,,,
+EMSLAND_DTD0,Nord,Nord,22,,,Nicht EE,,,,,,,
+Erzhausen 1,Süd,,24,Pumpspeicherkraftwerk,Wasser,EE,Niedersachsen,"51° 53′ 55″ N, 9° 55′ 30″ O",37548,,,,
+Erzhausen 2,Süd,,24,Pumpspeicherkraftwerk,Wasser,EE,Niedersachsen,"51° 53′ 55″ N, 9° 55′ 30″ O",37548,,,,
+Erzhausen 3,Süd,,24,Pumpspeicherkraftwerk,Wasser,EE,Niedersachsen,"51° 53′ 55″ N, 9° 55′ 30″ O",37548,,,,
+Erzhausen 4,Süd,,24,Pumpspeicherkraftwerk,Wasser,EE,Niedersachsen,"51° 53′ 55″ N, 9° 55′ 30″ O",37548,,,,
+Farge,Nord,Nord,22,Kohlekraftwerk,Steinkohle,nicht EE,Bremen,"53° 12′ 8″ N, 8° 31′ 1″ O",,999,14310-0424,,1.222.480
+Frankfurt West 2,Süd,Süd,24,Heizkraftwerk,Steinkohle,nicht EE,Hessen,"50° 5′ 54″ N, 8° 39′ 12″ O",,,,,
+Frankfurt West 3,Süd,Süd,24,Heizkraftwerk,Steinkohle,nicht EE,Hessen,"50° 5′ 54″ N, 8° 39′ 12″ O",,,,,
+Frankfurt West 4,Süd,Süd,24,Heizkraftwerk,Erdgas,nicht EE,Hessen,"50° 5′ 54″ N, 8° 39′ 12″ O",,,,,
+Gebersdorf 1,Süd,Süd,24,GuD-Kraftwerk,Erdgas,nicht EE,Bayern,"49°25'17.8""N 11°00'34.5""E",,,,,
+Gebersdorf 2,Süd,Süd,24,GuD-Kraftwerk,Erdgas,nicht EE,Bayern,"49°25'17.8""N 11°00'34.5""E",,,,,
+Gebersdorf GT,Süd,Süd,24,GuD-Kraftwerk,Erdgas,nicht EE,Bayern,"49°25'17.8""N 11°00'34.5""E",,,,,
+GERSTEINW_DTF2 (KapRes),Süd,Süd,73,Heizkraftwerk (GuD / CCGT),Erdgas,nicht EE,Nordrhein-Westfalen,"51°40'24.1""N 7°42'42.7""E",,1481,14310-0945,,15.463
+GERSTEINW_DTG2 (KapRes),Süd,Süd,73,GuD-Kraftwerk,Erdgas,Nicht EE,Nordrhein-Westfalen,Lippe,,1481,14310-0946,,15.463
+GERSTEINW_F (KapRes),Süd,Süd,73,Heizkraftwerk (GuD / CCGT),Erdgas,nicht EE,Nordrhein-Westfalen,"51°40'24.1""N 7°42'42.7""E",,1481,14310-0947,,15.463
+GERSTEINW_G (KapRes),Süd,Süd,73,Heizkraftwerk (GuD / CCGT),Erdgas,nicht EE,Nordrhein-Westfalen,"51°40'24.1""N 7°42'42.7""E",,1481,14310-0948,,15.463
+GERSTEINW_GTF1 (KapRes),Süd,Süd,73,Heizkraftwerk (GuD / CCGT),Erdgas,nicht EE,Nordrhein-Westfalen,"51°40'24.1""N 7°42'42.7""E",,1481,14310-0949,,15.463
+GERSTEINW_GTG1 (KapRes),Süd,Süd,73,GuD-Kraftwerk,Erdgas,Nicht EE,Nordrhein-Westfalen,Lippe,,1481,14310-0950,,15.463
+GERSTEINW_K1,Süd,Süd,73,Heizkraftwerk (GuD / CCGT),Erdgas,nicht EE,Nordrhein-Westfalen,"51°40'24.1""N 7°42'42.7""E",,1481,14310-0951,,15.463
+Goldisthal (Standort),Nord,,83,,Wasser,EE,,,,,,,
+Grosskraftwerk Mannheim Block 6,Süd,Süd,75,Heizkraftwerk,Steinkohle,nicht EE,Baden-Württemberg,"49°26'39.4""N 8°30'11.4""E",,1380,14310-0835,,5.971.744
+Grosskraftwerk Mannheim Block 6 7 und 8,Süd,Süd,75,Heizkraftwerk,Steinkohle,Nicht EE,Baden-Württemberg,"49°26'39.4""N 8°30'11.4""E",,1380,14310-0836,,5.971.744
+Grosskraftwerk Mannheim Block 6 und 8,Süd,Süd,75,Heizkraftwerk,Steinkohle,nicht EE,Baden-Württemberg,"49°26'39.4""N 8°30'11.4""E",,1380,14310-0837,,5.971.744
+Grosskraftwerk Mannheim Block 7,Süd,Süd,75,Heizkraftwerk,Steinkohle,nicht EE,Baden-Württemberg,"49°26'39.4""N 8°30'11.4""E",,1380,14310-0838,,5.971.744
+Grosskraftwerk Mannheim Block 9,Süd,Süd,75,Heizkraftwerk,Steinkohle,Nicht EE,Baden-Württemberg,"49°26'39.4""N 8°30'11.4""E",,1380,14310-0839,,5.971.744
+GUD_HERNE_6,Süd,Süd,72,GuD-Kraftwerk,Erdgas,nicht EE,Nordrhein-Westfalen,"51° 33′ 5″ N, 7° 11′ 20″ O",,215100,14310-1975,,452.557
+GuDAnlageM120,Süd,Süd,,,,Nicht EE,Hessen,,,,,,
+HAMMUENTROP_10,Süd,Süd,73,GuD-Kraftwerk,Erdgas,nicht EE,Nordrhein-Westfalen,"51° 40′ 26″ N, 7° 55′ 45″ O",,2195,14310-1412,,522.250
+HAMMUENTROP_20,Süd,Süd,73,GuD-Kraftwerk,Erdgas,nicht EE,Nordrhein-Westfalen,"51° 40′ 26″ N, 7° 55′ 45″ O",,2195,14310-1413,,522.250
+Hannover (GKH) 1,Nord,Nord,23,,,Nicht EE,,,,1387,14310-0843,,1.697.240
+Hannover (GKH) 2,Nord,Nord,23,,,Nicht EE,,,,1387,14310-0844,,1.697.240
+Heizkraftwerk Altbach/Deizisau Block 2,Süd,Süd,75,Heizkraftwerk,Steinkohle,nicht EE,Baden-Württemberg,"48°43'07.9""N 9°22'33.5""E",,1450,14310-0912,,1.536.543
+Heizkraftwerk Altbach/Deizisau GT A,Süd,Süd,76,Heizkraftwerk (GuD),Erdgas,nicht EE,Baden-Württemberg,"48°43'07.9""N 9°22'33.5""E",,1450,14310-0913,,1.536.543
+Heizkraftwerk Altbach/Deizisau GT B,Süd,Süd,77,Heizkraftwerk (GuD),Erdgas,nicht EE,Baden-Württemberg,"48°43'07.9""N 9°22'33.5""E",,1450,14310-0914,,1.536.543
+Heizkraftwerk Altbach/Deizisau GT C,Süd,Süd,78,Heizkraftwerk (GuD),Erdgas,nicht EE,Baden-Württemberg,"48°43'07.9""N 9°22'33.5""E",,1450,14310-0915,,1.536.543
+Heizkraftwerk Altbach/Deizisau GT E,Süd,Süd,79,Heizkraftwerk (GuD),Erdgas,Nicht EE,Baden-Württemberg,,,1450,14310-0916,,1.536.543
+Heizkraftwerk Gaisburg Block 3,Süd,Süd,42,Heizkraftwerk (GuD),Erdgas,nicht EE,Baden-Württemberg,"48°46'53.5""N 9°13'53.5""E",,210625,14310-1946,,45.465
+Heizkraftwerk Heilbronn Block 7,Süd,Süd,41,Heizkraftwerk,Steinkohle,Nicht EE,Baden-Württemberg,,,1452,14310-0914,,1.914.021
+"Heizkraftwerk Stuttgart-Münster GT 16,17,18",Süd,Süd,42,Heizkraftwerk,Erdgas,Nicht EE,Baden-Württemberg,,,1463,14310-0925,,224.843
+Heizkraftwerk_Pforzheim,Süd,Süd,75,Heizkraftwerk,Erdgas,nicht EE,Baden-Württemberg,"48°53'47.3""N 8°43'29.5""E",,1077,14310-0511,,4.159
+HERDECKE_H6,Süd,Süd,73,GuD-Kraftwerk,Erdgas,nicht EE,Nordrhein-Westfalen,"51°24'10.6""N 7°24'46.6""E",,1409,14310-0866,,357.317
+HERNE_4,Süd,Süd,72/73,GuD-Kraftwerk + Kohlekraftwerk,Erdgas / Steinkohle,nicht EE,Nordrhein-Westfalen,"51°33'04.8""N 7°11'08.0""E",,215100,14310-1975,,452.557
+Heyden,Süd,,23,Kohlekraftwerk,Steinkohle,nicht EE,Nordrhein-Westfalen,"52°22'44.8""N 8°59'47.7""E",,1291,14310-0742,,1.382.813
+HKW BARMEN 1,Süd,Süd,72,Heizkraftwerk (GuD),Erdgas,nicht EE,NRW,"51° 16′ 8″ N, 7° 12′ 1″ O",,882,14310-0291,,18.623
+HKW_BA_B1_DT_23,,,,,,Nicht EE,,,,,,,
+HKW_BA_B1_GT_11,,,,,,Nicht EE,,,,,,,
+HKW_ROEMER_KW,Süd,Süd,,Heizkraftwerk (GuD),Erdgas,nicht EE,Nordrhein-Westfalen,"49°13'26.8""N 7°00'54.9""E",,1746,14310-1293,,156.876
+HKW_ROEMER_LM600,Süd,Süd,,Heizkraftwerk (GuD),Erdgas,nicht EE,Nordrhein-Westfalen,"49°13'26.8""N 7°00'54.9""E",,1746,14310-1294,,156.876
+HKW-OF-EVO,Süd,Süd,24,,,Nicht EE,,,,,,,
+Hohenwarte 2 (Standort),Nord,Nord,83,,,Nicht EE,,,,,,,
+INFRA_HOE_GTX1,Süd,,,Kraft-Wärme-Kopplung,Erdgas,nicht EE,Hessen,"50°04'44.6""N 8°32'01.5""E",,,,,
+INFRA_HOE_GTX2,Süd,,,Kraft-Wärme-Kopplung,Erdgas,nicht EE,Hessen,"50°04'44.6""N 8°32'01.5""E",,,,,
+INFRA_HOE_GTX3,Süd,,,,,Nicht EE,Hessen,,,,,,
+Irsching 3,Süd,Süd,26,Ölkraftwerk,Öl,nicht EE,Bayern,"48°46'00.1""N 11°34'35.7""E",,1207,14310-0651,,663.669
+Irsching 4,Süd,Süd,27,Heizkraftwerk (GuD),Erdgas,nicht EE,Bayern,"48°46'00.1""N 11°34'35.7""E",,4148,14310-1748,440.528,
+Irsching 5,Süd,Süd,28,Heizkraftwerk (GuD),Erdgas,nicht EE,Bayern,"48°46'00.1""N 11°34'35.7""E",,1207,14310-0651,,663.669
+Irsching 6 (bnBm),Süd,Süd,29,Heizkraftwerk (GuD),Erdgas,nicht EE,Bayern,"48°46'00.1""N 11°34'35.7""E",,1207,14310-0652,,663.669
+Itzehoe,Nord,Nord,21,Ölkraftwerk,Öl,nicht EE,Schleswig-Holstein,"53°57'58.9""N 9°26'55.9""E",,1212,14310-0656,,867
+Jänschwalde (Standort),Nord,Nord,81,Kohlekraftwerk,Braunkohle ,nicht EE,Brandenburg,"51°50'16.2""N 14°27'23.9""E",,1456,14310-0918,,15.312.823
+Kiel (Küstenkraftwerk gesamt),Nord,Nord,31,Gasmotorenheizkraftwerk,Erdgas,nicht EE,Schleswig-Holstein,"54° 20′ 29″ N, 10° 10′ 41″ O",,210483,14310-1904,,277.144
+KMW_KW3,Süd,,,GuD-Kraftwerk,Erdgas,nicht EE,Rheinland-Pfalz,"50°01'34.8""N 8°14'13.9""E",,,,,
+KMW_KW5,Süd,,,Heizkraftwerk (KWK),Erdgas,nicht EE,Rheinland-Pfalz,"50°01'34.8""N 8°14'13.9""E",,,,,
+Knapsack 1,Süd,Süd,74,GuD-Kraftwerk,Erdgas,nicht EE,Nordrhein-Westfalen,"50°51'34.3""N 6°50'33.5""E",,,,,
+KNAPSACK_20,Süd,Süd,74,GuD-Kraftwerk,Erdgas,nicht EE,Nordrhein-Westfalen,"50°51'34.3""N 6°50'33.5""E",,202777,14310-1839,,205.834
+KNAPSACK_DT10,Süd,Süd,74,,,Nicht EE,,,,1888,14310-1410,,257.312
+KNAPSACK_GT11,Süd,Süd,74,,,Nicht EE,,,,1888,14310-1411,,257.312
+Kraftwerk Walheim GT D,Süd,Süd,42,Gasturbine,Heizöl,nicht EE,Baden-Württemberg,"49°01'04.5""N 9°09'23.6""E",,1464,14310-0926,,144.413
+Kühtai 1 (TIWAG),Österreich,,Österreich,Wasser,Wasser,EE,Österreich?,,,,,,
+Kühtai 1 (Uniper),Österreich,Österreich,Österreich,,,Nicht EE,,,,,,,
+Kühtai 2 (TIWAG),Österreich,Österreich,Österreich,,,Nicht EE,,,,,,,
+Kühtai 2 (Uniper),Österreich,,Österreich,Wasser,Wasser,EE,Österreich?,,,,,,
+LAUSWARD_AGUD,Süd,Süd,72,,,Nicht EE,,,,1095,14310-0531,,915.963
+LAUSWARD_GUDF,Süd,Süd,72,Heizkraftwerk (KWK),Erdgas,nicht EE,Nordrhein-Westfalen,"51°13'14.2""N 6°43'53.3""E",,1095,14310-0532,,915.963
+LEIPHEIM_10 (bnBm),Süd,Süd,,Gasturbinenkraftwerk,Ergas,nicht EE,Bayern,"48°26'09.2""N 10°14'04.5""E",,,14310-2025,,0
+Leitzach 1 M11,Süd,,26,Pumpspeicherkraftwerke ,Wasser,EE,Bayern,"47°52'25.7""N 11°52'17.6""E",,,,,
+Leitzach 2 M21,Süd,,26,Pumpspeicherkraftwerke ,Wasser,EE,Bayern,"47°52'25.7""N 11°52'17.6""E",,,,,
+Leitzach 2 M22,Süd,,26,Pumpspeicherkraftwerke ,Wasser,EE,Bayern,"47°52'25.7""N 11°52'17.6""E",,,,,
+Linden GKL DT,Nord,Nord,23,,,Nicht EE,Niedersachsen,,,1382,14310-0837,,226.902
+Linden GKL GT 1,Nord,Nord,23,,,Nicht EE,Niedersachsen,,,1382,14310-0838,,226.902
+Linden GKL GT 3,Nord,Nord,23,,,Nicht EE,Niedersachsen,,,1382,14310-0839,,226.902
+LINGEN-GT1,Süd,Süd,22,,,Nicht EE,Niedersachsen,,,1479,14310-0943,,1.369.575
+LINGEN-GT2,Süd,Süd,22,,,Nicht EE,Niedersachsen,,,1479,14310-0944,,1.369.575
+Lippendorf EnBW,Nord,Nord,,Braunkohlekraftwerk,Braunkohle,nicht EE,Sachsen,"51° 10′ 59″ N, 12° 22′ 22″ O",,,,,
+Lippendorf VE,Nord,Nord,,Braunkohlekraftwerk,Braunkohle,nicht EE,Sachsen,"51°11'03.2""N 12°22'22.3""E",,,,,
+Mehrum,Nord,Nord,23,Dampfkraftwerk,Steinkohle,nicht EE,Niedersachsen,"52° 18′ 51″ N, 10° 5′ 29″ O",,,,,
+München Nord 2,Süd,Süd,25,GuD-Kraftwerk,Erdgas,nicht EE,Bayern,"48°10'54.5""N 11°38'18.1""E",,741,14310-0131,,1.194.901
+München Süd GT 61,Süd,Süd,25,,,Nicht EE,,,,747,14310-0141,,506.095
+Netzreservekraftwerk Darmstadt/GTKW GT11,Süd,Süd,,Gasturbinenkraftwerk,Erdgas,nicht EE,Hessen,"49° 53′ 8″ N, 8° 38′ 58″ O",,202018,14310-1832,,6.233
+Netzreservekraftwerk Darmstadt/GTKW GT12,Süd,Süd,,Gasturbinenkraftwerk,Erdgas,nicht EE,Hessen,"49° 53′ 8″ N, 8° 38′ 58″ O",,202018,14310-1833,,6.233
+Netzreservekraftwerk KMW 2 DT,Süd,Süd,,Heizkraftwerk (KWK),Erdgas,nicht EE,Rheinland-Pfalz,"50°01'34.8""N 8°14'13.9""E",,,,,
+Netzreservekraftwerk UPM Schongau,Süd,Süd,,Heizkraftwerk (KWK),Erdgas,nicht EE,Bayern,"47°48'17.7""N 10°54'17.3""E",,1665,14310-1180,,240.937
+Netzreservekraftwerk VOELKLINGEN_HKV,Süd,Süd,,Kohlekraftwerke,Steinkohle,nicht EE,Saarland,"49°14'56.8""N 6°52'51.5""E",,889,14310-0298,,584.481
+Netzreservekraftwerk VOELKLINGEN_MKV,Süd,Süd,,Kohlekraftwerke,Steinkohle,nicht EE,Saarland,"49°14'56.8""N 6°52'51.5""E",,851,14310-0256,,445.877
+NEURATH_C,Süd,Süd,74,Kohlekraftwerke,Braunkohle ,nicht EE,Nordrhein-Westfalen,"51°02'08.7""N 6°36'49.0""E",,1606,14310-1093,,24.223.327
+NEURATH_D,Süd,Süd,74,Kohlekraftwerke,Braunkohle ,nicht EE,Nordrhein-Westfalen,"51°02'08.7""N 6°36'49.0""E",,1606,14310-1094,,24.223.327
+NEURATH_E,Süd,Süd,74,Kohlekraftwerke,Braunkohle ,nicht EE,Nordrhein-Westfalen,"51°02'08.7""N 6°36'49.0""E",,1606,14310-1095,,24.223.327
+NEURATH_F,Süd,Süd,74,Braunkohlekraftwerk (BoA),Braunkohle,nicht EE,Nordrhein-Westfalen,"51° 2′ 22″ N, 6° 36′ 54″ O",,1606,14310-1096,,24.223.327
+NEURATH_G,Süd,Süd,74,Braunkohlekraftwerk (BoA),Braunkohle,nicht EE,Nordrhein-Westfalen,"51° 2′ 22″ N, 6° 36′ 54″ O",,1606,14310-1097,,24.223.327
+NIEDERAUSSEM_E,Süd,Süd,74,Kohlekraftwerke,Braunkohle ,nicht EE,Nordrhein-Westfalen,"50°59'32.3""N 6°40'23.8""E",,1649,14310-1153,,16.995.539
+NIEDERAUSSEM_F,Süd,Süd,74,Kohlekraftwerke,Braunkohle ,nicht EE,Nordrhein-Westfalen,"50°59'32.3""N 6°40'23.8""E",,1649,14310-1154,,16.995.539
+NIEDERAUSSEM_G,Süd,Süd,74,Kohlekraftwerke,Braunkohle ,nicht EE,Nordrhein-Westfalen,"50°59'32.3""N 6°40'23.8""E",,1649,14310-1155,,16.995.539
+NIEDERAUSSEM_H,Süd,Süd,74,Kohlekraftwerke,Braunkohle ,nicht EE,Nordrhein-Westfalen,"50°59'32.3""N 6°40'23.8""E",,1649,14310-1156,,16.995.539
+NIEDERAUSSEM_K,Süd,Süd,74,,,Nicht EE,,,,1649,14310-1157,,16.995.539
+Niederrad 1,Süd,Süd,,Heizkraftwerk,Erdgas,nicht EE,Hessen,"50° 5′ 7″ N, 8° 37′ 39″ O",,1644,14310-1144,,114.807
+NIEHL-31-GUD,Süd,Süd,74,Heizkraftwerk (GuD),Erdgas,nicht EE,Nordrhein-Westfalen,"50° 58′ 30″ N, 6° 59′ 17″ O",,1279,14310-0726,,1.059.082
+NIEHL-II,Süd,Süd,74,Heizkraftwerk (GuD),Erdgas,nicht EE,Nordrhein-Westfalen,"50° 58′ 30″ N, 6° 59′ 17″ O",,1279,14310-0727,,1.059.082
+NIEHL-II-GT,Süd,Süd,74,,,Nicht EE,,,,1887,14310-1439,,710
+OWP Nordergründe,Nord,,20,,Wind,EE,,,,,,,
+OWP Riffgat,Nord,,20,,Wind,EE,,,,,,,
+OWP UW Büttel,Nord,,22,Umspannwerk Wind,Offshore Wind,EE,Schleswig-Holstein,"53,917659° N, 9,235118° O",,,,,
+OWP UW Diele,Nord,,22,Umspannwerk Wind,Offshore Wind,EE,Niedersachsen,"53° 7′ 12″ N, 7° 18′ 50″ E",,,,,
+OWP UW Dörpen-West,Nord,,22,Umspannwerk Wind,Offshore Wind,EE,Niedersachsen,"53° 0′ N, 7° 18′ O",,,,,
+OWP UW Emden-Ost,Nord,,22,Umspannwerk Wind,Offshore Wind,EE,Niedersachsen,"ca. 53° 22′ N, 7° 12′ O",,,,,
+Plattling GT,Süd,Süd,26,KWK (GUD),GT-Abgas + Erdgas,Nicht EE,Bayern,,,4132,14310-1737,,220.633
+PSW Rönkhausen,Nord,,73,,Wasser,EE,,,,,,,
+Pumpspeicherwerk Glems,Süd,,42,Pumpspeicherkraftwerk,Wasser,EE,Baden-Württemberg,"48°30'17.7""N 9°17'13.3""E",,,,,
+Pumpspeicherwerk Säckingen RZ TNG,Süd,,42,Pumpspeicherkraftwerk,Wasser,EE,Baden-Württemberg,"47°33'55.0""N 7°57'11.4""E",,,,,
+Pumpspeicherwerk Schluchseegruppe Häusern/Waldshut/Witznau RZ TNG,Süd,,42,Pumpspeicherkraftwerk,Wasser,EE,Baden-Württemberg,"47°45'18.2""N 8°11'14.6""E",,,,,
+Pumpspeicherwerk Wehr RZ TNG,Süd,,42,,Wasser,EE,,,,,,,
+Reisach 1,Süd,,25,Pumpspeicherkraftwerk,Wasser,EE,Bayern,"49°31'47.4""N 12°17'07.8""E",,,,,
+Reisach 2,Süd,,25,Pumpspeicherkraftwerk,Wasser,EE,Bayern,"49°31'47.4""N 12°17'07.8""E",,,,,
+Reisach 3,Süd,,25,Pumpspeicherkraftwerk,Wasser,EE,Bayern,"49°31'47.4""N 12°17'07.8""E",,,,,
+Reservekraftwerk Altbach/Deizisau Block 1,Süd,Süd,,Heizkraftwerk (Fuel Switch),Steinkohle,nicht EE,Baden-Württemberg,"48°43'02.1""N 9°22'26.5""E",,1450,14310-0912,,1.536.543
+Reservekraftwerk Heilbronn Block 5,Süd,Süd,,Heizkraftwerk,Steinkohle,nicht EE,Baden-Württemberg,"49°10'41.9""N 9°12'30.6""E",,1452,14310-0914,,1.914.021
+Reservekraftwerk Heilbronn Block 6,Süd,Süd,,Heizkraftwerk,Steinkohle,nicht EE,Baden-Württemberg,"49°10'41.9""N 9°12'30.6""E",,1452,14310-0915,,1.914.021
+Reservekraftwerk Marbach DT 3,Süd,Süd,,,Heizöl,nicht EE,Baden-Württemberg,"48°55'37.2""N 9°13'48.2""E",,1455,14310-0917,,94.149
+Reservekraftwerk Marbach GT 2,Süd,Süd,,,Heizöl,nicht EE,Baden-Württemberg,"48°55'37.2""N 9°13'48.2""E",,1455,14310-0917,,94.149
+Reservekraftwerk Marbach GT 3,Süd,Süd,,,Heizöl,nicht EE,Baden-Württemberg,"48°55'37.2""N 9°13'48.2""E",,1455,14310-0917,,94.149
+Reservekraftwerk Rheinhafen-Dampfkraftwerk Karlsruhe Block 4,Süd,Süd,,GuD,Erdgas,nicht EE,Baden-Württemberg,"49°00'50.0""N 8°18'20.5""E",,1457,14310-0918,,4.764.061
+Reservekraftwerk Walheim Block 1,Süd,Süd,,Heizkraftwerk,Steinkohle,nicht EE,Baden-Württemberg,"49°01'02.9""N 9°09'25.0""E",,1464,14310-0926,,144.413
+Reservekraftwerk Walheim Block 2,Süd,Süd,,Heizkraftwerk,Steinkohle,nicht EE,Baden-Württemberg,"49°01'02.9""N 9°09'25.0""E",,1464,14310-0927,,144.413
+ReserveKW Heyden,Süd,,,Kohlekraftwerk,Steinkohle,nicht EE,Nordrhein-Westfalen,"52°22'44.0""N 8°59'46.4""E",,1291,14310-0742,,1.382.813
+ReserveKW Ingolstadt 3,Süd,Süd,,Ölkraftwerk,Heizöl schwer,nicht EE,Bayern,"48°45'45.7""N 11°30'18.2""E",,1447,14310-0907,,42.018
+ReserveKW Ingolstadt 4,Süd,Süd,,Ölkraftwerk,Heizöl schwer,nicht EE,Bayern,"48° 45′ 43″ N, 11° 30′ 9″ O",,1447,14310-0907,,42.018
+ReserveKW Irsching 3,Süd,Süd,26,,,Nicht EE,Bayern,,,1207,14310-0651,,663.669
+ReserveKW Staudinger 4,Süd,Süd,,Dampfkraftwerk,Erdgas,nicht EE,Hessen,"50° 5′ 17″ N, 8° 57′ 8″ O",,1876,14310-1392,,2.094.305
+ReserveKW Staudinger 5,Süd,Süd,,Kohlekraftwerk,Steinkohle,nicht EE,Hessen,"50°05'14.3""N 8°57'28.0""E",,1876,14310-1392,,2.094.305
+Rheinhafen-Dampfkraftwerk Karlsruhe Block 7,Süd,Süd,,Heizkraftwerk,Steinkohle,nicht EE,Baden-Württemberg,"49° 0′ 45″ N, 8° 18′ 10″ O",,1457,14310-0918,,4.764.061
+Rheinhafen-Dampfkraftwerk Karlsruhe Block 8,Süd,Süd,,Heizkraftwerk,Steinkohle,nicht EE,Baden-Württemberg,"49° 0′ 45″ N, 8° 18′ 10″ O",,1457,14310-0919,,4.764.061
+Robert Frank 4 GT (KapRes),Nord,Nord,,GuD Kraftwerk,Erdgas,nicht EE,Niedersachsen,"52°32'46.8""N 9°06'59.0""E",,,,,
+ROENKHAUSEN_PSW1,Nord,,37,,Wasser,EE,,,,,,,
+ROENKHAUSEN_PSW2,Nord,,37,,Wasser,EE,,,,,,,
+Rostock Kohlekraftwerk,Nord,Nord,81,,,Nicht EE,,,,,,,
+Schkopau,Nord,Nord,,Dampfkraftwerk,Braunkohle,nicht EE,Sachsen-Anhalt,"51° 24′ 4″ N, 11° 57′ 3″ O",,1376,14310-0831,,4.387.507
+SCHOLVEN_B,Süd,Süd,,Kohlekraftwerk,Steinkohle,nicht EE,Nordrhein-Westfalen,"51°35'49.6""N 7°00'14.3""E",,1205,14310-0649,,3.114.331
+Schwarze Pumpe (Standort),Nord,Nord,,Kohlekraftwerk,Braunkohle,nicht EE,Brandenburg,"51°32'03.0""N 14°21'01.7""E",,1459,14310-0921,,9.570.636
+SHN Cluster Audorf Süd,Nord,,21,,,EE,,,,,,,
+SHN Cluster Brunsbüttel,Nord,,21,,,EE,,,,,,,
+SHN Cluster Hamburg Nord,Nord,,21,,,EE,,,,,,,
+SHN Cluster Handewitt T411,Nord,,21,,,EE,,,,,,,
+SHN Cluster Handewitt T411 T413,Nord,,21,,,EE,,,,,,,
+SHN Cluster Handewitt T412 T413,Nord,,21,,,EE,,,,,,,
+SHN Cluster Handewitt T414 T415,Nord,,21,,,EE,,,,,,,
+SHN Cluster Heide West T411 T412,Nord,,21,,,EE,,,,,,,
+SHN Cluster Heide West T413,Nord,,21,,,EE,,,,,,,
+SHN Cluster Husum Nord,Nord,,21,,,EE,,,,,,,
+SHN Cluster Itzehoe West,Nord,,21,,,EE,,,,,,,
+SHN Cluster Jardelund,Nord,,21,,,EE,,,,,,,
+SHN Cluster Kiel Süd,Nord,,21,,,EE,,,,,,,
+SHN Cluster Klixbüll,Nord,,21,,,EE,,,,,,,
+SHN Cluster Krümmel,Nord,,21,,,EE,,,,,,,
+SHN Cluster Kummerfeld,Nord,,21,,,EE,,,,,,,
+SHN Cluster Lübeck,Nord,,21,,,EE,,,,,,,
+SHN Cluster Schuby West,Nord,,21,,,EE,,,,,,,
+SHN Cluster Süderdonn T411,Nord,,21,,,EE,,,,,,,
+SHN Cluster Süderdonn T412 T413,Nord,,21,,,EE,,,,,,,
+SHN Cluster Wilster West,Nord,,21,,,EE,,,,,,,
+Silz 1 (TIWAG),Süd,,75,,Wasser,EE,,,,,,,
+Silz 1 (Uniper),Süd,,75,,Wasser,EE,,,,,,,
+Silz 2 (TIWAG),Süd,,75,,Wasser,EE,,,,,,,
+Staudinger 5,Süd,Süd,,Dampfkraftwerk,Steinkohle & 3 % Klärschlamm,nicht EE,Hessen,"50° 5′ 17″ N, 8° 57′ 8″ O",,1876,14310-1392,,2.094.305
+STUMMHAFEN_10,Süd,Süd,,Kohlekraftwerk,Steinkohle,nicht EE,Nordrhein-Westfalen,"51°36'49.9""N 7°27'59.8""E",,,,,
+SW München KW-Pool,Süd,Süd,26,Kraftwerksmix,,nicht EE,Bayern,?,,,,,
+SWDU_HKW_3B,Süd,Süd,,Heizkraftwerk (GuD),Erdgas,nicht EE,Nordrhein-Westfalen,"51°23'31.0""N 6°44'49.9""E",,1320,14310-0772,,318.601
+Tanzmühle,Süd,,25,,Wasser,EE,,,,,,,
+Thyrow A (KapRes),Nord,Nord,81,,,Nicht EE,,,,1231,14310-0675,,782
+Thyrow A (SysRel),Nord,Nord,81,Gasturbinenkraftwerk,Erdgas,nicht EE,Brandenburg,"52°13'47.9""N 13°18'04.8""E",,1231,14310-0676,,782
+Thyrow B (KapRes),Nord,Nord,81,,,Nicht EE,,,,1231,14310-0677,,782
+Thyrow B (SysRel),Nord,Nord,81,Gasturbinenkraftwerk,Erdgas,nicht EE,Brandenburg,"52°13'47.9""N 13°18'04.8""E",,1231,14310-0678,,782
+Thyrow C (KapRes),Nord,Nord,81,,,Nicht EE,,,,1231,14310-0679,,782
+Thyrow C (SysRel),Nord,Nord,81,Gasturbinenkraftwerk,Erdgas,nicht EE,Brandenburg,"52°13'47.9""N 13°18'04.8""E",,1231,14310-0680,,782
+Thyrow D (KapRes),Nord,Nord,81,,,Nicht EE,,,,1231,14310-0681,,782
+Thyrow D (SysRel),Nord,Nord,81,Gasturbinenkraftwerk,Erdgas,nicht EE,Brandenburg,"52°13'47.9""N 13°18'04.8""E",,1231,14310-0682,,782
+Thyrow E (KapRes),Nord,Nord,81,,,Nicht EE,,,,1231,14310-0683,,782
+Thyrow E (SysRel),Nord,Nord,81,Gasturbinenkraftwerk,Erdgas,nicht EE,Brandenburg,"52°13'47.9""N 13°18'04.8""E",,1231,14310-0684,,782
+UPM Schongau HKW3,Süd,Süd,,Heizkraftwerk (KWK),Erdgas,nicht EE,Bayern,"47°48'17.7""N 10°54'17.3""E",,1665,14310-1180,,240.937
+VIANDEN_1,Süd,,75,,Wasser,EE,,,,,,,
+VOELKLINGEN_HKV,Süd,Süd,75,Kohlekraftwerke,Steinkohle,nicht EE,Saarland,"49°14'56.8""N 6°52'51.5""E",,889,14310-0298,584.481,
+VOELKLINGEN_MKV,Süd,Süd,75,,,Nicht EE,Saarland,"49°14'56.8""N 6°52'51.5""E",,851,14310-0256,445.877,
+Vorarlberger Ilwerke,Österreich,,Österreich,Pumpspeicherkraftwerk,Wasser,EE,,,,,,,
+Waldeck 1,Nord,,73,,Wasser,EE,,,,,,,
+Waldeck 5,Nord,,73,Pumpspeicherkraftwerk,Wasser,EE,Hessen,"51°10'02.3""N 9°02'47.2""E",,,,,
+Waldeck 6,Nord,,73,,Wasser,EE,,,,851,,,
+WALSUM_10,Süd,Süd,,Steinkohlekraftwerk,Steinkohle,nicht EE,Nordrhein-Westfalen,"51° 31′ 43″ N, 6° 42′ 43″ O",,1317,14310-0769,,2.775.858
+Weiher C,Süd,Süd,75,Steinkohlekraftwerk,Steinkohle,nicht EE,Saarland,"49°20'07.3""N 7°01'47.3""E",,845,14310-0249,329.586,
+WEISWEILER_F,Süd,Süd,74,,,Nicht EE,,,,1607,14310-1094,,14.926.309
+WEISWEILER_F_110,Süd,Süd,74,Kohlekraftwerk ,Braunkohle,nicht EE,Nordrhein-Wetsfalen,"50°50'09.2""N 6°18'59.7""E",,1607,14310-1095,,14.926.309
+WEISWEILER_G,Süd,Süd,74,Kohlekraftwerk ,Braunkohle,nicht EE,Nordrhein-Wetsfalen,"50°50'09.2""N 6°18'59.7""E",,1607,14310-1096,,14.926.309
+WEISWEILER_H,Süd,Süd,74,Kohlekraftwerk ,Braunkohle,nicht EE,Nordrhein-Wetsfalen,"50°50'09.2""N 6°18'59.7""E",,1607,14310-1097,,14.926.309
+WEISWEILER_VGTG3,Süd,Süd,74,,,Nicht EE,,,,1607,14310-1098,,14.926.309
+WEISWEILERVGT_H3,Süd,Süd,74,,,Nicht EE,,,,1607,14310-1099,,14.926.309
+Wilhelmshaven (ENGIE),Nord,Nord,22,Dampfkraftwerk,Steinkohle,nicht EE,Niedersachsen,"53° 34′ 29″ N, 8° 8′ 13″ O",,,,,
+Wolfsburg Nord A,Nord,Nord,23,Heizkraftwerk,Steinkohle,Nicht EE,Niedersachsen,"52° 25′ 57″ N, 10° 47′ 15″ O",,1527,14310-1002,,550.689
+Wolfsburg West 2,Nord,Nord,23,Heizkraftwerk (KWK),Steinkohle,Nicht EE,Niedersachsen,"52° 26′ 31″ N, 10° 45′ 50″ O",,1515,14310-0989,,1.310.553
+WP Emsland,Nord,,22,,Wind,EE,,,,,,,
+WP Jardelund,Nord,,21,,Wind,EE,,,,,,,
+WP Wilstermarsch,Nord,,21,,Wind,EE,,,,,,,
+Würzburg GT 1,Süd,Süd,25,Heizkraftwerk (GuD),Erdgas,nicht EE,Bayern,"49°47'58.9""N 9°55'26.2""E",,769,14310-0163,,148.383
+Würzburg GT 2,Süd,Süd,25,Heizkraftwerk (GuD),Erdgas,Nicht EE,Bayern,,,769,14310-0164,,148.383
+Zolling 5,Süd,Süd,26,Steinkohlekraftwerk,Steinkohle,nicht EE,Bayern,"48° 27′ 18″ N, 11° 47′ 56″ O",,963,14310-0383,1.411.172,
