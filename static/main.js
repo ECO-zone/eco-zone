@@ -85,221 +85,205 @@ Highcharts.setOptions({
 });
 
 function makeChart(config) {
-  let chart = Highcharts.stockChart(config.id, {
-    chart: {
-      events: {
-        load() {
-          this.showLoading();
+  if (document.getElementById(config.id)) {
+    let chart = Highcharts.stockChart(config.id, {
+      chart: {
+        events: {
+          load() {
+            this.showLoading();
+          },
+          redraw() {
+            this.hideLoading();
+          },
         },
-        redraw() {
-          this.hideLoading();
+        height: 500,
+        type: config.type,
+      },
+      credits: {
+        enabled: false,
+      },
+      data: {
+        rowsURL: config.url,
+        complete: function (parsedData) {
+          for (let series of parsedData.series) {
+            let newName = config.seriesNames[series.name];
+            if (newName) {
+              series.name = newName;
+            }
+            series.showInNavigator = true;
+            if (config.type === 'area') {
+              series.label = false;
+              series.stacking = "normal";
+              series.type = "area";
+            }
+          }
         },
       },
-      height: 500,
-      type: config.type,
-    },
-    credits: {
-      enabled: false,
-    },
-    data: {
-      rowsURL: config.url,
-      complete: function (parsedData) {
-        for (let series of parsedData.series) {
-          let newName = config.seriesNames[series.name];
-          if (newName) {
-            series.name = newName;
+      legend: {
+        enabled: true,
+        layout: "horizontal",
+        align: "left",
+        verticalAlign: "bottom",
+      },
+      loading: {
+        hideDuration: 500,
+        labelStyle: {"fontWeight": "bold", "position": "relative", "top": "-55%",},
+        showDuration: 10,
+        style: {"position": "relative", "backgroundColor": "#ffffff", "opacity": 0.7,}
+      },
+      navigator: {
+        enabled: true,
+        series: (config.type == "area") ? {stacking: "normal", type: "area", fillOpacity: 1,} : {}
+      },
+      rangeSelector: {
+        buttons: [
+          {
+            type: 'month',
+            count: 1,
+            text: '1 Mo.',
+            title: '1 Monat anzeigen'
+          }, {
+            type: 'month',
+            count: 3,
+            text: '3 Mo.',
+            title: '3 Monate anzeigen'
+          }, {
+            type: 'month',
+            count: 6,
+            text: '6 Mo.',
+            title: '6 Monate anzeigen'
+          }, {
+            type: 'ytd',
+            text: 'YTD',
+            title: 'Aktuellen Jahresverlauf anzeigen'
+          }, {
+            type: 'year',
+            count: 1,
+            text: '1 Jahr',
+            title: '1 Jahr anzeigen'
+          }, {
+              type: 'all',
+              text: 'Alles',
+              title: 'Alles anzeigen'
           }
-          series.showInNavigator = true;
-          if (config.type === 'area') {
-            series.label = false;
-            series.stacking = "normal";
-            series.type = "area";
-          }
-        }
+        ],
+        selected: 0,
+        verticalAlign: 'top',
+        x: 0,
+        y: 0
       },
-    },
-    legend: {
-      enabled: true,
-      layout: "horizontal",
-      align: "left",
-      verticalAlign: "bottom",
-    },
-    loading: {
-      hideDuration: 500,
-      labelStyle: {"fontWeight": "bold", "position": "relative", "top": "-55%",},
-      showDuration: 10,
-      style: {"position": "relative", "backgroundColor": "#ffffff", "opacity": 0.7,}
-    },
-    navigator: {
-      enabled: true,
-      series: (config.type == "area") ? {stacking: "normal", type: "area", fillOpacity: 1,} : {}
-    },
-    rangeSelector: {
-      buttons: [
-        {
-          type: 'month',
-          count: 1,
-          text: '1 Mo.',
-          title: '1 Monat anzeigen'
-        }, {
-          type: 'month',
-          count: 3,
-          text: '3 Mo.',
-          title: '3 Monate anzeigen'
-        }, {
-          type: 'month',
-          count: 6,
-          text: '6 Mo.',
-          title: '6 Monate anzeigen'
-        }, {
-          type: 'ytd',
-          text: 'YTD',
-          title: 'Aktuellen Jahresverlauf anzeigen'
-        }, {
-          type: 'year',
-          count: 1,
-          text: '1 Jahr',
-          title: '1 Jahr anzeigen'
-        }, {
-            type: 'all',
-            text: 'Alles',
-            title: 'Alles anzeigen'
-        }
-      ],
-      selected: 0,
-      verticalAlign: 'top',
-      x: 0,
-      y: 0
-    },
-    subtitle: {
-      text: config.subtitleText,
-      align: "left",
-    },
-    title: {
-      text: config.titleText,
-      align: "left",
-    },
-    tooltip: {
-      shared: true,
-      split: false,
-      valueDecimals: 2,
-    },
-    xAxis: {
+      subtitle: {
+        text: config.subtitleText,
+        align: "left",
+      },
       title: {
-        text: "Auflösung: 15-Minuten",
+        text: config.titleText,
+        align: "left",
       },
-      accessibility: {
-        rangeDescription: "Auflösung: 15-Minuten",
+      tooltip: {
+        shared: true,
+        split: false,
+        valueDecimals: 2,
       },
+      xAxis: {
+        title: {
+          text: "Auflösung: 15-Minuten",
+        },
+        accessibility: {
+          rangeDescription: "Auflösung: 15-Minuten",
+        },
+      },
+      yAxis: {
+        opposite: false,
+        title: {
+          text: config.yAxisText,
+        },
+      },
+    });
+    return chart;
+  } else {
+    return null;
+  }
+}
+
+
+if (document.getElementById("chart-timeseries-emission-intensity-zonal")) {
+  let dropdownRegionSelect = document.getElementById('dropdown-region-select');
+  let emissionIntensityRegionalChart = makeChart({
+    id: "chart-timeseries-emission-intensity-zonal",
+    type: "line",
+    seriesNames: {
+      emission_intensity: "Emissionsintensität",
+      emission_intensity_north: "Emissionsintensität Regional [Nord]",
+      emission_intensity_south: "Emissionsintensität Regional [Süd]",
     },
-    yAxis: {
-      opposite: false,
-      title: {
-        text: config.yAxisText,
-      },
-    },
+    subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
+    titleText: 'Zonale Emissionen pro erzeugter MWh Strom',
+    url: `/api/timeseries/emission-intensity-zonal?region=${dropdownRegionSelect.value}&start=2023-01-01T00%3A00%2B02%3A00`,
+    yAxisText: 'Emissionsintensität [kgCO2/MWh]',
   });
-  return chart;
+
+  dropdownRegionSelect.addEventListener('change', function() {
+    this.blur();
+    emissionIntensityRegionalChart.update({
+      data: {
+        rowsURL: `/api/timeseries/emission-intensity-zonal?region=${this.value}&start=2023-01-01T00%3A00%2B02%3A00`
+      }
+    });
+  });
 }
 
-function isVisibleInViewport(value) {
-  let item = value.getBoundingClientRect();
-  return item.top + 40 <= window.innerHeight
-}
-
-let generationChartEl = document.getElementById('chart-timeseries-generation');
-let emissionsChartEl = document.getElementById('chart-timeseries-emissions');
-let regionalEmissionsChartEl = document.getElementById('chart-timeseries-emissions-zonal');
-
-let dropdownRegionSelect = document.getElementById('dropdown-region-select');
-
-let emissionIntensityRegionalChart = makeChart({
-  id: "chart-timeseries-emission-intensity-zonal",
-  type: "line",
+makeChart({
+  id: "chart-timeseries-generation",
+  type: "area",
   seriesNames: {
-    emission_intensity: "Emissionsintensität",
-    emission_intensity_north: "Emissionsintensität Regional [Nord]",
-    emission_intensity_south: "Emissionsintensität Regional [Süd]",
+    B01: "Biomasse",
+    B02: "Braunkohle",
+    B04: "Erdgas",
+    B05: "Steinkohle",
+    B06: "Mineralöl",
+    B09: "Geothermie",
+    B10: "Pumpspeicher",
+    B11: "Wasserkraft (Laufwasser)",
+    B12: "Wasserspeicher",
+    B15: "Sonstige Erneuerbare Energien",
+    B16: "Photovoltaik",
+    B17: "Abfall",
+    B18: "Windenergie (Offshore-Anlage)",
+    B19: "Windenergie (Onshore-Anlage)",
+    B20: "Sonstige konventionelle Energien",
   },
-  subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
-  titleText: 'Emissionsintensität zonal als Timeseries',
-  url: `/api/timeseries/emission-intensity-zonal?region=${dropdownRegionSelect.value}&start=2023-01-01T00%3A00%2B02%3A00`,
-  yAxisText: 'Emissionsintensität [kgCO2/MWh]',
+  subtitleText: 'Nettostromerzeugung pro Energieträger. Hochrechnung durch ECO zone. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
+  titleText: 'Nettostromerzeugung pro Energieträger',
+  url: "/api/timeseries/generation?start=2023-01-01T00%3A00%2B02%3A00",
+  yAxisText: 'Nettostromerzeugung [MW]',
 });
 
-dropdownRegionSelect.addEventListener('change', function() {
-  this.blur();
-  emissionIntensityRegionalChart.update({
-    data: {
-      rowsURL: `/api/timeseries/emission-intensity-zonal?region=${this.value}&start=2023-01-01T00%3A00%2B02%3A00`
-    }
-  });
+makeChart({
+  id: "chart-timeseries-emissions",
+  type: "area",
+  seriesNames: {
+    B01: "Biomasse",
+    B02: "Braunkohle",
+    B04: "Erdgas",
+    B05: "Steinkohle",
+    B06: "Mineralöl",
+    B09: "Geothermie",
+    B10: "Pumpspeicher",
+    B11: "Wasserkraft (Laufwasser)",
+    B12: "Wasserspeicher",
+    B15: "Sonstige Erneuerbare Energien",
+    B16: "Photovoltaik",
+    B17: "Abfall",
+    B18: "Windenergie (Offshore-Anlage)",
+    B19: "Windenergie (Onshore-Anlage)",
+    B20: "Sonstige konventionelle Energien",
+  },
+  subtitleText: 'Emissionen pro Energieträger [kgCO2]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
+  titleText: 'Emissionen pro Energieträger',
+  url: '/api/timeseries/emissions?start=2023-01-01T00%3A00%2B02%3A00',
+  yAxisText: 'Emissionen [kgCO2]',
 });
-
-function makeGenerationChart() {
-  if (isVisibleInViewport(generationChartEl) == true) {
-    window.removeEventListener("scroll", makeGenerationChart)
-    makeChart({
-      id: "chart-timeseries-generation",
-      type: "area",
-      seriesNames: {
-        B01: "Biomasse",
-        B02: "Braunkohle",
-        B04: "Erdgas",
-        B05: "Steinkohle",
-        B06: "Mineralöl",
-        B09: "Geothermie",
-        B10: "Pumpspeicher",
-        B11: "Wasserkraft (Laufwasser)",
-        B12: "Wasserspeicher",
-        B15: "Sonstige Erneuerbare Energien",
-        B16: "Photovoltaik",
-        B17: "Abfall",
-        B18: "Windenergie (Offshore-Anlage)",
-        B19: "Windenergie (Onshore-Anlage)",
-        B20: "Sonstige konventionelle Energien",
-      },
-      subtitleText: 'Nettostromerzeugung pro Energieträger. Hochrechnung durch ECO zone. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
-      titleText: 'Nettostromerzeugung pro Energieträger als Timeseries',
-      url: "/api/timeseries/generation?start=2023-01-01T00%3A00%2B02%3A00",
-      yAxisText: 'Nettostromerzeugung [MW]',
-    });
-  }
-}
-
-function makeEmissionsChart() {
-  if (isVisibleInViewport(emissionsChartEl) == true) {
-    window.removeEventListener("scroll", makeEmissionsChart)
-    makeChart({
-      id: "chart-timeseries-emissions",
-      type: "area",
-      seriesNames: {
-        B01: "Biomasse",
-        B02: "Braunkohle",
-        B04: "Erdgas",
-        B05: "Steinkohle",
-        B06: "Mineralöl",
-        B09: "Geothermie",
-        B10: "Pumpspeicher",
-        B11: "Wasserkraft (Laufwasser)",
-        B12: "Wasserspeicher",
-        B15: "Sonstige Erneuerbare Energien",
-        B16: "Photovoltaik",
-        B17: "Abfall",
-        B18: "Windenergie (Offshore-Anlage)",
-        B19: "Windenergie (Onshore-Anlage)",
-        B20: "Sonstige konventionelle Energien",
-      },
-      subtitleText: 'Emissionen pro Energieträger [kgCO2]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
-      titleText: 'Emissionen pro Energieträger als Timeseries',
-      url: '/api/timeseries/emissions?start=2023-01-01T00%3A00%2B02%3A00',
-      yAxisText: 'Emissionen [kgCO2]',
-    });
-  }
-}
-
-window.addEventListener('scroll', makeGenerationChart);
-window.addEventListener('scroll', makeEmissionsChart);
 
 makeChart({
   id: 'chart-timeseries-redispatch',
@@ -309,7 +293,7 @@ makeChart({
     power_mid_mw_increase: "Wirkleistungseinspeisung erhöhen",
   },
   subtitleText: 'Mittlere Leistung in MW pro Richtung. Hochrechnung durch ECO zone. Datenquelle: <a href="https://www.netztransparenz.de/de-de/Systemdienstleistungen/Betriebsf%C3%BChrung/Redispatch" target="_blank">Netztransparenz.de</a>.',
-  titleText: 'Redispatch-Leistung als Timeseries',
+  titleText: 'Redispatch-Leistung',
   url: '/api/timeseries/redispatch?start=2023-01-01T00%3A00%2B02%3A00',
   yAxisText: 'Mittlere Leistung [MW]',
 });
@@ -321,7 +305,59 @@ makeChart({
     emission_intensity: "Emissionsintensität",
   },
   subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
-  titleText: 'Emissionsintensität als Timeseries',
+  titleText: 'Zonale Emissionen pro erzeugter MWh Strom',
   url: '/api/timeseries/emission-intensity?start=2023-01-01T00%3A00%2B02%3A00',
   yAxisText: 'Emissionsintensität [kgCO2/MWh]',
 });
+
+async function getEmissionFactors() {
+  let url = "/api/stats/emission-factors";
+  let emissionFactors
+  try {
+    let response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    emissionFactors = await response.json();
+    console.log(emissionFactors);
+  } catch (error) {
+    emissionFactors = {nord: null, sued: null}
+    console.error(error.message);
+  }
+  return emissionFactors;
+}
+
+async function makeMap() {
+  if (document.getElementById("zone-map")) {
+    let emissionFactors = await getEmissionFactors();
+    let dropdownRegionSelect = document.getElementById('dropdown-region-select');
+    dropdownRegionSelect.value = "---"
+    let currentMap = document.getElementById("zone_map_inactive");
+    dropdownRegionSelect.addEventListener('change', function() {
+      this.blur();
+      let selectedZone = this.value;
+      let emissionFactor = emissionFactors[selectedZone];
+      if (emissionFactor !== null) {
+        new countUp.CountUp(
+          "emissions-intensity-value",
+          emissionFactor,
+          {
+            decimalPlaces: 2,
+            duration: 1.2,
+          }
+        ).start();
+      } else {
+        document.getElementById("emissions-intensity-value").innerText = "N/A";
+      }
+      let selectedMap = document.getElementById(`zone_map_${selectedZone}`);
+      selectedMap.classList.add("fade-in-image");
+      selectedMap.classList.remove("hidden", "fade-out-image");
+      currentMap.classList.add("fade-out-image", "hidden");
+      currentMap.classList.remove("fade-in-image");
+      currentMap = selectedMap;
+    });
+  }  
+}
+
+makeMap();

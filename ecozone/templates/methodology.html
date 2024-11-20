@@ -1,0 +1,40 @@
+{% extends "_base.html" %}
+
+{% block content %}
+<div class="col-lg-8 px-0">
+  <h1>Methodik</h1>
+  <p class="fs-5"></p>
+</div>
+{% include "snippets/divider.html" %}
+<h2>Zielsetzung</h2>
+<p>Das ECO zone Projekt zielt darauf ab, die Netzstabilität zu verbessern, CO₂-Emissionen zu reduzieren und die Nutzung erneuerbarer Energien zu maximieren. Durch die Kombination von marginalen Emissionen und einer gezielten Zonenaufteilung bietet ECO zone eine Methodik, die es ermöglicht, den Stromverbrauch präzise an die tatsächlichen Bedingungen im Netz anzupassen. So können Verbraucherinnen und Verbraucher ihre Entscheidungen auf eine fundierte, emissionsbewusste Basis stellen und zur Schaffung eines nachhaltigeren Energiesystems beitragen.</p>
+{% include "snippets/divider.html" %}
+<h2>Konzept der marginalen Emissionen</h2>
+<p>Marginale Emissionen konzentrieren sich auf die zusätzlichen CO₂-Emissionen, die durch zusätzlichen Verbrauch im Stromnetz entstehen. Anders als bei durchschnittlichen Emissionen, die gleichmäßig auf alle Stromverbraucherinnen und -verbraucher verteilt werden, geht es bei marginalen Emissionen darum, die kausalen Auswirkungen von Einzelhandlungen zu bewerten.</p>
+<p>Da im deutschen Strommarktdesign zunächst die kurzfristig kostengünstigsten und emissionsärmsten Energiequellen (z. B. Wind und Solar) zur Deckung des Verbrauchs herangezogen werden, steigt bei höherem Bedarf die Notwendigkeit, teurere und meist emissionsintensivere Kraftwerke zuzuschalten. Das sogenannte marginale Kraftwerk ist das letzte zugeschaltete Kraftwerk. Wenn die Nachfrage im Netz steigt oder fällt, wirkt sich dies direkt auf den Einsatz dieses Kraftwerks aus, sodass jede Entscheidung zu mehr oder weniger Verbrauch die Emissionen entsprechend beeinflusst. Dieser marginale Ansatz bietet eine präzisere Grundlage zur Bewertung von Emissionseffekten und trägt zur verantwortungsbewussten Entscheidungsfindung im Stromverbrauch bei.</p>
+{% include "snippets/divider.html" %}
+<h2>Zonenkonzept für spezifische Emissionsfaktoren</h2>
+<p>ECO zone nutzt ein Zonenkonzept, das speziell für die Anforderungen und Herausforderungen des deutschen Stromnetzes entwickelt wurde. Die Struktur basiert auf einer Nord-Süd-Aufteilung, wie sie im Rahmen des ENTSO-E Bidding Zone Reviews in der Variante A betrachtet wird. Diese geografische Differenzierung ist besonders relevant, um Netzengpässe zu berücksichtigen, die durch die Verteilung der Erzeugungskapazitäten in Deutschland entstehen: Während im Norden durch Windkraft ein Überschuss an erneuerbaren Energien herrscht, wird im Süden, wo der Bedarf hoch ist, häufig auf fossile Kraftwerke zurückgegriffen.</p>
+<p>Durch die Nutzung dieser Zonen lassen sich Lastverschiebungen gezielter steuern. In nördlichen Regionen kann eine erhöhte Nachfrage Abregelungen von Windkraft reduzieren. Im Süden hingegen kann eine Verbrauchsreduktion die Notwendigkeit für fossile Kraftwerke minimieren. Die zonale Differenzierung von Emissionen ermöglicht eine lokal abgestimmte Verbrauchssteuerung, die sowohl Emissionen als auch Redispatchkosten reduziert.</p>
+{% include "snippets/divider.html" %}
+<h2>Berechnung der spezifischen Emissionen aus Redispatchdaten</h2>
+<p>Um die spezifischen Emissionen je Zone zu berechnen, analysiert das Projekt die öffentlich zugänglichen Redispatch-Daten. Redispatch-Maßnahmen werden ergriffen, wenn das Netz überlastet ist und Energie aus überschüssiger Erzeugung – oft Windkraft im Norden – nicht vollständig transportiert werden kann. In diesen Fällen werden die Erzeugungsanlagen im Norden reduziert und im Süden fossile Kraftwerke hochgefahren, um den Bedarf zu decken.</p>
+<p>Das ECO zone-Projekt nutzt Redispatch-Daten von Netztransparenz.de, die in einer 15-minütigen Auflösung kontinuierlich aktualisiert werden. Diese Daten zeigen, welche Kraftwerke aufgrund von Netzengpässen abgeregelt oder zugeschaltet werden müssen. Auf dieser Basis können die Mehremissionen durch die Abregelung erneuerbarer Energien berechnet werden: Zusätzlicher Stromverbrauch im Norden wird dabei als emissionsfrei gewertet, da er zur Reduktion von Abregelungen beiträgt, während jede vermiedene Verbrauchseinheit im Süden mit dem Emissionsfaktor des dort hochgefahrenen Kraftwerks bewertet wird.</p>
+{% include "snippets/divider.html" %}
+<h2>Redispatch-Leistung</h2>
+<p>Im Folgenden sind die Redispatchdaten dargestellt, die als Ausgangsbasis für die Berechnung dienen. Hierbei wurden die Einzelmaßnahmen für die Kategorien „Wirkleistung reduzieren“ und „Wirkleistung erhöhen“ zur Übersichtlichkeit aufsummiert. Abregelungen von erneuerbaren Energien sind der Kategorie „Wirkleistung reduzieren“ zuzuordnen, wohingegen in der Kategorie „Wirkleistung erhöhen“ vornehmlich konventionelle Kraftwerke hochgefahren werden, was zusätzliche Emissionen verursacht. Aus der Darstellung lässt sich bereits ein guter Überblick zur aktuellen Netzsituation gewinnen.</p>
+{% include "snippets/chart.html" with id="timeseries-redispatch" %}
+{% include "snippets/divider.html" %}
+<h2>Nettostromerzeugung pro Energieträger</h2>
+<p>Außerdem fließen in das Modell die aktuellen Erzeugungswerte in Deutschland pro Energieträger ein.</p>
+{% include "snippets/chart.html" with id="timeseries-generation" %}
+{% include "snippets/divider.html" %}
+<h2>Emissionen pro Energieträger</h2>
+<p>Aus der Multiplikation der Erzeugung je Energieträger mit den spezifischen Emissionsfaktoren nach DIN SPEC 91410-2 ergeben sich Emissionen pro Energieträger.</p>
+{% include "snippets/chart.html" with id="timeseries-emissions" %}
+{% include "snippets/divider.html" %}
+<h2>Gesamtemissionen Deutschland</h2>
+<p>Aus den Emissionen pro Energieträger lassen sich deutschlandweite erzeugungsseitige Emissionswerte ableiten. Diese dienen als Basis für das Modell, wenn keine Abregelungen von erneuerbaren Energien zu berücksichtigen sind.</p>
+{% include "snippets/chart.html" with id="timeseries-emission-intensity" %}
+{% include "snippets/divider.html" %}
+{% endblock %}

@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from ninja import NinjaAPI
 
-from .models import PSRGeneration, RegionDena, RegionNorthSouth, TimeseriesRedispatch
+from .models import EmissionFactorsNordSued, PSRGeneration, TimeseriesRedispatch
 
 
 api = NinjaAPI(title="ECO zone API")
@@ -41,3 +41,8 @@ def get_generation(
     request, start: Optional[datetime] = None, end: Optional[datetime] = None
 ):
     return PSRGeneration.objects.get_emissions_data(start, end)
+
+
+@api.get("/stats/emission-factors", response=EmissionFactorsNordSued)
+def get_emission_factors(request):
+    return PSRGeneration.objects.get_emission_factors_nord_sued()

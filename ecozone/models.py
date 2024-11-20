@@ -1,4 +1,5 @@
 import csv
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 import logging
 from typing import Optional, Union
@@ -9,9 +10,15 @@ from xml.etree import ElementTree
 from django.db import models, transaction
 from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
-
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class EmissionFactorsNordSued:
+    nord: Optional[float]
+    sued: Optional[float]
 
 
 class RegionNorthSouth(models.TextChoices):
@@ -256,6 +263,7 @@ class RedispatchManager(models.Manager):
                         last[1] = rend
                     else:
                         timeranges.append([rstart, rend])
+
         return timeranges
 
 class Redispatch(models.Model):
@@ -600,6 +608,76 @@ class PSRGenerationManager(models.Manager):
         )
 
         return [["start", f"Emissionsintensität {RegionNorthSouth(region).label if region in RegionNorthSouth else 'dena ' + region}"]] + list(records)
+
+
+    def get_emission_factors_nord_sued(
+        self,
+    ) -> EmissionFactorsNordSued:
+        region = RegionNorthSouth.NORTH
+        start = timezone.now() - timedelta(days=3)
+        end = None
+        timeranges = Redispatch.objects.get_timeranges(region, start, end)
+        redispatch_timerange_query = Q()
+        if timeranges:
+            for timerange in timeranges:
+                redispatch_timerange_query |= Q(start__range=timerange)
+        else:
+            redispatch_timerange_query |= Q(pk__in=[])
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        record_north = (
+            self.filter(timerange_query)
+            .values(
+                "start",
+            )
+            .order_by("start")
+            .annotate(
+                **{f"emission_intensity": models.Case(
+                    models.When(redispatch_timerange_query, then=models.Value(0.0)),
+                    default=(Coalesce(Sum("emissions"), 0.0) / Coalesce(Sum("power_mw"), 0.0)) * 4,
+                    output_field=models.FloatField()
+                )}
+            )
+            .last()
+        )
+        record_north = round(record_north["emission_intensity"], 2) if record_north else record_north
+
+        region = RegionNorthSouth.SOUTH
+        timeranges = Redispatch.objects.get_timeranges(region, start, end)
+        redispatch_timerange_query = Q()
+        if timeranges:
+            for timerange in timeranges:
+                redispatch_timerange_query |= Q(start__range=timerange)
+        else:
+            redispatch_timerange_query |= Q(pk__in=[])
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        record_south = (
+            self.filter(timerange_query)
+            .values(
+                "start",
+            )
+            .order_by("start")
+            .annotate(
+                **{f"emission_intensity": models.Case(
+                    models.When(redispatch_timerange_query, then=models.Value(0.0)),
+                    default=(Coalesce(Sum("emissions"), 0.0) / Coalesce(Sum("power_mw"), 0.0)) * 4,
+                    output_field=models.FloatField()
+                )}
+            )
+            .last()
+        )
+        record_south = round(record_south["emission_intensity"], 2) if record_south else record_south
+
+        return EmissionFactorsNordSued(nord=record_north, sued=record_south)
+        return [["start", f"Emissionsintensität {RegionNorthSouth(region).label if region in RegionNorthSouth else 'dena ' + region}"]] + list(records)
+
 
     def get_generation_data(self, start: Optional[datetime], end: Optional[datetime]):
         header = ["start"] + [psr.value.upper() for psr in PSR_TYPES_POST_2024]

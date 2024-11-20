@@ -75,18 +75,6 @@ def harvest_redispatch() -> int:
             record["end"] = from_date_and_time_to_utc_datetime(
                 row["ENDE_DATUM"], row["ENDE_UHRZEIT"]
             )
-            region_names = [s.strip() for s in row["NETZREGION"].split(",")]
-            for region_name in region_names:
-                region_id = current_grid_regions.get(region_name)
-                if not region_id:
-                    new_region = GridRegion.objects.create(name=region_name)
-                    current_grid_regions[new_region.name] = new_region.id
-                    region_id = new_region.id
-                redispatch_region_relations.append(
-                    Redispatch.grid_regions.through(
-                        redispatch_id=record_id, gridregion_id=region_id
-                    )
-                )
             record["reason"] = row["GRUND_DER_MASSNAHME"]
             record["direction"] = row["RICHTUNG"]
             record["power_mid_mw"] = from_de_format_to_float(row["MITTLERE_LEISTUNG_MW"])
