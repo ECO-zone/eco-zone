@@ -335,6 +335,8 @@ class TimeseriesRedispatchManager(models.Manager):
         self.bulk_create(timeseries_records, batch_size=1000)
 
     def get_timeseries_data(self, start: Optional[datetime], end: Optional[datetime]):
+        if not start:
+            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
         header = ["start", "power_mid_mw_decrease", "power_mid_mw_increase"]
         timerange_query = Q()
         if start:
@@ -554,6 +556,8 @@ class PSRGenerationManager(models.Manager):
     def get_emission_intensity_data(
         self, start: Optional[datetime], end: Optional[datetime]
     ):
+        if not start:
+            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
         header = ["start", "emission_intensity"]
         timerange_query = Q()
         if start:
@@ -579,6 +583,8 @@ class PSRGenerationManager(models.Manager):
     def get_emission_intensity_data_for_region(
         self, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime]=None, end: Optional[datetime]=None
     ):
+        if not start:
+            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
         header = ["start", f"emission_intensity_{region}"]
         timeranges = Redispatch.objects.get_timeranges(region, start, end)
         if not timeranges:
@@ -680,6 +686,8 @@ class PSRGenerationManager(models.Manager):
 
 
     def get_generation_data(self, start: Optional[datetime], end: Optional[datetime]):
+        if not start:
+            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
         header = ["start"] + [psr.value.upper() for psr in PSR_TYPES_POST_2024]
         timerange_query = Q()
         if start:
@@ -710,6 +718,8 @@ class PSRGenerationManager(models.Manager):
         return [header] + list(records)
 
     def get_emissions_data(self, start: Optional[datetime], end: Optional[datetime]):
+        if not start:
+            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
         header = ["start"] + [psr.value.upper() for psr in PSR_TYPES_POST_2024]
         timerange_query = Q()
         if start:

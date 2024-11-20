@@ -37,7 +37,7 @@ def get_generation(
 
 
 @api.get("/timeseries/emissions", response=List[list])
-def get_generation(
+def get_emissions(
     request, start: Optional[datetime] = None, end: Optional[datetime] = None
 ):
     return PSRGeneration.objects.get_emissions_data(start, end)

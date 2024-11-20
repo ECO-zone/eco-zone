@@ -161,11 +161,7 @@ function makeChart(config) {
             count: 1,
             text: '1 Jahr',
             title: '1 Jahr anzeigen'
-          }, {
-              type: 'all',
-              text: 'Alles',
-              title: 'Alles anzeigen'
-          }
+          },
         ],
         selected: 0,
         verticalAlign: 'top',
@@ -219,7 +215,7 @@ if (document.getElementById("chart-timeseries-emission-intensity-zonal")) {
     },
     subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
     titleText: 'Zonale Emissionen pro erzeugter MWh Strom',
-    url: `/api/timeseries/emission-intensity-zonal?region=${dropdownRegionSelect.value}&start=2023-01-01T00%3A00%2B02%3A00`,
+    url: `/api/timeseries/emission-intensity-zonal?region=${dropdownRegionSelect.value}`,
     yAxisText: 'Emissionsintensität [kgCO2/MWh]',
   });
 
@@ -227,7 +223,7 @@ if (document.getElementById("chart-timeseries-emission-intensity-zonal")) {
     this.blur();
     emissionIntensityRegionalChart.update({
       data: {
-        rowsURL: `/api/timeseries/emission-intensity-zonal?region=${this.value}&start=2023-01-01T00%3A00%2B02%3A00`
+        rowsURL: `/api/timeseries/emission-intensity-zonal?region=${this.value}`
       }
     });
   });
@@ -255,7 +251,7 @@ makeChart({
   },
   subtitleText: 'Nettostromerzeugung pro Energieträger. Hochrechnung durch ECO zone. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
   titleText: 'Nettostromerzeugung pro Energieträger',
-  url: "/api/timeseries/generation?start=2023-01-01T00%3A00%2B02%3A00",
+  url: "/api/timeseries/generation",
   yAxisText: 'Nettostromerzeugung [MW]',
 });
 
@@ -281,7 +277,7 @@ makeChart({
   },
   subtitleText: 'Emissionen pro Energieträger [kgCO2]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
   titleText: 'Emissionen pro Energieträger',
-  url: '/api/timeseries/emissions?start=2023-01-01T00%3A00%2B02%3A00',
+  url: '/api/timeseries/emissions',
   yAxisText: 'Emissionen [kgCO2]',
 });
 
@@ -294,7 +290,7 @@ makeChart({
   },
   subtitleText: 'Mittlere Leistung in MW pro Richtung. Hochrechnung durch ECO zone. Datenquelle: <a href="https://www.netztransparenz.de/de-de/Systemdienstleistungen/Betriebsf%C3%BChrung/Redispatch" target="_blank">Netztransparenz.de</a>.',
   titleText: 'Redispatch-Leistung',
-  url: '/api/timeseries/redispatch?start=2023-01-01T00%3A00%2B02%3A00',
+  url: '/api/timeseries/redispatch',
   yAxisText: 'Mittlere Leistung [MW]',
 });
 
@@ -306,7 +302,7 @@ makeChart({
   },
   subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
   titleText: 'Zonale Emissionen pro erzeugter MWh Strom',
-  url: '/api/timeseries/emission-intensity?start=2023-01-01T00%3A00%2B02%3A00',
+  url: '/api/timeseries/emission-intensity',
   yAxisText: 'Emissionsintensität [kgCO2/MWh]',
 });
 
