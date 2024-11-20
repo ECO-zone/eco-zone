@@ -24,6 +24,10 @@ h6,
   font-family: "Roboto Slab";
 }
 
+h3 {
+  font-size: 1.35rem;
+}
+
 footer {
   color: #000;
   font-size: large;
@@ -98,6 +102,24 @@ footer {
   text-decoration-color: #c7017f;
   text-decoration-line: underline;
   text-decoration-thickness: 3px;
+}
+
+.nav-link {
+  color: #000;
+  font-size: 1.18rem;
+  padding-top: 0px;
+}
+
+@media (min-width: 768px) {
+  .nav-link {
+    padding-top: 17px;
+  }
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+  text-decoration-color: #c7017f;
+  text-decoration-thickness: 2px;
 }
 
 /* Highcharts */

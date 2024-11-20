@@ -6,6 +6,9 @@ from .api import api
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("anwendungsmoeglichkeiten", views.usecases, name="usecases"),
+    path("methodik", views.methodology, name="methodology"),
+    path("handlungsempfehlungen", views.recommendations, name="recommendations"),
     path("api/", api.urls),
 ]
 

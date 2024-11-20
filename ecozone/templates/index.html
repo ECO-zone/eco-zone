@@ -3,16 +3,15 @@
 {% block content %}
 <div class="col-lg-8 px-0">
   <h1>ECO zone – Energiesteuerung und Emissionsreduktion durch zonale Analysen</h1>
-  <p class="fs-5">Das Projekt „ECO zone – Energiesteuerung und Emissionsreduktion durch zonale Analysen“ strebt die Entwicklung eines marginalen zonalen CO2-Emissionsmodells für das deutsche Stromnetz an. Durch die genaue Erfassung und Analyse lokaler Emissionsdaten soll eine zeitliche bzw. räumliche Verschiebung von Lasten ermöglicht werden, um die Abregelung erneuerbarer Erzeugungseinheiten im Redispatch zu minimieren. Die begleitende Webanwendung soll deutschlandweit eine intelligentere und umweltfreundlichere Energieverteilung ermöglichen.</p>
-  <p>Das Projekt zielt darauf ab, den beteiligten Akteuren diversifizierte Handlungsmöglichkeiten aufzuzeigen und einen nachhaltigen und kontinuierlichen Betrieb erneuerbarer Energien im Netz zu gewährleisten, während gleichzeitig Emissionen und Betriebskosten minimiert werden.</p>
+  <p class="fs-5">Das Projekt „ECO zone – Energiesteuerung und Emissionsreduktion durch zonale Analysen“ entwickelt ein CO2-Emissionsmodell für das deutsche Stromnetz. Ziel ist es, durch präzise Erfassung lokaler Emissionsdaten eine zeitliche und räumliche Verschiebung von Lasten zu ermöglichen und so die Abregelung erneuerbarer Energien im Redispatch zu minimieren. Die in diesem Zusammenhang entwickelte Webanwendung unterstützt eine intelligentere und umweltfreundlichere Energieverteilung in ganz Deutschland.</p>
 </div>
+<p>Wählen Sie die Zone aus, für die Sie Emissionsfaktoren abrufen möchten. Nutzen Sie diese Faktoren, um umweltfreundliche Lastverschiebungen in Ihrem Stromverbrauch vorzunehmen. Erfahren Sie <a href="{% url 'recommendations' %}">hier</a>, wie Sie die Emissionsdaten in Ihrer Anwendung einsetzen können.</p>
+</p>
+{% include "snippets/zone_map.html" %}
 {% include "snippets/divider.html" %}
 <h2>Emissionsintensität zonal</h2>
-<p>Lorem ipsum odor amet, consectetuer adipiscing elit. Tempus est suspendisse ex suscipit, varius nullam. Avestibulum nibh dapibus nullam commodo est ex eleifend. Lacinia etiam integer eros tristique et pharetra maecenas maecenas. Euismod rhoncus varius ornare natoque maecenas luctus justo. Rutrum per ex inceptos egestas laoreet, laoreet nec. Netus facilisis ullamcorper nisl habitasse nisl fringilla turpis. Natoque elit metus sollicitudin et sollicitudin nam tincidunt ullamcorper. Ligula pharetra diam efficitur primis taciti.</p>
-<p>Eget quisque aenean orci adipiscing mauris malesuada rutrum. Scelerisque ad habitasse lectus porta himenaeos cursus. Pharetra ultricies tincidunt accumsan parturient; cursus sed inceptos eget. Aptent felis ultricies aptent proin laoreet vel ac. Mauris odio magna class ac pretium ridiculus litora torquent. Etiam dapibus venenatis adipiscing condimentum volutpat mattis dolor. Proin nascetur bibendum, aenean sodales fusce aliquet. Diam natoque tincidunt vivamus eget curae id.</p>
-</p>
-<label for="dropdown-region-select" class="control-label h5 input-label">Zone wählen</label>
-<select id="dropdown-region-select" class="form-select" style="max-width: fit-content; margin-bottom: 4px;" aria-label="Region wählen">
+<label for="chart-dropdown-region-select" class="control-label h5 input-label">Zone wählen</label>
+<select id="chart-dropdown-region-select" class="form-select" style="max-width: fit-content; margin-bottom: 4px;" aria-label="Region wählen">
   <option value="north">Nord</option>
   <option value="south">Süd</option>
   {% for region in regions_dena %}
@@ -20,35 +19,11 @@
   {% endfor %}
 </select>
 {% include "snippets/chart.html" with id="timeseries-emission-intensity-zonal" %}
-<p>Pharetra duis parturient aptent morbi fermentum. Viverra dictum velit rutrum, ultricies tincidunt arcu senectus proin. Rutrum elit quam consequat pharetra mus pellentesque. Natoque vitae dictum nisi litora blandit tristique commodo. Luctus vulputate aptent nullam diam nec nisl amet. Venenatis volutpat nascetur libero nibh tincidunt proin id tincidunt? Morbi ad tellus dui donec; ac ante. Euismod lacus urna donec efficitur potenti.</p>
+<p>Die dargestellte Aufteilung in eine Nord- und Südzone reflektiert die durchschnittliche Netzengpasssituation. Sie entspricht einer Zonierung, wie sie auch im Rahmen des ENTSO-E Bidding Zone Reviews untersucht wird.</p>
 {% include "snippets/divider.html" %}
-<h2>Redispatch-Leistung</h2>
-<p>Lorem ipsum odor amet, consectetuer adipiscing elit. Tempus est suspendisse ex suscipit, varius nullam. Avestibulum nibh dapibus nullam commodo est ex eleifend. Lacinia etiam integer eros tristique et pharetra maecenas maecenas. Euismod rhoncus varius ornare natoque maecenas luctus justo. Rutrum per ex inceptos egestas laoreet, laoreet nec. Netus facilisis ullamcorper nisl habitasse nisl fringilla turpis. Natoque elit metus sollicitudin et sollicitudin nam tincidunt ullamcorper. Ligula pharetra diam efficitur primis taciti.</p>
-<p>Eget quisque aenean orci adipiscing mauris malesuada rutrum. Scelerisque ad habitasse lectus porta himenaeos cursus. Pharetra ultricies tincidunt accumsan parturient; cursus sed inceptos eget. Aptent felis ultricies aptent proin laoreet vel ac. Mauris odio magna class ac pretium ridiculus litora torquent. Etiam dapibus venenatis adipiscing condimentum volutpat mattis dolor. Proin nascetur bibendum, aenean sodales fusce aliquet. Diam natoque tincidunt vivamus eget curae id.</p>
-</p>
-{% include "snippets/chart.html" with id="timeseries-redispatch" %}
-<p>Pharetra duis parturient aptent morbi fermentum. Viverra dictum velit rutrum, ultricies tincidunt arcu senectus proin. Rutrum elit quam consequat pharetra mus pellentesque. Natoque vitae dictum nisi litora blandit tristique commodo. Luctus vulputate aptent nullam diam nec nisl amet. Venenatis volutpat nascetur libero nibh tincidunt proin id tincidunt? Morbi ad tellus dui donec; ac ante. Euismod lacus urna donec efficitur potenti.</p>
+<h2>Downloadfenster für Publikation</h2>
 {% include "snippets/divider.html" %}
-<h2>Emissionsintensität Deutschland</h2>
-<p>Lorem ipsum odor amet, consectetuer adipiscing elit. Tempus est suspendisse ex suscipit, varius nullam. Avestibulum nibh dapibus nullam commodo est ex eleifend. Lacinia etiam integer eros tristique et pharetra maecenas maecenas. Euismod rhoncus varius ornare natoque maecenas luctus justo. Rutrum per ex inceptos egestas laoreet, laoreet nec. Netus facilisis ullamcorper nisl habitasse nisl fringilla turpis. Natoque elit metus sollicitudin et sollicitudin nam tincidunt ullamcorper. Ligula pharetra diam efficitur primis taciti.</p>
-<p>Eget quisque aenean orci adipiscing mauris malesuada rutrum. Scelerisque ad habitasse lectus porta himenaeos cursus. Pharetra ultricies tincidunt accumsan parturient; cursus sed inceptos eget. Aptent felis ultricies aptent proin laoreet vel ac. Mauris odio magna class ac pretium ridiculus litora torquent. Etiam dapibus venenatis adipiscing condimentum volutpat mattis dolor. Proin nascetur bibendum, aenean sodales fusce aliquet. Diam natoque tincidunt vivamus eget curae id.</p>
-</p>
-{% include "snippets/chart.html" with id="timeseries-emission-intensity" %}
-<p>Pharetra duis parturient aptent morbi fermentum. Viverra dictum velit rutrum, ultricies tincidunt arcu senectus proin. Rutrum elit quam consequat pharetra mus pellentesque. Natoque vitae dictum nisi litora blandit tristique commodo. Luctus vulputate aptent nullam diam nec nisl amet. Venenatis volutpat nascetur libero nibh tincidunt proin id tincidunt? Morbi ad tellus dui donec; ac ante. Euismod lacus urna donec efficitur potenti.</p>
-{% include "snippets/divider.html" %}
-<h2>Nettostromerzeugung pro Energieträger</h2>
-<p>Lorem ipsum odor amet, consectetuer adipiscing elit. Tempus est suspendisse ex suscipit, varius nullam. Avestibulum nibh dapibus nullam commodo est ex eleifend. Lacinia etiam integer eros tristique et pharetra maecenas maecenas. Euismod rhoncus varius ornare natoque maecenas luctus justo. Rutrum per ex inceptos egestas laoreet, laoreet nec. Netus facilisis ullamcorper nisl habitasse nisl fringilla turpis. Natoque elit metus sollicitudin et sollicitudin nam tincidunt ullamcorper. Ligula pharetra diam efficitur primis taciti.</p>
-<p>Eget quisque aenean orci adipiscing mauris malesuada rutrum. Scelerisque ad habitasse lectus porta himenaeos cursus. Pharetra ultricies tincidunt accumsan parturient; cursus sed inceptos eget. Aptent felis ultricies aptent proin laoreet vel ac. Mauris odio magna class ac pretium ridiculus litora torquent. Etiam dapibus venenatis adipiscing condimentum volutpat mattis dolor. Proin nascetur bibendum, aenean sodales fusce aliquet. Diam natoque tincidunt vivamus eget curae id.</p>
-</p>
-{% include "snippets/chart.html" with id="timeseries-generation" %}
-<p>Pharetra duis parturient aptent morbi fermentum. Viverra dictum velit rutrum, ultricies tincidunt arcu senectus proin. Rutrum elit quam consequat pharetra mus pellentesque. Natoque vitae dictum nisi litora blandit tristique commodo. Luctus vulputate aptent nullam diam nec nisl amet. Venenatis volutpat nascetur libero nibh tincidunt proin id tincidunt? Morbi ad tellus dui donec; ac ante. Euismod lacus urna donec efficitur potenti.</p>
-{% include "snippets/divider.html" %}
-<h2>Emissionsintensität zonal</h2>
-<p>Lorem ipsum odor amet, consectetuer adipiscing elit. Tempus est suspendisse ex suscipit, varius nullam. Avestibulum nibh dapibus nullam commodo est ex eleifend. Lacinia etiam integer eros tristique et pharetra maecenas maecenas. Euismod rhoncus varius ornare natoque maecenas luctus justo. Rutrum per ex inceptos egestas laoreet, laoreet nec. Netus facilisis ullamcorper nisl habitasse nisl fringilla turpis. Natoque elit metus sollicitudin et sollicitudin nam tincidunt ullamcorper. Ligula pharetra diam efficitur primis taciti.</p>
-<p>Eget quisque aenean orci adipiscing mauris malesuada rutrum. Scelerisque ad habitasse lectus porta himenaeos cursus. Pharetra ultricies tincidunt accumsan parturient; cursus sed inceptos eget. Aptent felis ultricies aptent proin laoreet vel ac. Mauris odio magna class ac pretium ridiculus litora torquent. Etiam dapibus venenatis adipiscing condimentum volutpat mattis dolor. Proin nascetur bibendum, aenean sodales fusce aliquet. Diam natoque tincidunt vivamus eget curae id.</p>
-</p>
-{% include "snippets/chart.html" with id="timeseries-emissions" %}
-<p>Pharetra duis parturient aptent morbi fermentum. Viverra dictum velit rutrum, ultricies tincidunt arcu senectus proin. Rutrum elit quam consequat pharetra mus pellentesque. Natoque vitae dictum nisi litora blandit tristique commodo. Luctus vulputate aptent nullam diam nec nisl amet. Venenatis volutpat nascetur libero nibh tincidunt proin id tincidunt? Morbi ad tellus dui donec; ac ante. Euismod lacus urna donec efficitur potenti.</p>
+<h2>Dena Ansprechpartner</h2>
 {% include "snippets/divider.html" %}
 <a href="https://future-energy-lab.de/projects/eco-zone/" class="btn btn-primary">Mehr Infos bei Future Energy Lab</a>
 <a href="/api/docs" class="btn btn-secondary">API ansehen</a>

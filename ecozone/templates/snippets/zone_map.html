@@ -1,0 +1,16 @@
+{% load static %}
+
+<div id="zone-map" class="map-container">
+  <div id="emissions-factor-stats">
+        <h3>Emissionsintensität: <span id="emissions-intensity-value">--</span> kgCO₂/MWh</h1>
+        <label for="map-dropdown-region-select" class="control-label h5 input-label">Zone wählen</label>
+        <select id="map-dropdown-region-select" class="form-select" style="max-width: fit-content; margin-bottom: 4px;" aria-label="Region wählen">
+          <option style="padding: 0px;" selected disabled value="---"></option>
+          <option style="padding: 0px;" value="nord">Nord</option>
+          <option style="padding: 0px;" value="sued">Süd</option>
+        </select>
+  </div>
+  <img class="map map-base fade-in-image img-fluid" id="zone_map_inactive" style="z-index: 100;" src="{% static 'inactive.png' %}" alt="Emissionszonen Deutschland" />
+  <img class="map map-selected hidden img-fluid" id="zone_map_nord" style="z-index: 200;" src="{% static 'nord.png' %}" alt="Emissionszonen Deutschland" />
+  <img class="map map-selected hidden img-fluid" id="zone_map_sued" style="z-index: 300;" src="{% static 'sued.png' %}" alt="Emissionszonen Deutschland" />
+</div>

@@ -33,3 +33,15 @@ def emissions(request, *args, **kwargs):
 
 def zone_map(request, *args, **kwargs):
     return render(request, "map.html", {})
+
+
+def usecases(request, *args, **kwargs): 
+    return render(request, "usecases.html", {})
+
+
+def methodology(request, *args, **kwargs): 
+    return render(request, "methodology.html", {})
+
+
+def recommendations(request, *args, **kwargs): 
+    return render(request, "recommendations.html", {})

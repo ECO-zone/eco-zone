@@ -6,7 +6,7 @@ from ninja import NinjaAPI
 from .models import EmissionFactorsNordSued, PSRGeneration, TimeseriesRedispatch
 
 
-api = NinjaAPI(title="ECO zone API")
+api = NinjaAPI(title="ECO zone API", version="1")
 
 
 @api.get("/timeseries/redispatch", response=List[list])
