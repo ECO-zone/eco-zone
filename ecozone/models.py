@@ -619,70 +619,56 @@ class PSRGenerationManager(models.Manager):
     def get_emission_factors_nord_sued(
         self,
     ) -> EmissionFactorsNordSued:
-        region = RegionNorthSouth.NORTH
-        start = timezone.now() - timedelta(days=3)
-        end = None
-        timeranges = Redispatch.objects.get_timeranges(region, start, end)
-        redispatch_timerange_query = Q()
-        if timeranges:
-            for timerange in timeranges:
-                redispatch_timerange_query |= Q(start__range=timerange)
+        """
+        The emission factors will be the same if there is non-renewable redispatch in both zones
+        _or_ if there is renewable dispatch in both zones. They will only differ if one and only
+        one zone has renewable dispatch.
+        """
+        start = timezone.now()
+        minutes_correction: int
+        if start.minute < 15:
+            minutes_correction = 0
+        elif start.minute < 30:
+            minutes_correction = 15
+        elif start.minute < 45:
+            minutes_correction = 30
         else:
-            redispatch_timerange_query |= Q(pk__in=[])
-        timerange_query = Q()
-        if start:
-            timerange_query &= Q(start__gte=start)
-        if end:
-            timerange_query &= Q(start__lt=end)
-        record_north = (
-            self.filter(timerange_query)
-            .values(
-                "start",
+            minutes_correction = 45
+        start = start.replace(minute=minutes_correction, second=0, microsecond=0) - timedelta(hours=1)
+        
+        def get_value(region):
+            has_renewable_redispatch = (TimeseriesRedispatch.objects.filter(start=start)
+                .filter(region_north_south=region)
+                .filter(direction="Wirkleistungseinspeisung reduzieren")
+                .filter(is_renewable=True)
+                .exists()
             )
-            .order_by("start")
-            .annotate(
-                **{f"emission_intensity": models.Case(
-                    models.When(redispatch_timerange_query, then=models.Value(0.0)),
-                    default=(Coalesce(Sum("emissions"), 0.0) / Coalesce(Sum("power_mw"), 0.0)) * 4,
-                    output_field=models.FloatField()
-                )}
-            )
-            .last()
-        )
-        record_north = round(record_north["emission_intensity"], 2) if record_north else record_north
+            value: Optional[float]
+            if has_renewable_redispatch:
+                print("has_renewable_redispatch")
+                value = 0
+            else:
+                try:
+                    record = (
+                        self.filter(start=start)
+                        .values(
+                            "start",
+                        )
+                        .order_by("start")
+                        .annotate(emissions_intensity=Coalesce(Sum("emissions"), 0.0) / Coalesce(Sum("power_mw"), 0.0) * 4
+                        )
+                        .last()
+                    )
+                    value = record["emissions_intensity"]
+                except Exception:
+                    value = None
+            
+            return value
+        
+        nord = get_value(RegionNorthSouth.NORTH)
+        sued = get_value(RegionNorthSouth.SOUTH)
 
-        region = RegionNorthSouth.SOUTH
-        timeranges = Redispatch.objects.get_timeranges(region, start, end)
-        redispatch_timerange_query = Q()
-        if timeranges:
-            for timerange in timeranges:
-                redispatch_timerange_query |= Q(start__range=timerange)
-        else:
-            redispatch_timerange_query |= Q(pk__in=[])
-        timerange_query = Q()
-        if start:
-            timerange_query &= Q(start__gte=start)
-        if end:
-            timerange_query &= Q(start__lt=end)
-        record_south = (
-            self.filter(timerange_query)
-            .values(
-                "start",
-            )
-            .order_by("start")
-            .annotate(
-                **{f"emission_intensity": models.Case(
-                    models.When(redispatch_timerange_query, then=models.Value(0.0)),
-                    default=(Coalesce(Sum("emissions"), 0.0) / Coalesce(Sum("power_mw"), 0.0)) * 4,
-                    output_field=models.FloatField()
-                )}
-            )
-            .last()
-        )
-        record_south = round(record_south["emission_intensity"], 2) if record_south else record_south
-
-        return EmissionFactorsNordSued(nord=record_north, sued=record_south)
-        return [["start", f"Emissionsintensität {RegionNorthSouth(region).label if region in RegionNorthSouth else 'dena ' + region}"]] + list(records)
+        return EmissionFactorsNordSued(nord=nord, sued=sued)
 
 
     def get_generation_data(self, start: Optional[datetime], end: Optional[datetime]):
