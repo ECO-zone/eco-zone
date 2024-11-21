@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 class EmissionFactorsNordSued:
     nord: Optional[float]
     sued: Optional[float]
+    start: datetime
 
 
 class RegionNorthSouth(models.TextChoices):
@@ -668,7 +669,7 @@ class PSRGenerationManager(models.Manager):
         nord = get_value(RegionNorthSouth.NORTH)
         sued = get_value(RegionNorthSouth.SOUTH)
 
-        return EmissionFactorsNordSued(nord=nord, sued=sued)
+        return EmissionFactorsNordSued(nord=nord, sued=sued, start=start)
 
 
     def get_generation_data(self, start: Optional[datetime], end: Optional[datetime]):

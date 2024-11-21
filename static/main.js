@@ -326,6 +326,7 @@ async function getEmissionFactors() {
 async function makeMap() {
   if (document.getElementById("zone-map")) {
     let emissionFactors = await getEmissionFactors();
+    let timestamp = new Date(emissionFactors.start).toLocaleString('de-DE');
     let dropdownRegionSelect = document.getElementById('map-dropdown-region-select');
     dropdownRegionSelect.value = "---"
     let currentMap = document.getElementById("zone_map_inactive");
@@ -361,6 +362,8 @@ async function makeMap() {
       currentMap = selectedMap;
       currentReport = selectedReport;
     });
+    document.getElementById("emissions-intensity-start-nord").innerText = timestamp;
+    document.getElementById("emissions-intensity-start-sued").innerText = timestamp;
   }  
 }
 

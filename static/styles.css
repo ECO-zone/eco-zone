@@ -258,3 +258,7 @@ footer {
   left: 235px;
   z-index: 999;
 }
+
+.emissions-intensity-start {
+  margin-top: -7px;
+}
