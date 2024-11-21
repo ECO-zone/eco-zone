@@ -171,11 +171,11 @@ footer {
 }
 
 .fade-in-image {
-  animation: fadeIn 2s;
-  -webkit-animation: fadeIn 2s;
-  -moz-animation: fadeIn 2s;
-  -o-animation: fadeIn 2s;
-  -ms-animation: fadeIn 2s;
+  animation: fadeIn 1s;
+  -webkit-animation: fadeIn 1s;
+  -moz-animation: fadeIn 1s;
+  -o-animation: fadeIn 1s;
+  -ms-animation: fadeIn 1s;
 }
 
 @keyframes fadeIn {
@@ -204,11 +204,11 @@ footer {
 }
 
 .fade-out-image {
-  animation: fadeOut 2s;
-  -webkit-animation: fadeOut 2s;
-  -moz-animation: fadeOut 2s;
-  -o-animation: fadeOut 2s;
-  -ms-animation: fadeOut 2s;
+  animation: fadeOut 1s;
+  -webkit-animation: fadeOut 1s;
+  -moz-animation: fadeOut 1s;
+  -o-animation: fadeOut 1s;
+  -ms-animation: fadeOut 1s;
 }
 
 @keyframes fadeOut {
