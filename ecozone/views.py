@@ -5,14 +5,10 @@ from ecozone.models import Redispatch
 
 
 def index(request, *args, **kwargs):
-    regions_dena = Redispatch.objects.get_valid_regions_dena(start=datetime(2024, 1, 1, tzinfo=UTC), end=None)
- 
-    return render(request, "index.html", {"regions_dena": regions_dena})
+    return render(request, "index.html", {})
 
 def emissions_intensity_zonal(request, *args, **kwargs):
-    regions_dena = Redispatch.objects.get_valid_regions_dena(start=datetime(2024, 1, 1, tzinfo=UTC), end=None)
-
-    return render(request, "chart.html", {"title": "Emissionsintensität zonal", "regions_dena": regions_dena, "chart_id": "timeseries-emission-intensity-zonal"})
+    return render(request, "chart.html", {"title": "Emissionsintensität zonal", "chart_id": "timeseries-emission-intensity-zonal"})
 
 
 def redispatch(request, *args, **kwargs):
