@@ -255,3 +255,11 @@ footer {
   0% { opacity: 1; }
   100% { opacity: 0; }
 }
+
+.dropdown-region-select-label {
+  font-size: 1.7rem;
+}
+
+.dropdown-container {
+  width: 150px;
+}

@@ -10,14 +10,16 @@
 {% include "snippets/zone_map.html" %}
 {% include "snippets/divider.html" %}
 <h2>Emissionsintensität zonal</h2>
-<label for="chart-dropdown-region-select" class="control-label h5 input-label">Zone wählen</label>
-<select id="chart-dropdown-region-select" class="form-select" style="max-width: fit-content; margin-bottom: 4px;" aria-label="Region wählen">
-  <option value="north">Nord</option>
-  <option value="south">Süd</option>
-  {% for region in regions_dena %}
-  <option value="{{ region }}">dena {{ region }}</option>
-  {% endfor %}
-</select>
+<div class="dropdown-container">
+  <label for="chart-dropdown-region-select" class="control-label h5 input-label dropdown-region-select-label">Zone wählen</label>
+  <select id="chart-dropdown-region-select" class="form-select" style="margin-bottom: 4px;" aria-label="Region wählen">
+    <option value="north">Nord</option>
+    <option value="south">Süd</option>
+    {% for region in regions_dena %}
+    <option value="{{ region }}">dena {{ region }}</option>
+    {% endfor %}
+  </select>
+</div>
 {% include "snippets/chart.html" with id="timeseries-emission-intensity-zonal" %}
 <p>Die dargestellte Aufteilung in eine Nord- und Südzone reflektiert die durchschnittliche Netzengpasssituation. Sie entspricht einer Zonierung, wie sie auch im Rahmen des ENTSO-E Bidding Zone Reviews untersucht wird.</p>
 {% include "snippets/divider.html" %}
