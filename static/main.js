@@ -329,13 +329,14 @@ async function makeMap() {
     let dropdownRegionSelect = document.getElementById('map-dropdown-region-select');
     dropdownRegionSelect.value = "---"
     let currentMap = document.getElementById("zone_map_inactive");
+    let currentReport = null;
     dropdownRegionSelect.addEventListener('change', function() {
       this.blur();
       let selectedZone = this.value;
       let emissionFactor = emissionFactors[selectedZone];
       if (emissionFactor !== null) {
         new countUp.CountUp(
-          "emissions-intensity-value",
+          `emissions-intensity-value-${selectedZone}`,
           emissionFactor,
           {
             decimalPlaces: 2,
@@ -343,14 +344,22 @@ async function makeMap() {
           }
         ).start();
       } else {
-        document.getElementById("emissions-intensity-value").innerText = "N/A";
+        document.getElementById(`emissions-intensity-value-${selectedZone}`).innerText = "N/A";
       }
       let selectedMap = document.getElementById(`zone_map_${selectedZone}`);
+      let selectedReport = document.getElementById(`emissions-factor-${selectedZone}`);
       selectedMap.classList.add("fade-in-image");
+      selectedReport.classList.add("fade-in-image");
       selectedMap.classList.remove("hidden", "fade-out-image");
+      selectedReport.classList.remove("hidden", "fade-out-image");
       currentMap.classList.add("fade-out-image", "hidden");
       currentMap.classList.remove("fade-in-image");
+      if (currentReport) {
+        currentReport.classList.add("fade-out-image", "hidden");
+        currentReport.classList.remove("fade-in-image");
+      }
       currentMap = selectedMap;
+      currentReport = selectedReport;
     });
   }  
 }

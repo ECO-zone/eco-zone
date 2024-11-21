@@ -148,12 +148,6 @@ footer {
   max-width: 700px;
 }
 
-/* @media (max-width: 811px) {
-  .map {
-    max-width: 600px
-  }
-} */
-
 .map-base {
   position: relative;
   top: 0;
@@ -175,20 +169,6 @@ footer {
 .hidden {
   opacity: 0%;
 }
-
-/* .parent {
-  position: relative;
-  top: 0;
-  left: 0;
-}
-
-.image1 {
-  position: relative;
-  top: 0;
-  left: 0;
-  border: 1px solid #000000;
-} */
-
 
 .fade-in-image {
   animation: fadeIn 2s;
@@ -262,4 +242,19 @@ footer {
 
 .dropdown-container {
   width: 150px;
+}
+
+#emissions-factor-nord {
+  position: absolute;
+  top: 28%;
+  left: 300px;
+  z-index: 999;
+}
+
+#emissions-factor-sued {
+  color: white;
+  position: absolute;
+  top: 68%;
+  left: 235px;
+  z-index: 999;
 }
