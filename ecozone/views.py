@@ -14,10 +14,6 @@ def methodology(request, *args, **kwargs):
     return render(request, "methodology.html", {})
 
 
-def recommendations(request, *args, **kwargs): 
-    return render(request, "recommendations.html", {})
-
-
 # Iframes #
 ###########
 
