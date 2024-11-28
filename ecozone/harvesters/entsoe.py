@@ -47,7 +47,7 @@ def get_last_start_date(psr: PsrType) -> datetime:
 
 def harvest_psr_generation(historical: bool = False, **kwargs):
     for control_area in [ControlArea.GERMANY]:
-        for psr_type in [PsrType.B16, PsrType.B18, PsrType.B19]: # PSR_TYPES_POST_2024:
+        for psr_type in PSR_TYPES_POST_2024:
             logger.info(
                 f"Harvesting psr generation for {psr_type.label} in {control_area.label}..."
             )

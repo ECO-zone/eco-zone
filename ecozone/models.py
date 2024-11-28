@@ -621,6 +621,7 @@ class GenerationManager(models.Manager):
                     "./entsoe:MktPSRType/entsoe:psrType", name_spaces
                 ).text.lower()
             )
+            print(psr)
             start = datetime.fromisoformat(
                 entry.find(
                     "./entsoe:Period/entsoe:timeInterval/entsoe:start", name_spaces
@@ -660,6 +661,8 @@ class GenerationManager(models.Manager):
                     )
             print("creating and updating")
             with transaction.atomic():
+                print(len(records_to_create))
+                print(len(records_to_update))
                 self.bulk_create(records_to_create, batch_size=1000)
                 self.bulk_update(
                     records_to_update,
