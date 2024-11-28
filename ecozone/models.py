@@ -1,16 +1,21 @@
 import csv
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from functools import reduce
 import logging
+from operator import add
 from typing import Optional, Union
 from pathlib import Path
 from uuid import uuid4
 from xml.etree import ElementTree
 
 from django.db import models, transaction
-from django.db.models import Q, Sum
+from django.db.models import F, Func, Q, Sum
 from django.db.models.functions import Coalesce
 from django.utils import timezone
+
+from ecozone.utils import round_date_to_quarter_hour
+
 
 logger = logging.getLogger(__name__)
 
@@ -437,6 +442,13 @@ class ControlArea(models.TextChoices):
     AMPRION = "10YDE-RWENET---I", "Amprion"
     TENNET = "10YDE-EON------1", "TenneT"
     TRANSNETBW = "10YDE-ENBW-----N", "TransnetBW"
+    GERMANY = "10Y1001A1001A83F", "Germany"
+
+
+class ForecastType(models.TextChoices):
+    DAYAHEAD = "day-ahead"
+    INTRADAY = "intraday"
+    CURRENT = "current"
 
 
 class PsrType(models.TextChoices):
@@ -462,6 +474,7 @@ class PsrType(models.TextChoices):
     B20 = "b20", "Sonstige konventionelle Energien"
 
 
+# TODO: b14 (nuclear) is not part of the dataset after 2014
 PSR_TYPES_POST_2024 = [
     x
     for x in PsrType
@@ -469,7 +482,468 @@ PSR_TYPES_POST_2024 = [
 ]
 
 
+RENEWABLE_PSR_TYPES = [
+    PsrType.B01,
+    PsrType.B09,
+    PsrType.B10,
+    PsrType.B11,
+    PsrType.B12,
+    PsrType.B13,
+    PsrType.B15,
+    PsrType.B16,
+    PsrType.B18,
+    PsrType.B19,
+]
+
+
+CONVENTIONAL_PSR_TYPES = [x for x in PSR_TYPES_POST_2024 if x not in RENEWABLE_PSR_TYPES]
+
+
+WIND_SOLAR_PSR_TYPES = [PsrType.B16, PsrType.B18, PsrType.B19]
+
+
+EMISSION_INTENSITY_EXPRESSION = reduce(add, [Coalesce(F(f"{x}_em"), 0.0) for x in PSR_TYPES_POST_2024]) / reduce(add, [Coalesce(F(f"{x}_gen"), 0.0) for x in PSR_TYPES_POST_2024]) * 4
+
+
+WIND_SOLAR_RESIDUAL_EXPRESSION = reduce(add, [Coalesce(F(f"{x}_gen"), 0.0) for x in PSR_TYPES_POST_2024]) - reduce(add, [Coalesce(F(f"{x}_gen"), 0.0) for x in WIND_SOLAR_PSR_TYPES])
+
+
+FORECAST_WIND_SOLAR_RESIDUAL_EXPRESSION = Coalesce(F("agg_gen"), 0.0) - reduce(add, [Coalesce(F(f"{x}_gen"), 0.0) for x in WIND_SOLAR_PSR_TYPES])
+
+
+class GenerationManager(models.Manager):
+    def update_wind_solar_residual(self, start):
+        now = datetime.now(UTC)
+        records = (
+                    self.filter(start__gte=start)
+                    .annotate(ws_residual_new=WIND_SOLAR_RESIDUAL_EXPRESSION)
+                    .all()
+                )
+        for record in records:
+            record.ws_residual = record.ws_residual_new
+            record.updated_at = now
+        self.bulk_update(records, fields=["ws_residual", "updated_at"], batch_size=1000)
+
+    def update_forecasts(self):
+        now = datetime.now(UTC)
+        records_to_create = []
+        records_to_update = []
+        gen_records = {x.start: x for x in (
+            self.filter(start__gte=now)
+            .order_by("start")
+            .all()
+        )}
+        forecast_records = (
+            Forecast.objects.filter(start__gte=now)
+            .filter(agg_gen__isnull=False)
+            .filter(b16_gen__isnull=False)
+            .filter(b18_gen__isnull=False)
+            .filter(b19_gen__isnull=False)
+            .order_by("start")
+            .all()
+        )
+        for forecast_record in forecast_records:
+            gen_record = gen_records.get(forecast_record.start)
+            nearest_neighbor = (
+                self.filter(Q(start__gte=now-timedelta(days=30)) & Q(start__lte=now-timedelta(minutes=15)))
+                .annotate(diff_ws_factor=Func((F("ws_residual")-forecast_record.ws_residual), function="ABS"))
+                .order_by("diff_ws_factor")
+                .first()
+            )
+            if gen_record:
+                for psr_type in PSR_TYPES_POST_2024:
+                    if psr_type not in WIND_SOLAR_PSR_TYPES:
+                        gen_field = f"{psr_type}_gen"
+                        em_field = f"{psr_type}_em"
+                        gen_value = getattr(nearest_neighbor, gen_field)
+                        em_value = getattr(nearest_neighbor, em_field)
+                        setattr(gen_record, gen_field, gen_value)
+                        setattr(gen_record, em_field, em_value)
+                for psr_type in WIND_SOLAR_PSR_TYPES:
+                    gen_field = f"{psr_type}_gen"
+                    em_field = f"{psr_type}_em"
+                    gen_value = getattr(forecast_record, gen_field)
+                    em_value = get_emissions(gen_value, psr_type)
+                    setattr(gen_record, gen_field, gen_value)
+                    setattr(gen_record, em_field, em_value)
+                gen_record.updated_at = now
+                records_to_update.append(gen_record)
+            else:
+                gen_record = Generation(start=forecast_record.start)
+                for psr_type in PSR_TYPES_POST_2024:
+                    if psr_type not in WIND_SOLAR_PSR_TYPES:
+                        gen_field = f"{psr_type}_gen"
+                        em_field = f"{psr_type}_em"
+                        gen_value = getattr(nearest_neighbor, gen_field)
+                        em_value = getattr(nearest_neighbor, em_field)
+                        setattr(gen_record, gen_field, gen_value)
+                        setattr(gen_record, em_field, em_value)
+                for psr_type in WIND_SOLAR_PSR_TYPES:
+                    gen_field = f"{psr_type}_gen"
+                    em_field = f"{psr_type}_em"
+                    gen_value = getattr(forecast_record, gen_field)
+                    em_value = get_emissions(gen_value, psr_type)
+                    setattr(gen_record, gen_field, gen_value)
+                    setattr(gen_record, em_field, em_value)
+                gen_record.updated_at = now
+                records_to_create.append(gen_record)
+        print("creating and updating")
+        with transaction.atomic():
+            self.bulk_create(records_to_create, batch_size=1000)
+            self.bulk_update(
+                records_to_update,
+                [f"{x}_gen" for x in PSR_TYPES_POST_2024] + [f"{x}_em" for x in PSR_TYPES_POST_2024] + ["updated_at"],
+                batch_size=1000,
+            )
+
+
+    def import_records(self, xml):
+        print("Starting import")
+        name_spaces = {
+            "entsoe": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"
+        }
+        etree = ElementTree.fromstring(xml)
+        points = []
+        for entry in etree.findall("./entsoe:TimeSeries", name_spaces):
+            try:
+                control_area = ControlArea(
+                    entry.find("./entsoe:inBiddingZone_Domain.mRID", name_spaces).text
+                )
+            except AttributeError:
+                continue
+            resolution = entry.find(
+                "./entsoe:Period/entsoe:resolution", name_spaces
+            ).text
+            if resolution != "PT15M":
+                continue
+            psr = PsrType(
+                entry.find(
+                    "./entsoe:MktPSRType/entsoe:psrType", name_spaces
+                ).text.lower()
+            )
+            start = datetime.fromisoformat(
+                entry.find(
+                    "./entsoe:Period/entsoe:timeInterval/entsoe:start", name_spaces
+                ).text
+            )
+            for item in entry.findall(
+                "./entsoe:Period/entsoe:Point/entsoe:quantity", name_spaces
+            ):
+                point = {"start": start, "value": int(item.text)}
+                points.append(point)
+                start += timedelta(minutes=15)
+            query = (
+                self.filter(
+                    Q(start__gte=points[0]["start"]) & Q(start__lte=points[-1]["start"])
+                )
+            )
+            records_to_check = {r.start: r for r in query.all()}
+            records_to_create = []
+            records_to_update = []
+            updated_at = datetime.now(UTC)
+            for point in points:
+                old_record = records_to_check.get(point["start"])
+                if old_record:
+                    if getattr(old_record, f"{psr}_gen") != point["value"]:
+                        setattr(old_record, f"{psr}_gen", point["value"])
+                        setattr(old_record, f"{psr}_em", get_emissions(point["value"], psr))
+                        old_record.updated_at = updated_at
+                        records_to_update.append(old_record)
+                else:
+                    emissions = get_emissions(point["value"], psr)
+                    records_to_create.append(
+                        self.model(**{
+                            "start": point["start"],
+                            f"{psr}_gen": point["value"],
+                            f"{psr}_em": emissions,
+                        })
+                    )
+            print("creating and updating")
+            with transaction.atomic():
+                self.bulk_create(records_to_create, batch_size=1000)
+                self.bulk_update(
+                    records_to_update,
+                    [f"{psr}_gen", f"{psr}_em", "updated_at"],
+                    batch_size=1000,
+                )
+                self.update_wind_solar_residual(points[0]["start"])
+
+    def get_emission_intensity_data(
+        self, start: Optional[datetime], end: Optional[datetime]
+    ):
+        if not start:
+            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
+        header = ["start", "emission_intensity"]
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        records = (
+            self.filter(timerange_query)
+            .values("start")
+            .order_by("start")
+            .annotate(emission_intensity=EMISSION_INTENSITY_EXPRESSION)
+            .values_list(*header)
+        )
+
+        return [header] + list(records)
+    
+    def get_emission_intensity_data_for_region(
+        self, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime]=None, end: Optional[datetime]=None
+    ):
+        if not start:
+            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
+        header = ["start", f"emission_intensity_{region}"]
+        timeranges = Redispatch.objects.get_timeranges(region, start, end)
+        if not timeranges:
+            return [header] + []
+        redispatch_timerange_query = Q()
+        for timerange in timeranges:
+            redispatch_timerange_query |= Q(start__range=timerange)
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        records = (
+            self.filter(timerange_query)
+            .values(
+                "start",
+            )
+            .order_by("start")
+            .annotate(
+                **{f"emission_intensity_{region}": models.Case(
+                    models.When(redispatch_timerange_query, then=models.Value(0.0)),
+                    default=EMISSION_INTENSITY_EXPRESSION,
+                    output_field=models.FloatField()
+                )}
+            )
+            .values_list(*header)
+        )
+
+        return [["start", f"Emissionsintensität {RegionNorthSouth(region).label if region in RegionNorthSouth else 'dena ' + region}"]] + list(records)
+
+
+    def get_emission_factors_nord_sued(
+        self,
+    ) -> EmissionFactorsNordSued:
+        """
+        The emission factors will be the same if there is non-renewable redispatch in both zones
+        _or_ if there is renewable dispatch in both zones. They will only differ if one and only
+        one zone has renewable dispatch.
+        """
+        start = timezone.now()
+        minutes_correction: int
+        if start.minute < 15:
+            minutes_correction = 0
+        elif start.minute < 30:
+            minutes_correction = 15
+        elif start.minute < 45:
+            minutes_correction = 30
+        else:
+            minutes_correction = 45
+        start = start.replace(minute=minutes_correction, second=0, microsecond=0) - timedelta(hours=1)
+        def get_value(region):
+            has_renewable_redispatch = (TimeseriesRedispatch.objects.filter(start=start)
+                .filter(region_north_south=region)
+                .filter(direction="Wirkleistungseinspeisung reduzieren")
+                .filter(is_renewable=True)
+                .exists()
+            )
+            value: Optional[float]
+            if has_renewable_redispatch:
+                value = 0
+            else:
+                try:
+                    record = (
+                        self.filter(start=start)
+                        .values(
+                            "start",
+                        )
+                        .order_by("start")
+                        .annotate(emissions_intensity=EMISSION_INTENSITY_EXPRESSION)
+                        .last()
+                    )
+                    value = record["emissions_intensity"]
+                except Exception:
+                    value = None
+            
+            return value
+        
+        nord = get_value(RegionNorthSouth.NORTH)
+        sued = get_value(RegionNorthSouth.SOUTH)
+
+        return EmissionFactorsNordSued(nord=nord, sued=sued, start=start)
+
+
+    def get_generation_data(self, start: Optional[datetime], end: Optional[datetime]):
+        if not start:
+            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
+        header = ["start"] + [psr.value.upper() for psr in PSR_TYPES_POST_2024]
+        values_list = ["start"] + [f"{psr}_gen" for psr in PSR_TYPES_POST_2024]
+
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        query = (
+            self.filter(timerange_query)
+            # .filter(control_area=ControlArea.GERMANY)
+            # .values(
+            #     "start",
+            # )
+            .order_by("start")
+        )
+        # for psr in PSR_TYPES_POST_2024:
+        #     query = query.annotate(
+        #         **{
+        #             psr.value.upper(): Coalesce(
+        #                 Sum(
+        #                     "power_mw",
+        #                     filter=Q(psr=psr),
+        #                 ),
+        #                 0.0,
+        #             )
+        #         }
+        #     )
+        records = query.values_list(*values_list)
+
+        return [header] + list(records)
+
+    def get_emissions_data(self, start: Optional[datetime], end: Optional[datetime]):
+        if not start:
+            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
+        header = ["start"] + [psr.value.upper() for psr in PSR_TYPES_POST_2024]
+        values_list = ["start"] + [f"{psr}_em" for psr in PSR_TYPES_POST_2024]
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        query = (
+            self.filter(timerange_query)
+            .order_by("start")
+        )
+        # for psr in PSR_TYPES_POST_2024:
+        #     query = query.annotate(
+        #         **{
+        #             psr.value.upper(): Coalesce(
+        #                 Sum(
+        #                     "emissions",
+        #                     filter=Q(psr=psr),
+        #                 ),
+        #                 0.0,
+        #             )
+        #         }
+        #     )
+        records = query.values_list(*values_list)
+
+        return [header] + list(records)
+
+
+class Generation(models.Model):
+    start = models.DateTimeField(null=False)
+    b01_gen = models.FloatField(null=True)
+    b02_gen = models.FloatField(null=True)
+    b04_gen = models.FloatField(null=True)
+    b05_gen = models.FloatField(null=True)
+    b06_gen = models.FloatField(null=True)
+    b09_gen = models.FloatField(null=True)
+    b10_gen = models.FloatField(null=True)
+    b11_gen = models.FloatField(null=True)
+    b12_gen = models.FloatField(null=True)
+    b14_gen = models.FloatField(null=True)
+    b15_gen = models.FloatField(null=True)
+    b16_gen = models.FloatField(null=True)
+    b17_gen = models.FloatField(null=True)
+    b18_gen = models.FloatField(null=True)
+    b19_gen = models.FloatField(null=True)
+    b20_gen = models.FloatField(null=True)
+    b01_em = models.FloatField(null=True)
+    b02_em = models.FloatField(null=True)
+    b04_em = models.FloatField(null=True)
+    b05_em = models.FloatField(null=True)
+    b06_em = models.FloatField(null=True)
+    b09_em = models.FloatField(null=True)
+    b10_em = models.FloatField(null=True)
+    b11_em = models.FloatField(null=True)
+    b12_em = models.FloatField(null=True)
+    b14_em = models.FloatField(null=True)
+    b15_em = models.FloatField(null=True)
+    b16_em = models.FloatField(null=True)
+    b17_em = models.FloatField(null=True)
+    b18_em = models.FloatField(null=True)
+    b19_em = models.FloatField(null=True)
+    b20_em = models.FloatField(null=True)
+    ws_residual = models.FloatField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    objects = GenerationManager()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["start"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["start"],
+                name="unique_generation_record",
+            )
+        ]
+  
+
 class PSRGenerationManager(models.Manager):
+
+
+    def update_aggregate_forecasts(self):
+        now = timezone.now()
+        start_of_day = now.replace(hour=0, minute=0)
+        records_to_create = []
+        records_to_update = []
+        for control_area in [ControlArea.GERMANY]:
+            for psr_type in [PsrType.B16, PsrType.B18, PsrType.B19]:
+                psr_records = (
+                    self.filter(start__gte=start_of_day)
+                    .filter(control_area=control_area)
+                    .filter(psr=psr_type)
+                    .all()
+                )
+                forecast_records = (
+                    RenewableGenerationForecast.objects.filter(start__gte=start_of_day)
+                    .filter(control_area=control_area)
+                    .filter(psr=psr_type)
+                    .all()
+                )
+                psr_map = {x.start: x for x in psr_records}
+                for forecast_record in forecast_records:
+                    psr_record = psr_map.get(forecast_record.start)
+                    if psr_record:
+                        if psr_record.power_mw != forecast_record.power_mw:
+                            psr_record.power_mw = forecast_record.power_mw
+                            psr_record.emissions = forecast_record.emissions
+                            psr_record.updated_at = now
+                            records_to_update.append(psr_record)
+                    else:
+                        records_to_create.append(
+                            PSRGeneration(
+                                start=forecast_record.start,
+                                control_area=forecast_record.control_area,
+                                psr=forecast_record.psr,
+                                power_mw=forecast_record.power_mw,
+                                emissions=forecast_record.emissions,
+                            )
+                        )
+        print("creating and updating")
+        with transaction.atomic():
+            self.bulk_create(records_to_create, batch_size=1000)
+            self.bulk_update(
+                records_to_update,
+                ["power_mw", "emissions", "updated_at"],
+                batch_size=1000,
+            )
+
 
     def import_records(self, xml):
         print("Starting import")
@@ -567,6 +1041,7 @@ class PSRGenerationManager(models.Manager):
             timerange_query &= Q(start__lt=end)
         records = (
             self.filter(timerange_query)
+            .filter(control_are=ControlArea.GERMANY)
             .values(
                 "start",
             )
@@ -652,6 +1127,7 @@ class PSRGenerationManager(models.Manager):
                 try:
                     record = (
                         self.filter(start=start)
+                        .filter(control_area=ControlArea.GERMANY)
                         .values(
                             "start",
                         )
@@ -683,6 +1159,7 @@ class PSRGenerationManager(models.Manager):
             timerange_query &= Q(start__lt=end)
         query = (
             self.filter(timerange_query)
+            .filter(control_area=ControlArea.GERMANY)
             .values(
                 "start",
             )
@@ -715,6 +1192,7 @@ class PSRGenerationManager(models.Manager):
             timerange_query &= Q(start__lt=end)
         query = (
             self.filter(timerange_query)
+            .filter(control_area=ControlArea.GERMANY)
             .values(
                 "start",
             )
@@ -770,6 +1248,404 @@ class PSRGeneration(models.Model):
             models.UniqueConstraint(
                 fields=["start", "control_area", "psr"],
                 name="unique_psr_generation_record",
+            )
+        ]
+
+
+class AggregateGenerationForecastManager(models.Manager):
+
+    def import_records(self, xml):
+        print("Starting import")
+        try:
+            name_spaces = {
+                "entsoe": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"
+            }
+            etree = ElementTree.fromstring(xml)
+            points = []
+            update_from = round_date_to_quarter_hour(timezone.now())
+            for entry in etree.findall("./entsoe:TimeSeries", name_spaces):
+                control_area = ControlArea(
+                    entry.find("./entsoe:inBiddingZone_Domain.mRID", name_spaces).text
+                )
+                resolution = entry.find(
+                    "./entsoe:Period/entsoe:resolution", name_spaces
+                ).text
+                if resolution != "PT60M":
+                    raise Exception(f"Got unexpected resolution {resolution} for {control_area}")
+                start = datetime.fromisoformat(
+                    entry.find(
+                        "./entsoe:Period/entsoe:timeInterval/entsoe:start", name_spaces
+                    ).text
+                )
+                for item in entry.findall(
+                    "./entsoe:Period/entsoe:Point/entsoe:quantity", name_spaces
+                ):
+                    for i in range(4):
+                        start += timedelta(minutes=15 * i)
+                        if start > update_from:
+                            point = {"start": start, "value": int(item.text)}
+                            points.append(point)
+                    start += timedelta(minutes=15)
+                if points:
+                    query = (
+                        self.filter(
+                            Q(start__gte=points[0]["start"]) & Q(start__lte=points[-1]["start"])
+                        )
+                        .filter(control_area=control_area)
+                    )
+                    records_to_check = {r.start: r for r in query.all()}
+                    records_to_create = []
+                    records_to_update = []
+                    updated_at = datetime.now(UTC)
+                    for point in points:
+                        old_record = records_to_check.get(point["start"])
+                        if old_record:
+                            if old_record.power_mw != point["value"]:
+                                old_record.power_mw = point["value"]
+                                old_record.updated_at = updated_at
+                                records_to_update.append(old_record)
+                        else:
+                            records_to_create.append(
+                                self.model(
+                                    start=point["start"],
+                                    power_mw=point["value"],
+                                    control_area=control_area,
+                                )
+                            )
+                    print("creating and updating")
+                    with transaction.atomic():
+                        self.bulk_create(records_to_create, batch_size=1000)
+                        self.bulk_update(
+                            records_to_update,
+                            ["power_mw", "updated_at"],
+                            batch_size=1000,
+                        )
+        except Exception as e:
+            logger.exception(str(e))
+
+
+class AggregateGenerationForecast(models.Model):
+    start = models.DateTimeField(null=False)
+    control_area = models.CharField(
+        verbose_name=("Control area"), max_length=16, choices=ControlArea.choices
+    )
+    power_mw = models.FloatField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    objects = AggregateGenerationForecastManager()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["start", "control_area"]),
+            models.Index(fields=["start"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["start", "control_area"],
+                name="unique_aggregated_generation_forecast_record",
+            )
+        ]
+
+
+class RenewableGenerationForecastManager(models.Manager):
+
+    def import_records(self, xml, forecast_type: ForecastType):
+        print("Starting import")
+        try:
+            name_spaces = {
+                "entsoe": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"
+            }
+            etree = ElementTree.fromstring(xml)
+            points = []
+            for entry in etree.findall("./entsoe:TimeSeries", name_spaces):
+                control_area = ControlArea(
+                    entry.find("./entsoe:inBiddingZone_Domain.mRID", name_spaces).text
+                )
+                psr = PsrType(
+                    entry.find(
+                        "./entsoe:MktPSRType/entsoe:psrType", name_spaces
+                    ).text.lower()
+                )
+                resolution = entry.find(
+                    "./entsoe:Period/entsoe:resolution", name_spaces
+                ).text
+                if resolution != "PT15M":
+                    raise Exception(f"Got unexpected resolution {resolution} for {psr} in {control_area}")
+                start = datetime.fromisoformat(
+                    entry.find(
+                        "./entsoe:Period/entsoe:timeInterval/entsoe:start", name_spaces
+                    ).text
+                )
+                for item in entry.findall(
+                    "./entsoe:Period/entsoe:Point/entsoe:quantity", name_spaces
+                ):
+                    point = {"start": start, "value": int(item.text)}
+                    points.append(point)
+                    start += timedelta(minutes=15)
+                if points:
+                    query = (
+                        self.filter(
+                            Q(start__gte=points[0]["start"]) & Q(start__lte=points[-1]["start"])
+                        )
+                        .filter(control_area=control_area)
+                        .filter(psr=psr)
+                    )
+                    records_to_check = {r.start: r for r in query.all()}
+                    records_to_create = []
+                    records_to_update = []
+                    updated_at = datetime.now(UTC)
+                    for point in points:
+                        old_record = records_to_check.get(point["start"])
+                        if old_record:
+                            if old_record.power_mw != point["value"]:
+                                # If forecast_type is current, always update
+                                # Otherwise, if the forecast_types match, then update
+                                # Or if the forecast_type is intraday and the old type is day-ahead
+                                if (forecast_type == ForecastType.CURRENT) or (old_record.forecast_type == forecast_type) or (forecast_type == ForecastType.INTRADAY and old_record.forecast_type == ForecastType.DAYAHEAD):
+                                    old_record.power_mw = point["value"]
+                                    old_record.emissions = get_emissions(point["value"], psr)
+                                    old_record.forecast_type = forecast_type
+                                    old_record.updated_at = updated_at
+                                    records_to_update.append(old_record)
+                        else:
+                            emissions = get_emissions(point["value"], psr)
+                            records_to_create.append(
+                                self.model(
+                                    start=point["start"],
+                                    power_mw=point["value"],
+                                    emissions=emissions,
+                                    control_area=control_area,
+                                    psr=psr,
+                                    forecast_type=forecast_type
+                                )
+                            )
+                    print("creating and updating")
+                    with transaction.atomic():
+                        self.bulk_create(records_to_create, batch_size=1000)
+                        self.bulk_update(
+                            records_to_update,
+                            ["power_mw", "emissions", "forecast_type", "updated_at"],
+                            batch_size=1000,
+                        )
+        except Exception as e:
+            logger.exception(str(e))
+
+
+class RenewableGenerationForecast(models.Model):
+    start = models.DateTimeField(null=False)
+    control_area = models.CharField(
+        verbose_name=("Control area"), max_length=16, choices=ControlArea.choices
+    )
+    psr = models.CharField(
+        verbose_name=("PSR type"), max_length=3, choices=PsrType.choices
+    )
+    forecast_type = models.CharField(
+        verbose_name=("Forecast type"), max_length=9, choices=ForecastType.choices
+    )
+    power_mw = models.FloatField(null=True)
+    emissions = models.FloatField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    objects = RenewableGenerationForecastManager()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["start", "control_area", "psr"]),
+            models.Index(fields=["start", "psr"]),
+            models.Index(fields=["start"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["start", "control_area", "psr"],
+                name="unique_renewable_generation_forecast_record",
+            )
+        ]
+
+
+class ForecastManager(models.Manager):
+
+    def import_records(self, xml, forecast_type: ForecastType):
+        print("Starting import")
+        try:
+            name_spaces = {
+                "entsoe": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"
+            }
+            etree = ElementTree.fromstring(xml)
+            points = []
+            for entry in etree.findall("./entsoe:TimeSeries", name_spaces):
+                control_area = ControlArea(
+                    entry.find("./entsoe:inBiddingZone_Domain.mRID", name_spaces).text
+                )
+                psr = PsrType(
+                    entry.find(
+                        "./entsoe:MktPSRType/entsoe:psrType", name_spaces
+                    ).text.lower()
+                )
+                resolution = entry.find(
+                    "./entsoe:Period/entsoe:resolution", name_spaces
+                ).text
+                if resolution != "PT15M":
+                    raise Exception(f"Got unexpected resolution {resolution} for {psr} in {control_area}")
+                start = datetime.fromisoformat(
+                    entry.find(
+                        "./entsoe:Period/entsoe:timeInterval/entsoe:start", name_spaces
+                    ).text
+                )
+                for item in entry.findall(
+                    "./entsoe:Period/entsoe:Point/entsoe:quantity", name_spaces
+                ):
+                    point = {"start": start, "value": int(item.text)}
+                    points.append(point)
+                    start += timedelta(minutes=15)
+                if points:
+                    query = (
+                        self.filter(
+                            Q(start__gte=points[0]["start"]) & Q(start__lte=points[-1]["start"])
+                        )
+                    )
+                    records_to_check = {r.start: r for r in query.all()}
+                    records_to_create = []
+                    records_to_update = []
+                    updated_at = datetime.now(UTC)
+                    for point in points:
+                        old_record = records_to_check.get(point["start"])
+                        if old_record:
+                            if getattr(old_record, f"{psr}_gen") != point["value"]:
+                                # If forecast_type is current, always update
+                                # If old value is null, always update
+                                # Otherwise, if the forecast_types match, then update
+                                # Or if the forecast_type is intraday and the old type is day-ahead
+                                # if (forecast_type == ForecastType.CURRENT) or (old_record.forecast_type == forecast_type) or (forecast_type == ForecastType.INTRADAY and old_record.forecast_type == ForecastType.DAYAHEAD) or (getattr(old_record, f"{psr}_gen") is None):
+                                if point["value"] is not None:
+                                    setattr(old_record, f"{psr}_gen", point["value"])
+                                    old_record.forecast_type = forecast_type
+                                    old_record.updated_at = updated_at
+                                    records_to_update.append(old_record)
+                        else:
+                            records_to_create.append(
+                                self.model(**{
+                                    "start": point["start"],
+                                    f"{psr}_gen": point["value"],
+                                    "forecast_type": forecast_type,
+                                })
+                            )
+                    print("creating and updating")
+                    with transaction.atomic():
+                        self.bulk_create(records_to_create, batch_size=1000)
+                        self.bulk_update(
+                            records_to_update,
+                            [f"{psr}_gen", "forecast_type", "updated_at"],
+                            batch_size=1000,
+                        )
+                        self.update_wind_solar_residual(points[0]["start"])
+        except Exception as e:
+            logger.exception(str(e))
+
+    def import_aggregate_records(self, xml):
+        print("Starting import")
+        try:
+            name_spaces = {
+                "entsoe": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"
+            }
+            etree = ElementTree.fromstring(xml)
+            for entry in etree.findall("./entsoe:TimeSeries", name_spaces):
+                points = []
+                control_area = ControlArea(
+                    entry.find("./entsoe:inBiddingZone_Domain.mRID", name_spaces).text
+                )
+                resolution = entry.find(
+                    "./entsoe:Period/entsoe:resolution", name_spaces
+                ).text
+                if resolution != "PT60M":
+                    raise Exception(f"Got unexpected resolution {resolution} for {control_area}")
+                start = datetime.fromisoformat(
+                    entry.find(
+                        "./entsoe:Period/entsoe:timeInterval/entsoe:start", name_spaces
+                    ).text
+                )
+                for item in entry.findall(
+                    "./entsoe:Period/entsoe:Point/entsoe:quantity", name_spaces
+                ):
+                    for _ in range(4):
+                        point = {"start": start, "value": int(item.text)}
+                        points.append(point)
+                        start += timedelta(minutes=15)
+
+                    # start += timedelta(minutes=15)
+                    # point = {"start": start, "value": int(item.text)}
+                    # points.append(point)
+                    # start += timedelta(minutes=15)
+                if points:
+                    query = (
+                        self.filter(
+                            Q(start__gte=points[0]["start"]) & Q(start__lte=points[-1]["start"])
+                        )
+                    )
+                    records_to_check = {r.start: r for r in query.all()}
+                    records_to_create = []
+                    records_to_update = []
+                    updated_at = datetime.now(UTC)
+                    for point in points:
+                        old_record = records_to_check.get(point["start"])
+                        if old_record:
+                            if old_record.agg_gen != point["value"]:
+                                old_record.agg_gen = point["value"]
+                                old_record.updated_at = updated_at
+                                records_to_update.append(old_record)
+                        else:
+                            records_to_create.append(
+                                self.model(
+                                    start=point["start"],
+                                    agg_gen=point["value"],
+                                )
+                            )
+                    print("creating and updating")
+                    with transaction.atomic():
+                        self.bulk_create(records_to_create, batch_size=1000)
+                        self.bulk_update(
+                            records_to_update,
+                            ["agg_gen", "updated_at"],
+                            batch_size=1000,
+                        )
+                        self.update_wind_solar_residual(start=points[0]["start"])
+        except Exception as e:
+            logger.exception(str(e))
+
+    def update_wind_solar_residual(self, start):
+        now = datetime.now(UTC)
+        records = (
+                    self.filter(start__gte=start)
+                    .annotate(ws_residual_new=FORECAST_WIND_SOLAR_RESIDUAL_EXPRESSION)
+                    .all()
+                )
+        for record in records:
+            record.ws_residual = record.ws_residual_new
+            record.updated_at = now
+        self.bulk_update(records, fields=["ws_residual", "updated_at"], batch_size=1000)
+
+
+class Forecast(models.Model):
+    start = models.DateTimeField(null=False)
+    forecast_type = models.CharField(
+        verbose_name=("Forecast type"), max_length=9, choices=ForecastType.choices, default=ForecastType.DAYAHEAD
+    )
+    b16_gen = models.FloatField(null=True)
+    b18_gen = models.FloatField(null=True)
+    b19_gen = models.FloatField(null=True)
+    agg_gen = models.FloatField(null=True)
+    ws_residual = models.FloatField(null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    objects = ForecastManager()
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["start"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["start",],
+                name="unique_forecast_record",
             )
         ]
 

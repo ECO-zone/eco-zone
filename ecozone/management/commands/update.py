@@ -2,7 +2,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from ecozone.models import PowerPlant
+from ecozone.models import PowerPlant, Generation
 
 
 logger = logging.getLogger(__name__)
@@ -28,6 +28,9 @@ class Command(BaseCommand):
                     self.stdout.write(
                         self.style.SUCCESS(f"Updated zone data for {results} records.")
                     )
+                case "forecasts":
+                    self.stdout.write(f"Updating {data_type}.")
+                    Generation.objects.update_forecasts()
                 case _:
                     self.stderr.write(
                         self.style.ERROR(

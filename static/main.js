@@ -84,7 +84,23 @@ Highcharts.setOptions({
   },
 });
 
-function makeChart(config) {
+async function getData(url) {
+  let data
+  try {
+    let response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+
+    data = await response.json();
+  } catch (error) {
+    console.error(error.message);
+    throw new Error(`Unable to get data from ${url}`)
+  }
+  return data;
+}
+
+async function makeChart(config) {
   if (document.getElementById(config.id)) {
     let chart = Highcharts.stockChart(config.id, {
       chart: {
@@ -103,7 +119,6 @@ function makeChart(config) {
         enabled: false,
       },
       data: {
-        rowsURL: config.url,
         complete: function (parsedData) {
           for (let series of parsedData.series) {
             let newName = config.seriesNames[series.name];
@@ -196,38 +211,47 @@ function makeChart(config) {
         },
       },
     });
+    let data = await getData(config.url);
+    chart.update({
+      data: {
+          rows: data
+      }
+    });
     return chart;
   } else {
     return null;
   }
 }
 
-
-if (document.getElementById("chart-timeseries-emission-intensity-zonal")) {
-  let dropdownRegionSelect = document.getElementById('chart-dropdown-region-select');
-  let emissionIntensityRegionalChart = makeChart({
-    id: "chart-timeseries-emission-intensity-zonal",
-    type: "line",
-    seriesNames: {
-      emission_intensity: "Emissionsintensität",
-      emission_intensity_north: "Emissionsintensität Regional [Nord]",
-      emission_intensity_south: "Emissionsintensität Regional [Süd]",
-    },
-    subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
-    titleText: 'Zonale Emissionen pro erzeugter MWh Strom',
-    url: `/api/timeseries/emission-intensity-zonal?region=${dropdownRegionSelect.value}`,
-    yAxisText: 'Emissionsintensität [kgCO2/MWh]',
-  });
-
-  dropdownRegionSelect.addEventListener('change', function() {
-    this.blur();
-    emissionIntensityRegionalChart.update({
-      data: {
-        rowsURL: `/api/timeseries/emission-intensity-zonal?region=${this.value}`
-      }
+async function makeemissionIntensityRegionalChart() {
+  if (document.getElementById("chart-timeseries-emission-intensity-zonal")) {
+    let dropdownRegionSelect = document.getElementById('chart-dropdown-region-select');
+    let emissionIntensityRegionalChart = await makeChart({
+      id: "chart-timeseries-emission-intensity-zonal",
+      type: "line",
+      seriesNames: {
+        emission_intensity: "Emissionsintensität",
+        emission_intensity_north: "Emissionsintensität Regional [Nord]",
+        emission_intensity_south: "Emissionsintensität Regional [Süd]",
+      },
+      subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
+      titleText: 'Zonale Emissionen pro erzeugter MWh Strom',
+      url: `/api/timeseries/emission-intensity-zonal?region=${dropdownRegionSelect.value}`,
+      yAxisText: 'Emissionsintensität [kgCO2/MWh]',
     });
-  });
+
+    dropdownRegionSelect.addEventListener('change', function() {
+      this.blur();
+      emissionIntensityRegionalChart.update({
+        data: {
+          rowsURL: `/api/timeseries/emission-intensity-zonal?region=${this.value}`
+        }
+      });
+    });
+  }
 }
+
+makeemissionIntensityRegionalChart()
 
 makeChart({
   id: "chart-timeseries-generation",

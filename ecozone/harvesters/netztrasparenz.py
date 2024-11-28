@@ -51,7 +51,7 @@ def harvest_redispatch() -> int:
     client.fetch_token(
         token_url=TOKEN_URL, client_id=CLIENT_SECRET, client_secret=CLIENT_SECRET
     )
-    start = datetime(year=2023, month=1, day=1, tzinfo=UTC)
+    start = datetime(year=2024, month=11, day=1, tzinfo=UTC)
     end = start + timedelta(days=30)
     now = datetime.now(UTC)
     records_from_server = []
@@ -107,8 +107,8 @@ def harvest_redispatch() -> int:
         end = end + timedelta(days=30)
         sleep(2)
         
-
-    records_to_check = Redispatch.objects.all()
+    records_from_server.sort(key=lambda x: x.start)
+    records_to_check = Redispatch.objects.filter(start__gte=records_from_server[0].start).order_by("start").all()
     record_check_set = {x.make_record_comparison_str(): x for x in records_to_check}
 
     records_to_create = []
