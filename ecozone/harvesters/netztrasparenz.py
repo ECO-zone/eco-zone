@@ -12,7 +12,7 @@ from requests_oauthlib import OAuth2Session
 from django.db import transaction
 from django.db.models import Q
 
-from ..models import GridRegion, PowerPlant, Redispatch, TimeseriesRedispatch, TSO
+from ..models import Generation, GridRegion, PowerPlant, Redispatch, TimeseriesRedispatch, TSO
 
 
 logger = logging.getLogger(__name__)
@@ -44,14 +44,15 @@ def harvest_redispatch() -> int:
     CLIENT_ID = get_env_var("NETZTRANZPARENZ_CLIENT_ID")
     CLIENT_SECRET = get_env_var("NETZTRANZPARENZ_CLIENT_SECRET")
     TOKEN_URL = "https://identity.netztransparenz.de/users/connect/token"
-    current_grid_regions = GridRegion.objects.get_dict_of_names_to_ids()
     current_power_plants = PowerPlant.objects.get_dict_of_names_to_ids()
     current_tsos = TSO.objects.get_dict_of_names_to_ids()
     client = OAuth2Session(client=BackendApplicationClient(CLIENT_ID))
     client.fetch_token(
         token_url=TOKEN_URL, client_id=CLIENT_SECRET, client_secret=CLIENT_SECRET
     )
-    start = datetime(year=2024, month=11, day=1, tzinfo=UTC)
+    start = datetime(year=2022, month=12, day=31, hour=23, tzinfo=UTC)
+    # start = datetime(year=2024, month=11, day=1, tzinfo=UTC)
+    # start = datetime.now(UTC).replace(hour=0, minute=0, microsecond=0) - timedelta(days=30)
     end = start + timedelta(days=30)
     now = datetime.now(UTC)
     records_from_server = []
@@ -147,8 +148,10 @@ def harvest_redispatch() -> int:
         Redispatch.grid_regions.through.objects.bulk_create(
             redispatch_region_relations_to_create, batch_size=1000
         )
-        TimeseriesRedispatch.objects.update_from_redispatch_records(
+        result = TimeseriesRedispatch.objects.update_from_redispatch_records(
             new_redispatch_records
         )
+        if result:
+            Generation.objects.update_redispatch(result["start"], result["end"])
 
     return len(new_redispatch_records_set)

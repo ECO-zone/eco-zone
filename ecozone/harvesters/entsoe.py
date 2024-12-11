@@ -6,7 +6,7 @@ from typing import List, Tuple
 
 from requests import Session
 
-from ecozone.models import AggregateGenerationForecast, ControlArea, ForecastType, PSRGeneration, PsrType, RenewableGenerationForecast, Generation, PSR_TYPES_POST_2024, Forecast
+from ecozone.models import ControlArea, ForecastType, PsrType, Generation, PSR_TYPES_POST_2024, Forecast
 from ecozone.utils import round_date_to_quarter_hour
 
 
@@ -100,6 +100,8 @@ def harvest_psr_generation(historical: bool = False, **kwargs):
                 except Exception:
                     logger.exception("Harvester error: unable to get ENTSO-E data.")
                     continue
+                with open("out.xml", "w") as f:
+                    f.write(r.text)
                 Generation.objects.import_records(
                     r.content,
                 )
