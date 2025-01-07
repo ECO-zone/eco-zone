@@ -10,7 +10,7 @@ from uuid import uuid4
 from xml.etree import ElementTree
 
 from django.db import models, transaction
-from django.db.models import F, Func, Q, Sum
+from django.db.models import F, Func, Q, Sum, Avg
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -451,7 +451,9 @@ class Redispatch(models.Model):
 
 class TimeseriesRedispatchManager(models.Manager):
 
-    def update_from_redispatch_records(self, redispatch_records):
+    def update_from_redispatch_records(self, redispatch_records=None):
+        if not redispatch_records:
+            redispatch_records = Redispatch.objects.all()
         timeseries_records = []
         starts = []
         ends = []
@@ -465,6 +467,8 @@ class TimeseriesRedispatchManager(models.Manager):
                 power_mw = redispatch_record.power_mid_mw
                 work_mwh = power_mw / 4  # NOTE: 15-min. res.
                 emissions = get_emissions(work_mwh, power_plant.psr_type)
+                if not work_mwh or not emissions:
+                    print(power_plant, start, work_mwh, emissions)
                 emission_factor = emissions / work_mwh if work_mwh and emissions is not None else None
                 timeseries_records.append(
                     TimeseriesRedispatch(
@@ -480,7 +484,21 @@ class TimeseriesRedispatchManager(models.Manager):
                     )
                 )
                 start = start + timedelta(minutes=15)
-        self.bulk_create(timeseries_records, batch_size=1000)
+        old_timeseries_records = {x.make_key(): x for x in self.filter(Q(start__gte=min(starts)) & Q(start__lt=max(ends))).all()}
+        recs_to_update = []
+        recs_to_create = []
+        for rec in timeseries_records:
+            old_rec = old_timeseries_records.get(rec.make_key())
+            if old_rec:
+                if old_rec.work_mwh != rec.work_mwh or old_rec.emission_factor != rec.emission_factor:
+                    old_rec.work_mwh = rec.work_mwh
+                    old_rec.emission = rec.emissions
+                    old_rec.emission_factor = rec.emission_factor
+                    recs_to_update.append(old_rec)
+            else:
+                recs_to_create.append(rec)
+        self.bulk_create(recs_to_create, batch_size=1000)
+        self.bulk_update(recs_to_update, ["work_mwh", "emissions", "emission_factor"], batch_size=1000)
 
         return {"start": min(starts), "end": max(ends)} if starts else None
     
@@ -615,21 +633,57 @@ class TimeseriesRedispatchManager(models.Manager):
                 "start",
             )
             .order_by("start")
+        #     .annotate(
+        #         con_ef_north=Coalesce(
+        #             Sum(
+        #                 "emissions",
+        #                 filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.NORTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
+        #                 default=0.0,
+        #             ) / Sum(
+        #                 "work_mwh",
+        #                 filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.NORTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
+        #                 default=0.0,
+        #             ),
+        #             0.0,
+        #         )
+        #     )
+        #     .annotate(
+        #         con_ef_south=Coalesce(
+        #             Sum(
+        #                 "emissions",
+        #                 filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.SOUTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
+        #                 default=0.0,
+        #             ) / Sum(
+        #                 "work_mwh",
+        #                 filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.SOUTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
+        #                 default=0.0,
+        #             ),
+        #             0.0,
+        #         )
+        #     )
             .annotate(
-                con_ef_north=Coalesce(
-                    Sum(
-                        "emission_factor",
-                        filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.NORTH) & Q(is_renewable=False),
-                        default=0.0,
-                    ),
-                    0.0,
+                    con_ef_north=Coalesce(
+                        Sum("emissions",
+                            field="emissions*work_mwh",
+                            filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.NORTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
+                            default=0.0,
+                        ) / Sum(
+                            "work_mwh",
+                            filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.NORTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
+                            default=0.0,
+                        ),
+                        0.0,
+                    )
                 )
-            )
             .annotate(
                 con_ef_south=Coalesce(
-                    Sum(
-                        "emission_factor",
-                        filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.SOUTH) & Q(is_renewable=False),
+                    Sum("emissions",
+                        field="emissions*work_mwh",
+                        filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.SOUTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
+                        default=0.0,
+                    ) / Sum(
+                        "work_mwh",
+                        filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.SOUTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
                         default=0.0,
                     ),
                     0.0,
@@ -673,6 +727,9 @@ class TimeseriesRedispatch(models.Model):
                 name="unique_timeseries_redispatch_record",
             )
         ]
+
+    def make_key(self):
+        return f"{str(self.start.isoformat())}__{self.redispatch_id}"
 
 
 class ControlArea(models.TextChoices):
@@ -758,9 +815,6 @@ class GenerationManager(models.Manager):
             .all()
         )
         for forecast_record in forecast_records:
-            gen_field = f"{psr_type}_gen"
-            work_field = f"{psr_type}_work_mwh"
-            em_field = f"{psr_type}_em"
             update = False
             gen_record = gen_records.get(forecast_record.start)
             if gen_record:
@@ -777,6 +831,9 @@ class GenerationManager(models.Manager):
             )
 
             for psr_type in PSR_TYPES_POST_2024:
+                gen_field = f"{psr_type}_gen"
+                work_field = f"{psr_type}_work_mwh"
+                em_field = f"{psr_type}_em"
                 if psr_type in WIND_SOLAR_PSR_TYPES:
                     gen_value = getattr(forecast_record, gen_field)
                     work_value = gen_value / 4  # NOTE: 15-min. res.
@@ -808,7 +865,7 @@ class GenerationManager(models.Manager):
 
     def update_redispatch(self, start: Optional[datetime]=None, end: Optional[datetime]=None):
         start = start if start else datetime(year=2022, month=12, day=31, hour=23, tzinfo=UTC)
-        now = datetime.now(UTC)
+        now = datetime.now(UTC) + timedelta(days=7)
         end = end if end else now
         gen_query = (
                 self.filter(
@@ -975,10 +1032,10 @@ class GenerationManager(models.Manager):
         if end:
             timerange_query &= Q(start__lt=end)
         re_other_timerange_query = Q()
-        for timerange in con_timeranges_other:
+        for timerange in red_timeranges_other:
             re_other_timerange_query |= Q(start__range=timerange)
         con_target_timerange_query = Q()
-        for timerange in red_timeranges_other:
+        for timerange in con_timeranges_other:
             con_target_timerange_query |= Q(start__range=timerange)
         records = (
             self.filter(timerange_query)
@@ -988,11 +1045,9 @@ class GenerationManager(models.Manager):
             .order_by("start")
             .annotate(
                 **{f"emission_intensity_{region}": models.Case(
-                    models.When(re_target_timerange_query, then=models.Value(0.0)),
-                    # models.When(con_target_timerange_query, then=F(f"con_ef_{region}")),
-                    # models.When(re_other_timerange_query & con_target_timerange_query, then=F(f"con_ef_{region}") *8),
-                    # models.When(con_target_timerange_query & Q(**{f"con_ef_{region}__gt": 0}), then=F(f"con_ef_{region}") /4),
-                    default=EMISSION_INTENSITY_EXPRESSION, # F(f"con_ef_{region}") / 4, # ,
+                    models.When(re_target_timerange_query & ~con_target_timerange_query, then=models.Value(0.0)),
+                    models.When(~re_target_timerange_query & re_other_timerange_query & Q(**{f"con_ef_{region}__gt": 0}), then=F(f"con_ef_{region}")),
+                    default=EMISSION_INTENSITY_EXPRESSION,
                     output_field=models.FloatField()
                 )}
             )

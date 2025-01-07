@@ -2,7 +2,7 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from ecozone.models import PowerPlant, Generation
+from ecozone.models import PowerPlant, Generation, TimeseriesRedispatch
 
 
 logger = logging.getLogger(__name__)
@@ -31,6 +31,12 @@ class Command(BaseCommand):
                 case "forecasts":
                     self.stdout.write(f"Updating {data_type}.")
                     Generation.objects.update_forecasts()
+                case "redispatch":
+                    self.stdout.write(f"Updating {data_type}.")
+                    Generation.objects.update_redispatch()
+                case "ts_redispatch":
+                    self.stdout.write(f"Updating {data_type}.")
+                    TimeseriesRedispatch.objects.update_from_redispatch_records()
                 case _:
                     self.stderr.write(
                         self.style.ERROR(
