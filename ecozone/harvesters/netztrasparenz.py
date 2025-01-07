@@ -151,7 +151,8 @@ def harvest_redispatch() -> int:
         result = TimeseriesRedispatch.objects.update_from_redispatch_records(
             new_redispatch_records
         )
-        if result:
-            Generation.objects.update_redispatch(result["start"], result["end"])
+        # TODO: Fix division by zero bug.
+        # if result:
+        #     Generation.objects.update_redispatch(result["start"], result["end"])
 
     return len(new_redispatch_records_set)

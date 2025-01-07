@@ -467,8 +467,6 @@ class TimeseriesRedispatchManager(models.Manager):
                 power_mw = redispatch_record.power_mid_mw
                 work_mwh = power_mw / 4  # NOTE: 15-min. res.
                 emissions = get_emissions(work_mwh, power_plant.psr_type)
-                if not work_mwh or not emissions:
-                    print(power_plant, start, work_mwh, emissions)
                 emission_factor = emissions / work_mwh if work_mwh and emissions is not None else None
                 timeseries_records.append(
                     TimeseriesRedispatch(
@@ -633,34 +631,6 @@ class TimeseriesRedispatchManager(models.Manager):
                 "start",
             )
             .order_by("start")
-        #     .annotate(
-        #         con_ef_north=Coalesce(
-        #             Sum(
-        #                 "emissions",
-        #                 filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.NORTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
-        #                 default=0.0,
-        #             ) / Sum(
-        #                 "work_mwh",
-        #                 filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.NORTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
-        #                 default=0.0,
-        #             ),
-        #             0.0,
-        #         )
-        #     )
-        #     .annotate(
-        #         con_ef_south=Coalesce(
-        #             Sum(
-        #                 "emissions",
-        #                 filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.SOUTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
-        #                 default=0.0,
-        #             ) / Sum(
-        #                 "work_mwh",
-        #                 filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.SOUTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
-        #                 default=0.0,
-        #             ),
-        #             0.0,
-        #         )
-        #     )
             .annotate(
                     con_ef_north=Coalesce(
                         Sum("emissions",
@@ -670,7 +640,7 @@ class TimeseriesRedispatchManager(models.Manager):
                         ) / Sum(
                             "work_mwh",
                             filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.NORTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
-                            default=0.0,
+                            default=1.0,
                         ),
                         0.0,
                     )
@@ -684,7 +654,7 @@ class TimeseriesRedispatchManager(models.Manager):
                     ) / Sum(
                         "work_mwh",
                         filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.SOUTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
-                        default=0.0,
+                        default=1.0,
                     ),
                     0.0,
                 )
@@ -774,7 +744,7 @@ CONVENTIONAL_PSR_TYPES = [x for x in PSR_TYPES_POST_2024 if x not in RENEWABLE_P
 WIND_SOLAR_PSR_TYPES = [PsrType.B16, PsrType.B18, PsrType.B19]
 
 
-EMISSION_INTENSITY_EXPRESSION = reduce(add, [Coalesce(F(f"{x}_em"), 0.0) for x in PSR_TYPES_POST_2024]) / reduce(add, [Coalesce(F(f"{x}_work_mwh"), 0.0) for x in PSR_TYPES_POST_2024])
+EMISSION_INTENSITY_EXPRESSION = reduce(add, [Coalesce(F(f"{x}_em"), 0.0) for x in PSR_TYPES_POST_2024]) / reduce(add, [Coalesce(F(f"{x}_work_mwh"), 1.0) for x in PSR_TYPES_POST_2024])
 
 
 WIND_SOLAR_RESIDUAL_EXPRESSION = reduce(add, [Coalesce(F(f"{x}_gen"), 0.0) for x in PSR_TYPES_POST_2024]) - reduce(add, [Coalesce(F(f"{x}_gen"), 0.0) for x in WIND_SOLAR_PSR_TYPES])
@@ -891,15 +861,8 @@ class GenerationManager(models.Manager):
                 if update:
                     gen_record.updated_at = now
                     records_to_update.append(gen_record)
-            else:
-                records_to_create.append(Generation(
-                    start=red_record.start,
-                    con_ef_north=red_record.con_ef_north,
-                    con_ef_south=red_record.con_ef_south,
-                ))
-        print("creating and updating")
+        print("updating")
         with transaction.atomic():
-            self.bulk_create(records_to_create, batch_size=1000)
             self.bulk_update(
                 records_to_update,
                 ["con_ef_north", "con_ef_south", "updated_at"],
@@ -928,7 +891,6 @@ class GenerationManager(models.Manager):
                     "./entsoe:MktPSRType/entsoe:psrType", name_spaces
                 ).text.lower()
             )
-            print(psr.label)
             start = datetime.fromisoformat(
                 entry.find(
                     "./entsoe:Period/entsoe:timeInterval/entsoe:start", name_spaces
@@ -972,8 +934,6 @@ class GenerationManager(models.Manager):
                     )
             print("creating and updating")
             with transaction.atomic():
-                print(len(records_to_create))
-                print(len(records_to_update))
                 self.bulk_create(records_to_create, batch_size=1000)
                 self.bulk_update(
                     records_to_update,
