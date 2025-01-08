@@ -163,12 +163,15 @@ class PowerPlantManager(models.Manager):
         return {x["name"]: x["id"] for x in self.values("name", "id").all()}
 
     def update_zone_data(self) -> int:
-        with open(Path(__file__).parent.parent / "data" / "zones_2024_12_02.csv", "r") as f:
+        def get_clean_value(value):
+            return value.strip()
+
+        with open(Path(__file__).parent.parent / "data" / "zones_2025_01_08.csv", "r") as f:
             reader = csv.DictReader(f)
             plants_from_file = []
             for row in reader:
-                name = row["Name"]
-                _region_north_south = row["Nord-Süd"]
+                name = get_clean_value(row["Name"])
+                _region_north_south = get_clean_value(row["Nord-Süd"])
                 region_north_south: Optional[RegionNorthSouth]
                 if not _region_north_south:
                     region_north_south = None
@@ -183,7 +186,7 @@ class PowerPlantManager(models.Manager):
                         logger.info(f"{name} has invalid north/south region '{_region_north_south}'")
                         region_north_south = None
                         pass
-                _region_dena = row["Dena Regionen"]
+                _region_dena = get_clean_value(row["Dena Regionen"])
                 region_dena: Optional[str]
                 if not _region_dena:
                     region_dena = None
@@ -193,7 +196,7 @@ class PowerPlantManager(models.Manager):
                     else:
                         logger.info(f"{name} has invalid dena region '{_region_dena}'")
                         region_dena = None
-                _is_renewable=row["EE/nicht EE"]
+                _is_renewable=get_clean_value(row["EE/nicht EE"])
                 is_renewable: Optional[bool]
                 if not _is_renewable:
                     is_renewable = None
@@ -208,9 +211,11 @@ class PowerPlantManager(models.Manager):
                             is_renewable = False
                 psr_type: Optional[PsrType]
                 try:
-                    psr_type = PsrType.from_label(row["Energieträger"])
+                    psr_type = PsrType.from_label(get_clean_value(row["Energieträger"]))
                 except Exception:
                     psr_type = None
+                unit_type = get_clean_value(row["Kraftwerksart"]).lower()
+                is_heat_cogen = "heiz" in unit_type or "wärme" in unit_type
                 plants_from_file.append(
                     PowerPlant(
                         name=name,
@@ -218,12 +223,13 @@ class PowerPlantManager(models.Manager):
                         region_north_south=region_north_south,
                         psr_type=psr_type,
                         is_renewable=is_renewable,
+                        is_heat_cogen=is_heat_cogen
                     )
                 )
             current_plants = {x.name: x for x in self.all()}
             plants_to_update = []
             plants_to_create = []
-            attrs = ["region_dena", "region_north_south", "is_renewable", "psr_type",]
+            attrs = ["region_dena", "region_north_south", "is_renewable", "psr_type", "is_heat_cogen"]
             for plant_from_file in plants_from_file:
                 update = False
                 current_plant = current_plants.get(plant_from_file.name)
@@ -271,6 +277,9 @@ class PowerPlant(models.Model):
     )
     is_renewable = models.BooleanField(
         verbose_name="EE Anlage",
+        null=True
+    )
+    is_heat_cogen = models.BooleanField(
         null=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
@@ -466,7 +475,7 @@ class TimeseriesRedispatchManager(models.Manager):
             while start < end:
                 power_mw = redispatch_record.power_mid_mw
                 work_mwh = power_mw / 4  # NOTE: 15-min. res.
-                emissions = get_emissions(work_mwh, power_plant.psr_type)
+                emissions = get_emissions(work_mwh, power_plant.psr_type, power_plant.is_heat_cogen)
                 emission_factor = emissions / work_mwh if work_mwh and emissions is not None else None
                 timeseries_records.append(
                     TimeseriesRedispatch(
@@ -510,13 +519,27 @@ class TimeseriesRedispatchManager(models.Manager):
         to_update = []
         for x in missing:
             power_plant = x.redispatch.power_plant
-            emissions = get_emissions(x.power_mid_mw, power_plant.psr_type)
-            x.emission_factor = emissions / x.power_mid_mw
+            work_mwh = x.power_mid_mw / 4  # NOTE: 15-min. res.
+            emissions = get_emissions(work_mwh, power_plant.psr_type, power_plant.is_heat_cogen)
+            x.emissions = emissions
+            x.emission_factor = emissions / work_mwh
             to_update.append(x)
         
-        self.bulk_update(to_update, ["emission_factor"], batch_size=1000)
-       
+        self.bulk_update(to_update, ["emissions", "emission_factor"], batch_size=1000)
 
+    def update_heat_cogen_emission_factors(self):
+        records = TimeseriesRedispatch.objects.filter(redispatch__power_plant__is_heat_cogen=True).all()
+        to_update = []
+        for x in records:
+            power_plant = x.redispatch.power_plant
+            work_mwh = x.power_mid_mw / 4  # NOTE: 15-min. res.
+            emissions = get_emissions(work_mwh, power_plant.psr_type, power_plant.is_heat_cogen)
+            x.emissions = emissions
+            x.emission_factor = emissions / work_mwh
+            to_update.append(x)
+        
+        self.bulk_update(to_update, ["emissions", "emission_factor"], batch_size=1000)
+       
     def get_timeseries_data(self, start: Optional[datetime], end: Optional[datetime]):
         if not start:
             start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
@@ -1204,11 +1227,14 @@ class Generation(models.Model):
         ]
 
 
-def get_emissions(work_mwh: Optional[float], psr: PsrType) -> Optional[float]:
+def get_emissions(work_mwh: Optional[float], psr: PsrType, is_heat_cogen: Optional[bool]=None) -> Optional[float]:
     if work_mwh is None or psr is None:
         return None
 
-    return EMISSIONS_FACTORS[psr] * work_mwh
+    scaling_factor = 0.625 if is_heat_cogen else 1
+    emission_factor = EMISSIONS_FACTORS[psr] * scaling_factor
+
+    return emission_factor * work_mwh
 
 
 class ForecastManager(models.Manager):

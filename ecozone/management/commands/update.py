@@ -37,6 +37,9 @@ class Command(BaseCommand):
                 case "ts_redispatch":
                     self.stdout.write(f"Updating {data_type}.")
                     TimeseriesRedispatch.objects.update_from_redispatch_records()
+                case "cogen_records":
+                    self.stdout.write(f"Updating {data_type}.")
+                    TimeseriesRedispatch.objects.update_heat_cogen_emission_factors()
                 case _:
                     self.stderr.write(
                         self.style.ERROR(
