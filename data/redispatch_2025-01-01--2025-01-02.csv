@@ -1,0 +1,6 @@
+BEGINN_DATUM;BEGINN_UHRZEIT;ZEITZONE_VON;ENDE_DATUM;ENDE_UHRZEIT;ZEITZONE_BIS;GRUND_DER_MASSNAHME;RICHTUNG;MITTLERE_LEISTUNG_MW;MAXIMALE_LEISTUNG_MW;GESAMTE_ARBEIT_MWH;ANWEISENDER_UENB;ANFORDERNDER_UENB;BETROFFENE_ANLAGE;PRIMAERENERGIEART;ZONE
+01.01.2025;00:00;UTC;01.01.2025;12:00;UTC;Strombedingter Redispatch;Wirkleistungseinspeisung erhöhen;10;10;120;TransnetBW;50Hertz & Amprion & TenneT DE & TransnetBW;Zolling 5;Konventionell;south
+01.01.2025;10:00;UTC;01.01.2025;16:00;UTC;Strombedingter Redispatch;Wirkleistungseinspeisung reduzieren;85,75;100;343;TenneT DE;50Hertz & Amprion & TenneT DE & TransnetBW;Burghausen;Erneuerbar;south
+01.01.2025;14:00;UTC;01.01.2025;22:00;UTC;Strombedingter Redispatch;Wirkleistungseinspeisung reduzieren;114;148;227;50Hertz;50Hertz & Amprion & TenneT DE & TransnetBW;50H OWP Wikinger;Erneuerbar;north
+01.01.2025;20:00;UTC;01.01.2025;23:00;UTC;Strombedingter Redispatch;Wirkleistungseinspeisung erhöhen;210;294;629;50Hertz;50Hertz & Amprion & TenneT DE & TransnetBW;50H Rostock Marienehe;Konventionell;north
+01.01.2025;18:00;UTC;01.01.2025;23:00;UTC;Strombedingter Redispatch;Wirkleistungseinspeisung erhöhen;10;10;120;TransnetBW;50Hertz & Amprion & TenneT DE & TransnetBW;Zolling 5;Konventionell;south

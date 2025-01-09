@@ -4,6 +4,7 @@ from io import StringIO
 import logging
 import os
 from time import sleep
+from typing import Optional
 from uuid import uuid4
 
 from oauthlib.oauth2 import BackendApplicationClient
@@ -40,16 +41,15 @@ def from_date_and_time_to_utc_datetime(date: str, time: str) -> datetime:
     return datetime.strptime(f"{date}{time}Z", "%d.%m.%Y%H:%M%z")
 
 
-def harvest_redispatch() -> int:
-    CLIENT_ID = get_env_var("NETZTRANZPARENZ_CLIENT_ID")
-    CLIENT_SECRET = get_env_var("NETZTRANZPARENZ_CLIENT_SECRET")
-    TOKEN_URL = "https://identity.netztransparenz.de/users/connect/token"
-    current_power_plants = PowerPlant.objects.get_dict_of_names_to_ids()
-    current_tsos = TSO.objects.get_dict_of_names_to_ids()
-    client = OAuth2Session(client=BackendApplicationClient(CLIENT_ID))
-    client.fetch_token(
-        token_url=TOKEN_URL, client_id=CLIENT_SECRET, client_secret=CLIENT_SECRET
-    )
+def harvest_redispatch(from_server: Optional[bool]=True) -> int:
+    if from_server:
+        CLIENT_ID = get_env_var("NETZTRANZPARENZ_CLIENT_ID")
+        CLIENT_SECRET = get_env_var("NETZTRANZPARENZ_CLIENT_SECRET")
+        TOKEN_URL = "https://identity.netztransparenz.de/users/connect/token"
+        client = OAuth2Session(client=BackendApplicationClient(CLIENT_ID))
+        client.fetch_token(
+            token_url=TOKEN_URL, client_id=CLIENT_SECRET, client_secret=CLIENT_SECRET
+        )
     start = datetime(year=2022, month=12, day=31, hour=23, tzinfo=UTC)
     # start = datetime(year=2024, month=11, day=1, tzinfo=UTC)
     # start = datetime.now(UTC).replace(hour=0, minute=0, microsecond=0) - timedelta(days=30)
@@ -57,14 +57,19 @@ def harvest_redispatch() -> int:
     now = datetime.now(UTC)
     records_from_server = []
     redispatch_region_relations = []
+    current_power_plants = PowerPlant.objects.get_dict_of_names_to_ids()
+    current_tsos = TSO.objects.get_dict_of_names_to_ids()
     while start <= now:
         timespan = get_timespan(start, end)
-        print(timespan)
-        r = client.get(
-            f"https://ds.netztransparenz.de/api/v1/data/redispatch/{timespan}"
-        )
-        text = r.text
-        reader = DictReader(StringIO(text), delimiter=";")
+        if from_server:
+            r = client.get(
+                f"https://ds.netztransparenz.de/api/v1/data/redispatch/{timespan}"
+            )
+            data = r.text
+        else:
+            with open("./data/redispatch_2025-01-01--2025-01-02.csv", "r") as f:
+                data = f.read()
+        reader = DictReader(StringIO(data), delimiter=";")
         for row in reader:
             record = {}
             record_id = uuid4()
@@ -77,7 +82,8 @@ def harvest_redispatch() -> int:
                 row["ENDE_DATUM"], row["ENDE_UHRZEIT"]
             )
             record["reason"] = row["GRUND_DER_MASSNAHME"]
-            record["direction"] = row["RICHTUNG"]
+            direction = row["RICHTUNG"]
+            record["direction"] = "Wirkleistungseinspeisung erhöhen" if direction.startswith("Wirkleistungseinspeisung erh") else direction
             record["power_mid_mw"] = from_de_format_to_float(row["MITTLERE_LEISTUNG_MW"])
             record["power_max_mw"] = from_de_format_to_float(row["MAXIMALE_LEISTUNG_MW"])
             record["work_total_mwh"] = from_de_format_to_float(row["GESAMTE_ARBEIT_MWH"])
@@ -104,10 +110,13 @@ def harvest_redispatch() -> int:
             record["power_plant_id"] = power_plant
             redispatch = Redispatch(**record)
             records_from_server.append(redispatch)
-        start = end
-        end = end + timedelta(days=30)
-        sleep(2)
-        
+        if from_server:
+            start = end
+            end = end + timedelta(days=30)
+            sleep(2)
+        else:
+            break
+  
     records_from_server.sort(key=lambda x: x.start)
     records_to_check = Redispatch.objects.filter(start__gte=records_from_server[0].start).order_by("start").all()
     record_check_set = {x.make_record_comparison_str(): x for x in records_to_check}
@@ -151,8 +160,7 @@ def harvest_redispatch() -> int:
         result = TimeseriesRedispatch.objects.update_from_redispatch_records(
             new_redispatch_records
         )
-        # TODO: Fix division by zero bug.
-        # if result:
-        #     Generation.objects.update_redispatch(result["start"], result["end"])
+        if result:
+            Generation.objects.update_redispatch(result["start"], result["end"])
 
     return len(new_redispatch_records_set)

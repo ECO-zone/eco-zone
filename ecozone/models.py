@@ -10,7 +10,7 @@ from uuid import uuid4
 from xml.etree import ElementTree
 
 from django.db import models, transaction
-from django.db.models import F, Func, Q, Sum, Avg
+from django.db.models import F, Func, Q, Sum
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
@@ -322,8 +322,27 @@ class RedispatchManager(models.Manager):
 
         return records
 
-    def get_red_timeranges(self, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime], end: Optional[datetime]):
-        """Get the timeranges when renewable redispatches occur in a given region."""
+    def get_timeranges_res_work_reduce(self, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime], end: Optional[datetime]):
+        """Get the timeranges when there are RES redispatches with Wirkleistungseinspeisung reduzieren."""
+        return self.get_redipatch_timeranges(
+            direction="Wirkleistungseinspeisung reduzieren",
+            is_renewable=True,
+            region=region,
+            start=start,
+            end=end
+        )
+
+    def get_timeranges_con_work_increase(self, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime], end: Optional[datetime]):
+        """Get the timeranges when there are conventional redispatches with Wirkleistungseinspeisung erhöhen."""
+        return self.get_redipatch_timeranges(
+            direction="Wirkleistungseinspeisung erhöhen",
+            is_renewable=False,
+            region=region,
+            start=start,
+            end=end
+        )
+
+    def get_redipatch_timeranges(self, direction, is_renewable: bool, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime], end: Optional[datetime]):
         timerange_query = Q()
         if start:
             timerange_query &= Q(start__gte=start)
@@ -335,9 +354,9 @@ class RedispatchManager(models.Manager):
             region_lookup = "region_dena"
         records = (
             self.filter(timerange_query)
-            .filter(direction="Wirkleistungseinspeisung reduzieren")
+            .filter(direction=direction)
             .filter(**{f"power_plant__{region_lookup}": region})
-            .filter(power_plant__is_renewable=True)
+            .filter(power_plant__is_renewable=is_renewable)
             .values("start")
             .order_by("start")
             .values_list("start", "end")
@@ -365,51 +384,6 @@ class RedispatchManager(models.Manager):
                         timeranges.append([rstart, rend])
 
         return timeranges
-
-    def get_con_timeranges(self, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime], end: Optional[datetime]):
-        """Get the timeranges when conventional redispatches occur in a given region."""
-        timerange_query = Q()
-        if start:
-            timerange_query &= Q(start__gte=start)
-        if end:
-            timerange_query &= Q(start__lt=end)
-        if region in RegionNorthSouth:
-            region_lookup = "region_north_south"
-        elif isinstance(region, RegionDena):
-            region_lookup = "region_dena"
-        records = (
-            self.filter(timerange_query)
-            .filter(direction="Wirkleistungseinspeisung erhöhen")
-            .filter(**{f"power_plant__{region_lookup}": region})
-            .filter(power_plant__is_renewable=True)
-            .values("start")
-            .order_by("start")
-            .values_list("start", "end")
-        )
-        timeranges = []
-        for r in records:
-            if not timeranges:
-                timeranges.append([r[0], r[1]])
-            else:
-                last = timeranges[-1]
-                rend = r[1]
-                rstart = r[0]
-                # If the end of the new timerange is less than or equal
-                # to the end of the last time range, then it falls within
-                # the last timerange. If it is greater than the last end,
-                # then we either need to extend the last timerange by replacing
-                # the end or create a new time range. We extend the last
-                # timerange if the the start is less than or equal to the last
-                # end and we create a new timerange if the start is greater
-                # than the last end.
-                if rend > last[1]:
-                    if rstart <= last[0]:
-                        last[1] = rend
-                    else:
-                        timeranges.append([rstart, rend])
-
-        return timeranges
-
 
 class Redispatch(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
@@ -569,43 +543,6 @@ class TimeseriesRedispatchManager(models.Manager):
                     Sum(
                         "power_mid_mw",
                         filter=Q(direction="Wirkleistungseinspeisung erhöhen"),
-                    ),
-                    0.0,
-                )
-            )
-            .values_list(*header)
-        )
-        return [header] + list(records)
-
-    def get_timeseries_data_x(self, start: Optional[datetime], end: Optional[datetime]):
-        if not start:
-            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
-        header = ["start", "power_mid_mw_increase"]
-        timerange_query = Q()
-        if start:
-            timerange_query &= Q(start__gte=start)
-        if end:
-            timerange_query &= Q(start__lt=end)
-        records = (
-            TimeseriesRedispatch.objects.filter(timerange_query)
-            .values(
-                "start",
-            )
-            .order_by("start")
-            # .annotate(
-            #     power_mid_mw_decrease=Coalesce(
-            #         Sum(
-            #             "power_mid_mw",
-            #             filter=Q(direction="Wirkleistungseinspeisung reduzieren"),
-            #         ),
-            #         0.0,
-            #     )
-            # )
-            .annotate(
-                power_mid_mw_increase=Coalesce(
-                    Sum(
-                        "power_mid_mw",
-                        filter=Q(direction="Wirkleistungseinspeisung erhöhen", region_north_south="south", is_renewable=False),
                     ),
                     0.0,
                 )
@@ -868,7 +805,6 @@ class GenerationManager(models.Manager):
         gen_records = {r.start: r for r in gen_query.all()}
         red_records = TimeseriesRedispatch.objects.get_north_south_redispatch_data(start, end)
         records_to_update = []
-        records_to_create = []
         for red_record in red_records:
             update = False
             gen_record = gen_records.get(red_record.start)
@@ -942,7 +878,7 @@ class GenerationManager(models.Manager):
                 if old_record:
                     if getattr(old_record, f"{psr}_gen") != power_mw:
                         setattr(old_record, f"{psr}_gen", power_mw)
-                        setattr(old_record, f"{psr}_work_mwh", power_mw)
+                        setattr(old_record, f"{psr}_work_mwh", work_mwh)
                         setattr(old_record, f"{psr}_em", emissions)
                         old_record.updated_at = updated_at
                         records_to_update.append(old_record)
@@ -1001,35 +937,47 @@ class GenerationManager(models.Manager):
         header = ["start", f"emission_intensity_{region}"]
         target_region = region
         other_region = RegionNorthSouth.NORTH if region == RegionNorthSouth.SOUTH else RegionNorthSouth.SOUTH
-        red_timeranges_target = Redispatch.objects.get_red_timeranges(target_region, start, end)
-        red_timeranges_other = Redispatch.objects.get_red_timeranges(other_region, start, end)
-        con_timeranges_other = Redispatch.objects.get_con_timeranges(other_region, start, end)
-        if not red_timeranges_target:
-            return [header] + []
-        re_target_timerange_query = Q()
-        for timerange in red_timeranges_target:
-            re_target_timerange_query |= Q(start__range=timerange)
-        timerange_query = Q()
+        
+        generation_timerange_query = Q()
         if start:
-            timerange_query &= Q(start__gte=start)
+            generation_timerange_query &= Q(start__gte=start)
         if end:
-            timerange_query &= Q(start__lt=end)
-        re_other_timerange_query = Q()
-        for timerange in red_timeranges_other:
-            re_other_timerange_query |= Q(start__range=timerange)
-        con_target_timerange_query = Q()
-        for timerange in con_timeranges_other:
-            con_target_timerange_query |= Q(start__range=timerange)
+            generation_timerange_query &= Q(start__lt=end)
+
+        timeranges_res_work_reduce_in_target_region = Redispatch.objects.get_timeranges_res_work_reduce(target_region, start, end)
+        timeranges_res_work_reduce_in_other_region = Redispatch.objects.get_timeranges_res_work_reduce(other_region, start, end)
+        timeranges_con_work_increase_in_target_region = Redispatch.objects.get_timeranges_con_work_increase(target_region, start, end)
+        timeranges_con_work_increase_in_other_region = Redispatch.objects.get_timeranges_con_work_increase(other_region, start, end)
+
+        if not timeranges_res_work_reduce_in_target_region:
+            return [header] + []
+
+        res_work_reduce_in_target_region = Q()
+        for timerange in timeranges_res_work_reduce_in_target_region:
+            res_work_reduce_in_target_region |= Q(start__range=timerange)
+
+        res_work_reduce_in_other_region = Q()
+        for timerange in timeranges_res_work_reduce_in_other_region:
+            res_work_reduce_in_other_region |= Q(start__range=timerange)
+
+        con_work_increase_in_target_region = Q()
+        for timerange in timeranges_con_work_increase_in_target_region:
+            con_work_increase_in_target_region |= Q(start__range=timerange)
+
+        con_work_increase_in_other_region = Q()
+        for timerange in timeranges_con_work_increase_in_other_region:
+            con_work_increase_in_other_region |= Q(start__range=timerange)
+
         records = (
-            self.filter(timerange_query)
+            self.filter(generation_timerange_query)
             .values(
                 "start",
             )
             .order_by("start")
             .annotate(
                 **{f"emission_intensity_{region}": models.Case(
-                    models.When(re_target_timerange_query & ~con_target_timerange_query, then=models.Value(0.0)),
-                    models.When(~re_target_timerange_query & re_other_timerange_query & Q(**{f"con_ef_{region}__gt": 0}), then=F(f"con_ef_{region}")),
+                    models.When(res_work_reduce_in_target_region & ~con_work_increase_in_target_region, then=models.Value(0.0)),
+                    models.When(res_work_reduce_in_other_region & ~con_work_increase_in_other_region & Q(**{f"con_ef_{region}__gt": 0}), then=F(f"con_ef_{region}")),
                     default=EMISSION_INTENSITY_EXPRESSION,
                     output_field=models.FloatField()
                 )}
@@ -1105,24 +1053,8 @@ class GenerationManager(models.Manager):
             timerange_query &= Q(start__lt=end)
         query = (
             self.filter(timerange_query)
-            # .filter(control_area=ControlArea.GERMANY)
-            # .values(
-            #     "start",
-            # )
             .order_by("start")
         )
-        # for psr in PSR_TYPES_POST_2024:
-        #     query = query.annotate(
-        #         **{
-        #             psr.value.upper(): Coalesce(
-        #                 Sum(
-        #                     "power_mw",
-        #                     filter=Q(psr=psr),
-        #                 ),
-        #                 0.0,
-        #             )
-        #         }
-        #     )
         records = query.values_list(*values_list)
 
         return [header] + list(records)
@@ -1141,18 +1073,6 @@ class GenerationManager(models.Manager):
             self.filter(timerange_query)
             .order_by("start")
         )
-        # for psr in PSR_TYPES_POST_2024:
-        #     query = query.annotate(
-        #         **{
-        #             psr.value.upper(): Coalesce(
-        #                 Sum(
-        #                     "emissions",
-        #                     filter=Q(psr=psr),
-        #                 ),
-        #                 0.0,
-        #             )
-        #         }
-        #     )
         records = query.values_list(*values_list)
 
         return [header] + list(records)
@@ -1345,11 +1265,6 @@ class ForecastManager(models.Manager):
                         point = {"start": start, "value": int(item.text)}
                         points.append(point)
                         start += timedelta(minutes=15)
-
-                    # start += timedelta(minutes=15)
-                    # point = {"start": start, "value": int(item.text)}
-                    # points.append(point)
-                    # start += timedelta(minutes=15)
                 if points:
                     query = (
                         self.filter(
