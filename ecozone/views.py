@@ -29,6 +29,11 @@ def redispatch(request, *args, **kwargs):
 
 
 @xframe_options_exempt
+def classified_redispatch(request, *args, **kwargs):
+    return render(request, "chart.html", {"title": "Geordnete Redispatch-Leistung", "chart_id": "timeseries-classified-redispatch"})
+
+
+@xframe_options_exempt
 def emissions_intensity_germany(request, *args, **kwargs):
     return render(request, "chart.html", {"title": "Emissionsintensität Deutschland", "chart_id": "timeseries-emission-intensity"})
 

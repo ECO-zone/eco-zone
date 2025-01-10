@@ -131,6 +131,10 @@ async function makeChart(config) {
               series.stacking = "normal";
               series.type = "area";
             }
+            console.log(series.name)
+            if (series.name === "Emissionsintensität Deutschland") {
+              series.dashStyle = "dot";
+            }
           }
         },
       },
@@ -214,7 +218,7 @@ async function makeChart(config) {
     let data = await getData(config.url);
     chart.update({
       data: {
-          rows: data
+          rows: data,
       }
     });
     return chart;
@@ -233,6 +237,7 @@ async function makeemissionIntensityRegionalChart() {
         emission_intensity: "Emissionsintensität",
         emission_intensity_north: "Emissionsintensität Regional [Nord]",
         emission_intensity_south: "Emissionsintensität Regional [Süd]",
+        emission_intensity_germany: "Emissionsintensität Deutschland",
       },
       subtitleText: 'Emissionsintensität [kgCO2/MWh]. Hochrechnung durch ECO zone anhand DIN SPEC 91410-2. Datenquelle: <a href="https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType" target="_blank">transparency.entsoe.eu</a>.',
       titleText: 'Zonale Emissionen pro erzeugter MWh Strom',
@@ -244,7 +249,16 @@ async function makeemissionIntensityRegionalChart() {
       this.blur();
       emissionIntensityRegionalChart.update({
         data: {
-          rowsURL: `/api/timeseries/emission-intensity-zonal?region=${this.value}`
+          rowsURL: `/api/timeseries/emission-intensity-zonal?region=${this.value}`,
+          complete: function(parsedData) {
+            for (let series of parsedData.series) {
+              console.log(series.name)
+              if (series.name === "Emissionsintensität Deutschland") {
+                series.dashStyle = "dot";
+              }
+            }
+            return parsedData;
+          },
         }
       });
     });
@@ -315,6 +329,21 @@ makeChart({
   subtitleText: 'Mittlere Leistung in MW pro Richtung. Hochrechnung durch ECO zone. Datenquelle: <a href="https://www.netztransparenz.de/de-de/Systemdienstleistungen/Betriebsf%C3%BChrung/Redispatch" target="_blank">Netztransparenz.de</a>.',
   titleText: 'Redispatch-Leistung',
   url: '/api/timeseries/redispatch',
+  yAxisText: 'Mittlere Leistung [MW]',
+});
+
+makeChart({
+  id: 'chart-timeseries-classified-redispatch',
+  type: "line",
+  seriesNames: {
+    res_reduce_power_south: "RES Wirkleistung reduzieren South",
+    res_reduce_power_north: "RES Wirkleistung reduzieren North",
+    con_increase_power_south: "Kon. Wirkleistung erhöhen South",
+    con_increase_power_north: "Kon. Wirkleistung erhöhen North",
+  },
+  subtitleText: 'Mittlere Leistung in MW pro Zone und Erzeugungsart. Szenarien: RES Redispatch Süd: RES Wirkleistung reduzieren Süd + Kon. Wirkleistung erhöhen Süd; konventionelle Redispatch Süd: RES Wirkleistung reduzieren Nord + Kon. Wirkleistung erhöhen NordHochrechnung durch ECO zone. Datenquelle: <a href="https://www.netztransparenz.de/de-de/Systemdienstleistungen/Betriebsf%C3%BChrung/Redispatch" target="_blank">Netztransparenz.de</a>.',
+  titleText: 'Georddnete Redispatch-Leistung',
+  url: '/api/timeseries/classified_redispatch',
   yAxisText: 'Mittlere Leistung [MW]',
 });
 

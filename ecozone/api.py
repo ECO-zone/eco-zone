@@ -20,6 +20,13 @@ def get_timeseries_redispatch(
     return TimeseriesRedispatch.objects.get_timeseries_data(start, end)
 
 
+@api.get("/timeseries/classified_redispatch", response=List[list])
+def get_timeseries_classified_redispatch(
+    request, start: Optional[datetime] = None, end: Optional[datetime] = None
+):
+    return TimeseriesRedispatch.objects.get_timeseries_classified_redispatch_data(start, end)
+
+
 @api.get("/timeseries/emission-intensity", response=List[list])
 def get_emission_intensity(
     request, start: Optional[datetime] = None, end: Optional[datetime] = None

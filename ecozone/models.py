@@ -550,7 +550,78 @@ class TimeseriesRedispatchManager(models.Manager):
             .values_list(*header)
         )
         return [header] + list(records)
-    
+
+    def get_timeseries_classified_redispatch_data(self, start: Optional[datetime], end: Optional[datetime]):
+        if not start:
+            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
+        header = ["start", "res_reduce_power_south", "res_reduce_power_north", "con_increase_power_south", "con_increase_power_north",]
+        timerange_query = Q()
+        if start:
+            timerange_query &= Q(start__gte=start)
+        if end:
+            timerange_query &= Q(start__lt=end)
+        records = (
+            TimeseriesRedispatch.objects.filter(timerange_query)
+            .values(
+                "start",
+            )
+            .order_by("start")
+            .annotate(
+                res_reduce_power_south=Coalesce(
+                    Sum(
+                        "power_mid_mw",
+                        filter=Q(
+                            direction="Wirkleistungseinspeisung reduzieren",
+                            is_renewable=True,
+                            region_north_south="south"
+                        ),                        
+                    ),
+                    0.0,
+                )
+            )
+            .annotate(
+                res_reduce_power_north=Coalesce(
+                    Sum(
+                        "power_mid_mw",
+                        filter=Q(
+                            direction="Wirkleistungseinspeisung reduzieren",
+                            is_renewable=True,
+                            region_north_south="north"
+                        ),                        
+                    ),
+                    0.0,
+                )
+            )
+            .annotate(
+                con_increase_power_south=Coalesce(
+                    Sum(
+                        "power_mid_mw",
+                        filter=Q(
+                            direction="Wirkleistungseinspeisung erhöhen",
+                            is_renewable=False,
+                            region_north_south="south"
+                        ),                        
+                    ),
+                    0.0,
+                )
+            )
+            .annotate(
+                con_increase_power_north=Coalesce(
+                    Sum(
+                        "power_mid_mw",
+                        filter=Q(
+                            direction="Wirkleistungseinspeisung erhöhen",
+                            is_renewable=False,
+                            region_north_south="north"
+                        ),                        
+                    ),
+                    0.0,
+                )
+            )
+            .values_list(*header)
+        )
+        return [header] + list(records)
+
     def get_timeseries_renewable_status(self, region: RegionNorthSouth, start: Optional[datetime], end: Optional[datetime]):
         header = ["start", "renewable_factor"]
         timerange_query = Q()
@@ -934,7 +1005,7 @@ class GenerationManager(models.Manager):
         """
         if not start:
             start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
-        header = ["start", f"emission_intensity_{region}"]
+        header = ["start", f"emission_intensity_{region}", "emission_intensity_germany"]
         target_region = region
         other_region = RegionNorthSouth.NORTH if region == RegionNorthSouth.SOUTH else RegionNorthSouth.SOUTH
         
@@ -982,10 +1053,11 @@ class GenerationManager(models.Manager):
                     output_field=models.FloatField()
                 )}
             )
+            .annotate(emission_intensity_germany=EMISSION_INTENSITY_EXPRESSION)
             .values_list(*header)
         )
 
-        return [["start", f"Emissionsintensität {RegionNorthSouth(region).label if region in RegionNorthSouth else 'dena ' + region}"]] + list(records)
+        return [["start", f"Emissionsintensität {RegionNorthSouth(region).label if region in RegionNorthSouth else 'dena ' + region}", "Emissionsintensität Deutschland"]] + list(records)
 
 
     def get_emission_factors_nord_sued(

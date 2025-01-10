@@ -11,7 +11,7 @@ urlpatterns = [
     path("api/", api.urls),
 ]
 
-charts = ["emissions_intensity_zonal", "redispatch", "emissions_intensity_germany", "generation", "emissions"]
+charts = ["emissions_intensity_zonal", "redispatch", "emissions_intensity_germany", "generation", "emissions", "classified_redispatch"]
 chart_urls = [path(f"charts/{chart}", getattr(views, chart), name=chart) for chart in charts]
 
 urlpatterns.extend(chart_urls)
