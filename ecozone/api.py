@@ -31,7 +31,6 @@ def get_timeseries_classified_redispatch(
 def get_emission_intensity(
     request, start: Optional[datetime] = None, end: Optional[datetime] = None
 ):
-    print("api called")
     return Generation.objects.get_emission_intensity_data(start, end)
 
 @api.get("/timeseries/emission-intensity-zonal", response=List[list])

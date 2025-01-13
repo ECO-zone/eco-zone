@@ -11,9 +11,8 @@ from oauthlib.oauth2 import BackendApplicationClient
 from requests_oauthlib import OAuth2Session
 
 from django.db import transaction
-from django.db.models import Q
 
-from ..models import Generation, GridRegion, PowerPlant, Redispatch, TimeseriesRedispatch, TSO
+from ecozone.models import Generation, PowerPlant, Redispatch, TimeseriesRedispatch, TSO
 
 
 logger = logging.getLogger(__name__)
@@ -41,8 +40,8 @@ def from_date_and_time_to_utc_datetime(date: str, time: str) -> datetime:
     return datetime.strptime(f"{date}{time}Z", "%d.%m.%Y%H:%M%z")
 
 
-def harvest_redispatch(from_server: Optional[bool]=True) -> int:
-    if from_server:
+def harvest_redispatch(file: Optional[str]=None) -> int:
+    if not file:
         CLIENT_ID = get_env_var("NETZTRANZPARENZ_CLIENT_ID")
         CLIENT_SECRET = get_env_var("NETZTRANZPARENZ_CLIENT_SECRET")
         TOKEN_URL = "https://identity.netztransparenz.de/users/connect/token"
@@ -51,8 +50,6 @@ def harvest_redispatch(from_server: Optional[bool]=True) -> int:
             token_url=TOKEN_URL, client_id=CLIENT_SECRET, client_secret=CLIENT_SECRET
         )
     start = datetime(year=2022, month=12, day=31, hour=23, tzinfo=UTC)
-    # start = datetime(year=2024, month=11, day=1, tzinfo=UTC)
-    # start = datetime.now(UTC).replace(hour=0, minute=0, microsecond=0) - timedelta(days=30)
     end = start + timedelta(days=30)
     now = datetime.now(UTC)
     records_from_server = []
@@ -61,13 +58,13 @@ def harvest_redispatch(from_server: Optional[bool]=True) -> int:
     current_tsos = TSO.objects.get_dict_of_names_to_ids()
     while start <= now:
         timespan = get_timespan(start, end)
-        if from_server:
+        if not file:
             r = client.get(
                 f"https://ds.netztransparenz.de/api/v1/data/redispatch/{timespan}"
             )
             data = r.text
         else:
-            with open("./data/redispatch_2025-01-01--2025-01-02.csv", "r") as f:
+            with open(file, "r") as f:
                 data = f.read()
         reader = DictReader(StringIO(data), delimiter=";")
         for row in reader:
@@ -110,7 +107,7 @@ def harvest_redispatch(from_server: Optional[bool]=True) -> int:
             record["power_plant_id"] = power_plant
             redispatch = Redispatch(**record)
             records_from_server.append(redispatch)
-        if from_server:
+        if not file:
             start = end
             end = end + timedelta(days=30)
             sleep(2)

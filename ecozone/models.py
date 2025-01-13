@@ -14,8 +14,6 @@ from django.db.models import F, Func, Q, Sum
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 
-from ecozone.utils import round_date_to_quarter_hour
-
 
 logger = logging.getLogger(__name__)
 
@@ -523,6 +521,7 @@ class TimeseriesRedispatchManager(models.Manager):
             timerange_query &= Q(start__gte=start)
         if end:
             timerange_query &= Q(start__lt=end)
+
         records = (
             TimeseriesRedispatch.objects.filter(timerange_query)
             .values(
@@ -549,7 +548,23 @@ class TimeseriesRedispatchManager(models.Manager):
             )
             .values_list(*header)
         )
-        return [header] + list(records)
+        if records:
+            processed = [records[0]]
+            dummy_stamp = records[0][0] + timedelta(minutes=15)
+            for r in records[1:]:
+                while r[0] != dummy_stamp:
+                    processed.append([
+                        dummy_stamp,
+                        0,
+                        0
+                    ])
+                    dummy_stamp = dummy_stamp + timedelta(minutes=15)
+                processed.append(r)
+                dummy_stamp = dummy_stamp + timedelta(minutes=15)
+        else:
+            processed = []
+        
+        return [header] + processed
 
     def get_timeseries_classified_redispatch_data(self, start: Optional[datetime], end: Optional[datetime]):
         if not start:
@@ -560,6 +575,9 @@ class TimeseriesRedispatchManager(models.Manager):
             timerange_query &= Q(start__gte=start)
         if end:
             timerange_query &= Q(start__lt=end)
+        # timerange_query = Q()
+        # timerange_query &= Q(start__gte=datetime(2024, 9, 21, 13, 45, tzinfo=tz.utc))
+        # timerange_query &= Q(start__lt=datetime(2024, 9, 21, 20, 45, tzinfo=tz.utc))
         records = (
             TimeseriesRedispatch.objects.filter(timerange_query)
             .values(
@@ -620,7 +638,25 @@ class TimeseriesRedispatchManager(models.Manager):
             )
             .values_list(*header)
         )
-        return [header] + list(records)
+        if records:
+            processed = [records[0]]
+            dummy_stamp = records[0][0] + timedelta(minutes=15)
+            for r in records[1:]:
+                while r[0] != dummy_stamp:
+                    processed.append([
+                        dummy_stamp,
+                        0,
+                        0,
+                        0,
+                        0,
+                    ])
+                    dummy_stamp = dummy_stamp + timedelta(minutes=15)
+                processed.append(r)
+                dummy_stamp = dummy_stamp + timedelta(minutes=15)
+        else:
+            processed = []
+
+        return [header] + processed
 
     def get_timeseries_renewable_status(self, region: RegionNorthSouth, start: Optional[datetime], end: Optional[datetime]):
         header = ["start", "renewable_factor"]
@@ -899,7 +935,6 @@ class GenerationManager(models.Manager):
                 batch_size=1000,
             )
 
-
     def import_records(self, xml):
         print("Starting import")
         name_spaces = {
@@ -1022,22 +1057,20 @@ class GenerationManager(models.Manager):
 
         if not timeranges_res_work_reduce_in_target_region:
             return [header] + []
-
+        def make_timerange_query(timerange):
+            return Q(Q(start__gte=timerange[0]) & Q(start__lt=timerange[1]))
         res_work_reduce_in_target_region = Q()
         for timerange in timeranges_res_work_reduce_in_target_region:
-            res_work_reduce_in_target_region |= Q(start__range=timerange)
-
+            res_work_reduce_in_target_region |= make_timerange_query(timerange)
         res_work_reduce_in_other_region = Q()
         for timerange in timeranges_res_work_reduce_in_other_region:
-            res_work_reduce_in_other_region |= Q(start__range=timerange)
-
+            res_work_reduce_in_other_region |= make_timerange_query(timerange)
         con_work_increase_in_target_region = Q()
         for timerange in timeranges_con_work_increase_in_target_region:
-            con_work_increase_in_target_region |= Q(start__range=timerange)
-
+            con_work_increase_in_target_region |= make_timerange_query(timerange)
         con_work_increase_in_other_region = Q()
         for timerange in timeranges_con_work_increase_in_other_region:
-            con_work_increase_in_other_region |= Q(start__range=timerange)
+            con_work_increase_in_other_region |= make_timerange_query(timerange)
 
         records = (
             self.filter(generation_timerange_query)
@@ -1058,7 +1091,6 @@ class GenerationManager(models.Manager):
         )
 
         return [["start", f"Emissionsintensität {RegionNorthSouth(region).label if region in RegionNorthSouth else 'dena ' + region}", "Emissionsintensität Deutschland"]] + list(records)
-
 
     def get_emission_factors_nord_sued(
         self,
@@ -1110,7 +1142,6 @@ class GenerationManager(models.Manager):
         sued = get_value(RegionNorthSouth.SOUTH)
 
         return EmissionFactorsNordSued(nord=nord, sued=sued, start=start)
-
 
     def get_generation_data(self, start: Optional[datetime], end: Optional[datetime]):
         if not start:

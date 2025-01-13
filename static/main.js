@@ -80,7 +80,7 @@ Highcharts.setOptions({
     },
   },
   time: {
-    timezone: "Europe/Berlin",
+    timezone: "UTC",
   },
 });
 
@@ -207,6 +207,8 @@ async function makeChart(config) {
         accessibility: {
           rangeDescription: "Auflösung: 15-Minuten",
         },
+        type: "datetime",
+        ordinal: false,
       },
       yAxis: {
         opposite: false,

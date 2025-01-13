@@ -26,7 +26,7 @@ class ZonalEmissionFactorTests(TestCase):
             generation_records.append(Generation(**params))
             start = start + timedelta(minutes=15)
         Generation.objects.bulk_create(generation_records, batch_size=1000)
-        harvest_redispatch(from_server=False)
+        harvest_redispatch(file="./data/redispatch_2025-01-01--2025-01-02.csv")
         cls.results = Generation.objects.get_emission_intensity_data_for_region(
             "south",
             datetime(2024, 12, 31, 0, 0, 0, tzinfo=timezone.utc),
@@ -64,7 +64,7 @@ class ZonalEmissionFactorTests(TestCase):
         nat_end = datetime(2025, 1, 1, 18, 0, 0, tzinfo=timezone.utc)
 
         for i in self.results:
-            if i[0] <= res_start or (i[0] > nat_start and i[0] < nat_end):
+            if i[0] < res_start or (i[0] > nat_start and i[0] < nat_end):
                 assert i[1] == 394.8
 
     def test_emission_factor_is_redispatch_value_when_con_redispatch_in_south(self):
