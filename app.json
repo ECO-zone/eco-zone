@@ -5,7 +5,7 @@
       "schedule": "30 * * * *"
     },
     {
-      "command": "/app/bin/harvest-renewable-forecasts.sh",
+      "command": "/app/bin/harvest-forecasts.sh",
       "schedule": "@hourly"
     },
     {
