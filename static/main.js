@@ -16,6 +16,7 @@ Highcharts.setOptions({
     "#6AF9C4",
   ],
   lang: {
+    locale: "de",
     decimalPoint: ",",
     downloadCSV: "CSV herunterladen",
     downloadJPEG: "JPEG herunterladen",
