@@ -575,9 +575,6 @@ class TimeseriesRedispatchManager(models.Manager):
             timerange_query &= Q(start__gte=start)
         if end:
             timerange_query &= Q(start__lt=end)
-        # timerange_query = Q()
-        # timerange_query &= Q(start__gte=datetime(2024, 9, 21, 13, 45, tzinfo=tz.utc))
-        # timerange_query &= Q(start__lt=datetime(2024, 9, 21, 20, 45, tzinfo=tz.utc))
         records = (
             TimeseriesRedispatch.objects.filter(timerange_query)
             .values(

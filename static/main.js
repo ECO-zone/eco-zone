@@ -132,7 +132,6 @@ async function makeChart(config) {
               series.stacking = "normal";
               series.type = "area";
             }
-            console.log(series.name)
             if (series.name === "Emissionsintensität Deutschland") {
               series.dashStyle = "dot";
             }
@@ -219,9 +218,11 @@ async function makeChart(config) {
       },
     });
     let data = await getData(config.url);
+    let rows = await data.rows;
+    rows.unshift(data.header);
     chart.update({
       data: {
-          rows: data,
+          rows: data.rows,
       }
     });
     return chart;
@@ -248,14 +249,16 @@ async function makeemissionIntensityRegionalChart() {
       yAxisText: 'Emissionsintensität [kgCO2/MWh]',
     });
 
-    dropdownRegionSelect.addEventListener('change', function() {
+    dropdownRegionSelect.addEventListener('change', async function() {
       this.blur();
+      let data = await getData(`/api/timeseries/emission-intensity-zonal?region=${this.value}`);
+      let rows = await data.rows;
+      rows.unshift(data.header);
       emissionIntensityRegionalChart.update({
         data: {
-          rowsURL: `/api/timeseries/emission-intensity-zonal?region=${this.value}`,
+          rows: rows,
           complete: function(parsedData) {
             for (let series of parsedData.series) {
-              console.log(series.name)
               if (series.name === "Emissionsintensität Deutschland") {
                 series.dashStyle = "dot";
               }
