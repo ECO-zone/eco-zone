@@ -164,7 +164,7 @@ class PowerPlantManager(models.Manager):
         def get_clean_value(value):
             return value.strip()
 
-        with open(Path(__file__).parent.parent / "data" / "zones_2025_01_08.csv", "r") as f:
+        with open(Path(__file__).parent.parent / "data" / "zones.csv", "r") as f:
             reader = csv.DictReader(f)
             plants_from_file = []
             for row in reader:
@@ -509,7 +509,8 @@ class TimeseriesRedispatchManager(models.Manager):
             x.emissions = emissions
             x.emission_factor = emissions / work_mwh
             to_update.append(x)
-        
+        print(f"Updating {len(to_update)} records")
+
         self.bulk_update(to_update, ["emissions", "emission_factor"], batch_size=1000)
        
     def get_timeseries_data(self, start: Optional[datetime], end: Optional[datetime]):
