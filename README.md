@@ -13,12 +13,25 @@ Dieses Repository enthält den Quellcode für die begleitende Webanwendung. Die 
 - [Daten abrufen](#daten-abrufen)
   - [Redispatch-Daten sammeln](#redispatch-daten-sammeln)
   - [Erzeugungsdaten sammeln](#erzeugungsdaten-sammeln)
+  - [Erzeugungsdaten sammeln](#erzeugungsdaten-sammeln-1)
   - [Zonen aktualisieren](#zonen-aktualisieren)
   - [Entwicklungsserver starten](#entwicklungsserver-starten)
 - [Bereitstellung](#bereitstellung)
   - [Server einrichten](#server-einrichten)
   - [Umgebungsvariablen](#umgebungsvariablen)
-
+- [Datenquellen und -bearbeitung](#datenquellen-und--bearbeitung)
+  - [Erzeugungsdaten](#erzeugungsdaten)
+    - [Aktuelle und historische Erzeugungsdaten](#aktuelle-und-historische-erzeugungsdaten)
+      - [Häufigkeit der Datenaktualisierung](#häufigkeit-der-datenaktualisierung)
+  - [Erzeugungsprognosen](#erzeugungsprognosen)
+    - [Zeitrahmen der Prognosen](#zeitrahmen-der-prognosen)
+  - [Emissionsfaktoren](#emissionsfaktoren)
+  - [Emissionen](#emissionen)
+  - [Redispatch](#redispatch)
+  - [Deutscher nationaler Emissionsfaktor](#deutscher-nationaler-emissionsfaktor)
+  - [Zonale Emissionsfaktoren](#zonale-emissionsfaktoren)
+    - [Beispiel: Der zonale Emissionsfaktor im Norden beträgt 0 kgCO2/MWh](#beispiel-der-zonale-emissionsfaktor-im-norden-beträgt-0-kgco2mwh)
+    - [Beispiel: Der zonale Emissionsfaktor im Süden ist größer als der nationale Emissionsfaktor](#beispiel-der-zonale-emissionsfaktor-im-süden-ist-größer-als-der-nationale-emissionsfaktor)
 
 # Anforderungen
 
@@ -69,6 +82,21 @@ Verwenden Sie die folgenden Befehle, um Erzeugungsdaten zu sammeln.
 ```bash
 export ENTSOE_SECURITY_TOKEN=<your ENTSOE token>
 python manage.py harvest psr
+```
+
+## Erzeugungsdaten sammeln
+
+Um Erzeugungsprognosen von ENTSO-E zu sammeln, benötigen Sie ein Sicherheitstoken. Sie müssen sich unter https://transparency.entsoe.eu/ registrieren (klicken Sie oben rechts auf den Link „Anmelden“ und dann unten im Anmeldeformular auf „Registrieren“).
+
+Verwenden Sie die folgenden Befehle, um Erzeugungsprognosen zu sammeln.
+
+```bash
+export ENTSOE_SECURITY_TOKEN=<your ENTSOE token>
+python manage.py harvest aggregate_forecast
+python manage.py harvest renewable_forecast --forecast_type=day-ahead
+python manage.py harvest renewable_forecast --forecast_type=intraday
+python manage.py harvest renewable_forecast --forecast_type=current
+python manage.py update forecasts
 ```
 
 ## Zonen aktualisieren
@@ -184,3 +212,162 @@ Um Fehler im Frontend und Backend zu überwachen, ist die Anwendung so konfiguri
 - `SENTRY_RELEASE_URL_BACKEND` ist die Webhook-URL zum Registrieren einer Version für das Backend-Projekt.
 
 - `SENTRY_RELEASE_URL_FRONTEND` ist die Webhook-URL zum Registrieren einer Version für das Frontend-Projekt.
+
+# Datenquellen und -bearbeitung
+
+## Erzeugungsdaten
+
+### Aktuelle und historische Erzeugungsdaten
+
+Die Erzeugungsdaten werden vom ENTSO-E-Transparenzportal (URL: https://transparency.entsoe.eu/generation/r2/actualGenerationPerProductionType/show) bezogen. Die Auflösung der Daten beträgt 15 Minuten, sodass die mit jedem `start`-Zeitstempel verknüpften Erzeugungswerte die Erzeugung für den 15-Minuten-Zeitraum darstellen, der zu diesem Zeitpunkt beginnt. Die Maßeinheit ist MW. Daten sind für jede Energiequelle verfügbar.
+
+#### Häufigkeit der Datenaktualisierung
+
+Tagsüber werden alle 15 Minuten die Daten der letzten sieben Tage abgefragt und aktualisiert. Das bedeutet, dass alle seit der letzten Abfrage veröffentlichten Werte verarbeitet werden und auch alle Werte der letzten sieben Tage verarbeitet werden. Dies ist notwendig, da die kürzlich auf ENTSO-E veröffentlichten Daten einer Revision unterliegen und es aufgrund von Ausfällen gelegentlich zu Verzögerungen kommt, bis die Erzeugungsdaten auf dem Portal erscheinen. Von 2:00 bis 3:00 Uhr (UTC) wird die reguläre Abfrage unterbrochen und alle Erzeugungsdaten werden neu abgefragt, um sicherzustellen, dass auch alle älteren Daten verarbeitet werden, die inzwischen revidiert wurden.
+
+## Erzeugungsprognosen
+
+Die aktuellen und vergangenen Erzeugungsdaten, die den Zeitraum vom 1.1.2024 bis etwa zum heutigen Zeitpunkt abdecken (unter der Annahme, dass die neuesten Daten ohne Verzögerung veröffentlicht wurden), werden durch prognostizierte Erzeugungsdaten ergänzt. Die Erzeugungsprognosen stammen ebenfalls aus dem Transparenzportal von ENTSO-E. Dort stehen zwei Arten von Prognosen zur Verfügung:
+
+- Prognosen zur Stromerzeugung aus Wind- und Solarenergie, aufgeschlüsselt nach Quellen (Solarenergie, Windenergie an Land usw.) (URL: https://transparency.entsoe.eu/generation/r2/dayAheadGenerationForecastWindAndSolar/show)
+- Aggregierte Stromerzeugung, d. h. ein einzelner Wert, der die prognostizierte Summe der gesamten Stromerzeugung aus allen Quellen darstellt (https://transparency.entsoe.eu/generation/r2/dayAheadAggregatedGeneration/show)
+
+In ihrer Rohform reichen diese Daten für unsere Analyse nicht aus: Während die Solar- und Windprognosen nach Energieträgern (Solar, Wind an Land, Wind auf See) aufgeschlüsselt sind und eine Auflösung von 15 Minuten aufweisen, beinhaltet die aggregierte Erzeugungsprognose lediglich den Gesamtwert der gesamten deutschen Erzeugung und liegt in einer Auflösung von 60 Minuten vor.
+
+Um die realen Erzeugungsdaten zu ergänzen, verwenden wir einen Algorithmus, um aus dem Gesamtwert Werte für jede Energiequelle abzuleiten:
+
+ - Zunächst konvertieren wir jeden Gesamtwert in vier 15-Minuten-Werte. Dann berechnen wir für jeden Zeitschritt die Resterzeugung (Gesamterzeugung – die Summe der Wind- und Solarerzeugung).
+ - Anschließend verwenden wir eine eindimensionale Suche nach dem nächsten Nachbarn, um den Punkt in den historischen Daten mit dem ähnlichsten Restgenerationswert zu finden.
+ - Anschließend ermitteln wir das Verhältnis der Gesamtstromerzeugung zu diesem Zeitpunkt zur Erzeugung jeder einzelnen Quelle.
+ - Abschließend wenden wir diese Verhältnisse auf den Gesamtprognosewert an, um eine geschätzte Erzeugungsprognose für jede der verbleibenden Quellen zu erhalten.
+ 
+Auf diese Weise können wir geschätzte zukünftige Werte für die Erzeugung, die Emissionen und den deutschen Gesamtemissionsfaktor anzeigen. Da die von uns gesammelten Redispatch-Daten geplante zukünftige Redispatches enthalten, können wir auch geschätzte zukünftige Werte für die zonalen Emissionsfaktoren für den Norden und den Süden anzeigen, da diese sowohl auf den veröffentlichten Redispatch-Daten als auch auf den Erzeugungs- und Emissionsdaten basieren.
+
+### Zeitrahmen der Prognosen
+
+- „Day-ahead“: Veröffentlichung ca. 18:00 Uhr mit Werten bis 23:45 Uhr des Folgetages.
+- „Intraday“ und „aktuell“: Diese Prognosen werden in unregelmäßigen Abständen veröffentlicht und korrigieren die Day-Ahead-Werte, erweitern diese jedoch nicht.
+- Die Prognosewerte werden durch reale Erzeugungswerte ersetzt, sobald diese eintreffen.
+
+Aufgrund des Veröffentlichungsrhythmus stehen Prognosedaten somit mindestens bis 23:45 Uhr des aktuellen Tages und maximal bis 23:45 Uhr des Folgetages zur Verfügung.
+
+## Emissionsfaktoren
+
+Die Emissionsfaktoren (kgCO2/MWh) für die einzelnen Quellen sind der DIN SPEC 91410-2 entnommen:
+
+- Biomasse: 123
+- Braunkohle: 1075
+- Erdgas": 420
+- Steinkohle: 933
+- Mineralöl: 1098
+- Geothermie: 5
+- Pumpspeicher: 5
+- Wasserkraft (Laufwasser): 3
+- Wasserspeicher: 3
+- Marine: 3
+- Kernenergie: 35
+- Sonstige Erneuerbare Energien: 5
+- Photovoltaik: 38
+- Abfall: 1098
+- Windenergie (Offshore-Anlage): 9
+- Windenergie (Onshore-Anlage): 9
+- Sonstige konventionelle Energien: 1098
+
+Bei der Berechnung der gesamten deutschen Emissionswerte je Quelle werden diese Emissionsfaktoren unverändert verwendet: Erzeugungswert Quelle (in MWh) * Emissionsfaktor Quelle = Emissionswert. Diese werden auch unverändert bei der Berechnung des deutschen Emissionsfaktors verwendet.
+
+Bei der Berechnung der zonalen Emissionsfaktoren werden die DIN-Emissionsfaktoren reduziert, wenn die Erzeugungsanlage eine Anlage der Kraft-Wärme-Kopplung ist. Der Multiplikator beträgt 0,625. Diese reduzierten Emissionsfaktoren (ursprünglicher Emissionsfaktor * 0,625) werden bei der Berechnung der Emissionen für eine bestimmte Zone im Falle eines konventionellen Energie-Redispatches verwendet (die Redispatch-Daten werden nach Erzeugungsanlagen aufgeschlüsselt, so dass neben der Energiequelle auch festgestellt werden kann, ob die Anlage zum Heizen genutzt wird). Bei der Berechnung der zonalen Emissionsfaktoren werden die DIN-Emissionsfaktoren
+verringert, wenn die Anlage zur Kraft-Wärmekopplung (KWK) genutzt wird. Der Abschlag erfolgt durch Multiplikation mit dem Faktor 0,625. Diese reduzierten Emissionsfaktoren (ursprünglicher Emissionsfaktor * 0,625) werden bei der Berechnung der Emissionen für eine bestimmte Zone im Falle eines konventionellen Energie-Redispatches verwendet (die Redispatch-Daten werden nach
+Erzeugungsanlagen aufgeschlüsselt, so dass neben der Energiequelle auch festgestellt werden kann, ob die Anlage über eine Wärmeauskopplung verfügt (KWK-Anlage)). Der Faktor 0,625 ergibt sich aus der Anwendung der sog. Wirkungsgradmethode unter Annahme typischer Stromkennzahlen und Wirkunggrade für KWK-Anlagen (https://www.umweltbundesamt.de/sites/default/files/medien/publikation/long/3476.pdf) 
+
+## Emissionen
+
+Die Emissionswerte werden pro Energieträger in 15-Minuten-Auflösung angezeigt. Sie werden berechnet, indem die Erzeugungswerte mit den entsprechenden DIN-Emissionsfaktoren multipliziert werden. Die Emissionsdaten hängen direkt von der Verfügbarkeit der Erzeugungsdaten ab: Wenn Erzeugungsdaten für einen bestimmten Zeitpunkt vorliegen, dann liegen für diesen Zeitpunkt auch Emissionsdaten vor. Wir zeigen auch geschätzte zukünftige Emissionen anhand der geschätzten zukünftigen Erzeugungsdaten an. Immer wenn Erzeugungsdaten aktualisiert werden, werden auch die entsprechenden Emissionsdaten aktualisiert.
+
+## Redispatch
+
+Redispatch-Daten werden über die Web-API von netztranzparenz.de (URL: https://www.netztransparenz.de/de-de/Systemdienstleistungen/Betriebsfuehrung/Redispatch) erhoben. Die `MITTLERE_LEISTUNG_MW` von jeder Redispatch-Maßnahme werden in aggregierter Form angezeigt. Die von netztransparenz.de bereitgestellten Daten enthalten zwar den Namen der betroffenen Anlage, jedoch keine detaillierten Informationen wie die Energiequelle (Solar, Onshore-Wind usw.) oder den Anlagentyp (z. B. Heizkraftwerk - Erdgas). Da diese Informationen zur Bestimmung der zonalen Emissionsfaktoren erforderlich sind, ergänzen wir die Redispatch-Daten mit unseren eigenen Energieanlagen-Daten. Abgesehen von der Aggregation für Anzeigezwecke werden die Redispatch-Daten nicht verändert.
+
+## Deutscher nationaler Emissionsfaktor
+
+Der bundesweite Emissionsfaktor wird aus den Erzeugungsdaten (umgerechnet in MWh) und den oben beschriebenen DIN-Emissionsfaktoren berechnet. Er ist das gewichtetes arithmetisches Mittel der Emissionsfaktoren, gewichtet nach der Erzeugung je Energieträger.
+
+## Zonale Emissionsfaktoren
+
+Die zonalen Emissionsfaktoren für die Nord- und Südzonen werden nach folgenden Regeln angezeigt:
+
+Für die ausgewählte Zone:
+
+Der zonale Emissionsfaktor ist 0, wenn alle der folgenden Punkte zutreffen:
+- Es gibt _mindestens einen_ EE-Redispatch mit der Richtung „Wirkleistungseinspeisung reduzieren“ in der ausgewählten Zone.
+- Es gibt _keine_ konventionellen Redispatches mit der Richtung „Wirkleistung erhöhen“ in der ausgewählten Zone.
+
+Der zonale Emissionsfaktor wird auf Basis der konventionellen Redispatches in der ausgewählten Zone berechnet, wenn alle der folgenden Punkte zutreffen:
+- Es gibt _mindestens einen_ konventionellen Redispatch mit der Richtung „Wirkleistung erhöhen“ in der ausgewählten Zone.
+- Es gibt _keinen_ konventionellen Redispatch mit der Richtung „Wirkleistung erhöhen“ in der Gegenzone.
+- Es gibt _mindestens einen_ EE-Redispatch mit der Richtung „Wirkleistungseinspeisung reduzieren“ in der Gegenzone.
+ 
+(Einzelheiten zur Berechnung des zonalen Emissionsfaktors finden Sie weiter unten.)
+
+In allen anderen Fällen wird der deutsche Emissionsfaktor angezeigt (siehe oben „Deutscher nationaler Emissionsfaktor“).
+
+Der angezeigte zonale Emissionsfaktor, wenn in einer Zone konventioneller Redispatch stattfindet, wird auf Basis unserer angereicherten Redispatch-Daten berechnet, die neben der Erzeugung (umgerechnet in MWh) auch den Energieträger und die Angabe enthalten, die DIN-Emissionsfaktoren und  bei KWK-Anlagen einem Multiplikator, der sich aus der Anwedung des Wirkungsgradverfahrens ergibt.. Die angezeigten Werte sind die gewichteten arithmetischen Mitteln der Emissionsfaktoren, gewichtet mit der Erzeugung aus den jeweiligen konventionellen Redispatches.
+
+### Beispiel: Der zonale Emissionsfaktor im Norden beträgt 0 kgCO2/MWh
+
+Der zonale Emissionsfaktor in der Nordzone beträgt am 23. Dezember 2024 von 10:00 bis 10:15 UTC 0 kgCO2/MWh. Der Grund:
+
+1. Es gibt _keine_ konventionellen Redispatches mit der Anweisung „Wirkleistung erhöhen“ in der Nordzone.
+2. Es gibt _mindestens einen_ EE-Redispatch mit der Anweisung „Wirkleistungseinspeisung reduzieren“ in der Nordzone. In diesem Fall gibt es mehrere, darunter:
+	- OWP UW Dörpen-West Windenergie (Offshore-Anlage)
+	- EE Niedersachsen Sonstige Erneuerbare Energien
+	- WP Wilstermarsch Windenergie (Onshore-Anlage)
+	- OWP UW Dörpen-West Windenergie (Offshore-Anlage)
+	- OWP UW Emden-Ost Windenergie (Offshore-Anlage)
+	- OWP UW Büttel Windenergie (Offshore-Anlage)
+ 
+Da beide Bedingungen erfüllt sind, müssen die Emissionsfaktoren für die einzelnen Redispatches nicht berücksichtigt werden und der zonale Emissionsfaktor für den Norden beträgt einfach 0 kgCO2/MWh.
+
+### Beispiel: Der zonale Emissionsfaktor im Süden ist größer als der nationale Emissionsfaktor
+
+Der zonale Emissionsfaktor in der Südzone ist am 23. Dezember 2024 von 10:00 bis 10:15 UTC höher als der bundesdeutsche Emissionsfaktor. Der Grund:
+
+1. Es gibt _keine_ konventionellen Redispatches mit Richtung „Wirkleistung erhöhen“ in der Nordzone.
+2. Es gibt _mindestens einen_ EE-Redispatch mit Richtung „Wirkleistungseinspeisung reduzieren“ in der Nordzone (es gibt mehrere, zum Beispiel einen vom SHN-Cluster Süderdonn T411).
+3. Es gibt konventionelle Redispatches mit Richtung „Wirkleistung erhöhen“ in der Südzone. (Beachten Sie, dass einer einzelnen Anlage möglicherweise mehrere Redispatches zugeordnet sind.)
+	- Rheinhafen-Dampfkraftwerk Karlsruhe Block 8
+		- 60,9375 MWh (243,75 mittlere Leistung MW)
+		- Steinkohle 
+		- KWK-Anlage 
+		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage) 
+	- Rheinhafen-Dampfkraftwerk Karlsruhe Block 8 
+		- 111,215 MWh (444,86 mittlere Leistung MW) 
+		- Steinkohle 
+		- KWK-Anlage 
+		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage) 
+	- Großkraftwerk Mannheim Block 6 
+		- 20,9425 MWh (83,77 mittlere Leistung MW) 
+		- Steinkohle 
+		- KWK-Anlage 
+		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage) 
+	- Heizkraftwerk Altbach/Deizisau GT B 
+		- 14,75 MWh (59,0 mittlere Leistung MW) 
+		- Erdgas 
+		- KWK-Anlage 
+		- Emissionsfaktor 262,5 (420 Erdgas * 0,625 KWK-Anlage) 
+	- Heizkraftwerk Altbach/Deizisau GT C 
+		- 20,75 MWh (83,0 mittlere Leistung MW) 
+		- Erdgas 
+		- KWK-Anlage 
+		- Emissionsfaktor 262,5 kgCO2/MWh (420 kgCO2/MWh Erdgas * 0,625 KWK-Anlage) 
+	- Heizkraftwerk Altbach/Deizisau Block 2 
+		- 28,42 MWh (113,68 mittlere Leistung MW) 
+		- Steinkohle 
+		- KWK-Anlage 
+		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage) 
+	- Heizkraftwerk Altbach/Deizisau Block 2 
+		- 33,9275 MWh (135,71 mittlere Leistung MW) 
+		- Steinkohle 
+		- KWK-Anlage 
+		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage)
+	
+ Der zonale Emissionsfaktor ist das gewichtete arithmetische Mittel der Emissionsfaktoren, gewichtet nach der Erzeugung pro Energiequelle: 544 kgCO2/MWh. Der deutsche nationale Emissionsfaktor für diesen Zeitraum beträgt 204,27 kgCO2/MWh.
