@@ -172,6 +172,7 @@ Die Anwendung kann auf jedem Linux-Server bereitgestellt werden, auf dem Python 
     dokku config:set --no-restart ecozone SENTRY_ENVIRONMENT=<NAME DER UMGEBUNG> # Z. B. „dev“
     dokku config:set --no-restart ecozone SENTRY_RELEASE_URL_BACKEND=<URL>
     dokku config:set --no-restart ecozone SENTRY_RELEASE_URL_FRONTEND=<URL>
+    dokku config:set --no-restart ecozone SECRET_KEY=<GEHEIMSCHLÜSSEL>
     ```
 - Auf Ihrem Computer:
   - Fügen Sie dem Repository ein Git-Remote hinzu
@@ -212,6 +213,8 @@ Um Fehler im Frontend und Backend zu überwachen, ist die Anwendung so konfiguri
 - `SENTRY_RELEASE_URL_BACKEND` ist die Webhook-URL zum Registrieren einer Version für das Backend-Projekt.
 
 - `SENTRY_RELEASE_URL_FRONTEND` ist die Webhook-URL zum Registrieren einer Version für das Frontend-Projekt.
+
+- `SECRET_KEY` ist der Geheimschlüssel für Django-Sessions.
 
 # Datenquellen und -bearbeitung
 

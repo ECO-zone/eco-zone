@@ -8,6 +8,11 @@ from .base import *
 from .base import GIT_REV, SENTRY_DSN_BACKEND, SENTRY_ENVIRONMENT
 
 
+SECRET_KEY = os.environ.get("SECRET_KEY")
+if not SECRET_KEY:
+    raise Exception("Environment variable 'SECRET_KEY' must be set")
+
+
 sentry_sdk.init(
     dsn=SENTRY_DSN_BACKEND,
     environment=SENTRY_ENVIRONMENT,
