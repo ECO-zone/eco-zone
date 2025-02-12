@@ -2,8 +2,6 @@ FROM python:3.12.3-slim-bullseye as python
 
 ENV DJANGO_SETTINGS_MODULE="config.settings.production"
 
-WORKDIR /app
-
 # Install dependencies to build uwsgi and then remove them
 # Install curl and vim while we're at it
 RUN : \
@@ -15,11 +13,17 @@ RUN : \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Create and switch to a non-root user
+RUN useradd -m ecozone
+USER ecozone
+
+WORKDIR /app
+
 # Install Python dependencies
-COPY ./requirements/main.txt ./requirements/prod.txt ./requirements/
+COPY --chown=ecozone:ecozone ./requirements/main.txt ./requirements/prod.txt ./requirements/
 RUN pip install --no-cache-dir -r ./requirements/main.txt -r ./requirements/prod.txt
 
-COPY ./ ./
+COPY --chown=ecozone:ecozone ./ ./
 
 RUN : \
     # Make scripts executable
