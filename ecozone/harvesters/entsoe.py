@@ -24,16 +24,6 @@ API_URL = "https://web-api.tp.entsoe.eu/api"
 DEFAULT_START_DATE = datetime(year=2022, month=12, day=31, hour=23, tzinfo=UTC)
 
 
-# def get_last_start_date(control_area: ControlArea, psr: PsrType) -> datetime:
-#     last_record = (
-#         PSRGeneration.objects.filter(control_area=control_area.value, psr=psr)
-#         .order_by("start")
-#         .last()
-#     )
-#     if last_record:
-#         return last_record.start
-#     else:
-#         return DEFAULT_START_DATE
 def get_last_start_date(psr: PsrType) -> datetime:
     last_record = (
         Generation.objects.filter(**{f"{psr}_gen__isnull": False})
