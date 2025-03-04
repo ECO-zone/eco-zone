@@ -4,7 +4,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("ecozone", "0003_alter_gridregion_name_alter_powerplant_name_and_more"),
     ]

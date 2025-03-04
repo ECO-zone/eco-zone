@@ -30,7 +30,6 @@ def revert(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("ecozone", "0008_timeseriesredispatch_is_renewable_and_more"),
     ]

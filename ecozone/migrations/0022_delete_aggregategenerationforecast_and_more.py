@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("ecozone", "0021_generation_con_ef_north_generation_con_ef_south_and_more"),
     ]

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("ecozone", "0010_psrgeneration_ecozone_psr_start_9c1dfd_idx"),
     ]

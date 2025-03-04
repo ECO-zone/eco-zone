@@ -4,8 +4,8 @@ import re
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
-from .base import *
-from .base import GIT_REV, SENTRY_DSN_BACKEND, SENTRY_ENVIRONMENT
+from .base import *  # noqa: F403
+from .base import BASE_DIR, GIT_REV, SENTRY_DSN_BACKEND, SENTRY_ENVIRONMENT
 
 
 SECRET_KEY = os.environ.get("SECRET_KEY")

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("ecozone", "0002_timeseriesredispatch_and_more"),
     ]

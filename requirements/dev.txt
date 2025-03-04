@@ -44,6 +44,8 @@ pytest-django==4.10.0
     # via -r ./requirements/dev.in
 pyyaml==6.0.1
     # via pre-commit
+ruff==0.9.9
+    # via -r ./requirements/dev.in
 virtualenv==20.26.2
     # via pre-commit
 wheel==0.43.0

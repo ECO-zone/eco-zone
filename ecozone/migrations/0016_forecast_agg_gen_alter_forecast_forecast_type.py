@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("ecozone", "0015_forecast_forecast_unique_forecast_record"),
     ]

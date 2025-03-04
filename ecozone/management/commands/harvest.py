@@ -44,7 +44,7 @@ class Command(BaseCommand):
                 case "redispatch":
                     self.stdout.write(f"Harvesting {data_type}.")
                     if historical:
-                        self.stdout.write(f'Ignoring "--historical" flag.')
+                        self.stdout.write('Ignoring "--historical" flag.')
                     results = harvest_redispatch()
                     self.stdout.write(
                         self.style.SUCCESS(f"Harvested {results} redispatch records.")

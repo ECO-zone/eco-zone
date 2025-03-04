@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("ecozone", "0018_rename_ws_redisual_generation_ws_residual"),
     ]

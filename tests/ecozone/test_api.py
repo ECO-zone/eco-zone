@@ -8,7 +8,6 @@ client = TestClient(api)
 
 
 class APITestCase(TestCase):
-
     def test_get_timeseries_redispatch(self):
         response = client.get("/timeseries/redispatch")
         self.assertEqual(response.status_code, 200)

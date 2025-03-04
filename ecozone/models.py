@@ -98,7 +98,6 @@ class PsrType(models.TextChoices):
 
 
 class GridRegionManager(models.Manager):
-
     def get_dict_of_names_to_ids(self):
         return {x["name"]: x["id"] for x in self.values("name", "id").all()}
 
@@ -123,7 +122,6 @@ class GridRegion(models.Model):
 
 
 class TSOManager(models.Manager):
-
     def get_dict_of_names_to_ids(self):
         return {x["name"]: x["id"] for x in self.values("name", "id").all()}
 
@@ -156,7 +154,6 @@ def is_float(value):
 
 
 class PowerPlantManager(models.Manager):
-
     def get_dict_of_names_to_ids(self):
         return {x["name"]: x["id"] for x in self.values("name", "id").all()}
 
@@ -313,7 +310,6 @@ RegionDena = str
 
 
 class RedispatchManager(models.Manager):
-
     def get_valid_regions_dena(
         self, start: Optional[datetime], end: Optional[datetime]
     ):
@@ -460,11 +456,10 @@ class Redispatch(models.Model):
         ]
 
     def make_record_comparison_str(self) -> str:
-        return f"{self.start.strftime("%Y-%m-%dT%H:%M")}-{self.end.strftime("%Y-%m-%dT%H:%M")}-{self.reason}-{self.direction}-{self.power_mid_mw}-{self.power_max_mw}-{self.work_total_mwh}-{self.tso_supplying_id}-{self.tso_requesting_id}-{self.power_plant_id}"
+        return f"{self.start.strftime('%Y-%m-%dT%H:%M')}-{self.end.strftime('%Y-%m-%dT%H:%M')}-{self.reason}-{self.direction}-{self.power_mid_mw}-{self.power_max_mw}-{self.work_total_mwh}-{self.tso_supplying_id}-{self.tso_requesting_id}-{self.power_plant_id}"
 
 
 class TimeseriesRedispatchManager(models.Manager):
-
     def update_from_redispatch_records(self, redispatch_records=None):
         if not redispatch_records:
             redispatch_records = Redispatch.objects.all()
@@ -1419,7 +1414,6 @@ def get_emissions(
 
 
 class ForecastManager(models.Manager):
-
     def import_records(self, xml, forecast_type: ForecastType):
         print("Starting import")
         try:

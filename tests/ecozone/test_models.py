@@ -1,9 +1,7 @@
 from datetime import datetime, timedelta, UTC
 
-import pytest
 
 from django.test import TestCase
-from django.utils import timezone
 
 from ecozone.harvesters.netztrasparenz import harvest_redispatch
 from ecozone.models import (
@@ -16,7 +14,6 @@ from ecozone.models import (
 
 
 class DataTestCase(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         PowerPlant.objects.update_zone_data()
@@ -43,7 +40,6 @@ class DataTestCase(TestCase):
 
 
 class GenerationModelTestCase(DataTestCase):
-
     def test_generation_creation(self):
         generation = Generation.objects.get(start=self.start_time)
         self.assertEqual(generation.start, self.start_time)
@@ -123,7 +119,6 @@ class GenerationModelTestCase(DataTestCase):
 
 
 class ZonalEmissionFactorTestCase(DataTestCase):
-
     def test_emission_factor_is_zero_when_res_redispatch_south(self):
         """
         Emission factor is zero when there's RES redispatch in south, meaning:
