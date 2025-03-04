@@ -1139,8 +1139,9 @@ class GenerationManager(models.Manager):
     def get_emission_intensity_data_for_region(
         self,
         region: Union[RegionDena, RegionNorthSouth],
-        start: Optional[datetime] = None,
-        end: Optional[datetime] = None,
+        start: Optional[datetime] = None,  # Will be ignored if exact is provided
+        end: Optional[datetime] = None,  # Will be ignored if exact is provided
+        exact: Optional[datetime] = None,  # NOTE: For exact time queries
     ):
         """
         For a given region:
@@ -1149,10 +1150,12 @@ class GenerationManager(models.Manager):
         3. If there is no RE redispatch in the given region _but_ there is RE redispatch the other region,
         show the emission intensity for just the conventional plants that are being redispatched in the given region.
         """
-        if not start:
+        if not start or exact:
             start = (timezone.now() - timedelta(days=365)).replace(
                 hour=0, minute=0, microsecond=0
             )
+        if not end or exact:
+            end = None
         header = ["start", f"emission_intensity_{region}", "emission_intensity_germany"]
         target_region = region
         other_region = (
@@ -1162,7 +1165,9 @@ class GenerationManager(models.Manager):
         )
 
         generation_timerange_query = Q()
-        if start:
+        if exact:
+            generation_timerange_query &= Q(start__gte=exact)
+        elif start:
             generation_timerange_query &= Q(start__gte=start)
         if end:
             generation_timerange_query &= Q(start__lt=end)
@@ -1263,36 +1268,20 @@ class GenerationManager(models.Manager):
             minute=minutes_correction, second=0, microsecond=0
         ) - timedelta(hours=1)
 
-        def get_value(region):
-            has_renewable_redispatch = (
-                TimeseriesRedispatch.objects.filter(start=start)
-                .filter(region_north_south=region)
-                .filter(direction="Wirkleistungseinspeisung reduzieren")
-                .filter(is_renewable=True)
-                .exists()
-            )
-            value: Optional[float]
-            if has_renewable_redispatch:
-                value = 0
-            else:
-                try:
-                    record = (
-                        self.filter(start=start)
-                        .values(
-                            "start",
-                        )
-                        .order_by("start")
-                        .annotate(emissions_intensity=EMISSION_INTENSITY_EXPRESSION)
-                        .last()
-                    )
-                    value = record["emissions_intensity"]
-                except Exception:
-                    value = None
-
-            return value
-
-        nord = get_value(RegionNorthSouth.NORTH)
-        sued = get_value(RegionNorthSouth.SOUTH)
+        _nord = self.get_emission_intensity_data_for_region(
+            exact=start, region=RegionNorthSouth.NORTH
+        )
+        try:
+            nord = _nord[1][1]
+        except IndexError:
+            nord = None
+        _sued = self.get_emission_intensity_data_for_region(
+            exact=start, region=RegionNorthSouth.SOUTH
+        )
+        try:
+            sued = _sued[1][1]
+        except IndexError:
+            sued = None
 
         return EmissionFactorsNordSued(nord=nord, sued=sued, start=start)
 

@@ -33,8 +33,11 @@ class DataTestCase(TestCase):
             start = start + timedelta(minutes=15)
         Generation.objects.bulk_create(generation_records, batch_size=1000)
         harvest_redispatch(file="./data/redispatch_2025-01-01--2025-01-02.csv")
-        cls.results = Generation.objects.get_emission_intensity_data_for_region(
+        cls.results_south = Generation.objects.get_emission_intensity_data_for_region(
             "south", datetime(2024, 12, 31, 0, 0, 0, tzinfo=UTC), end
+        )[1:]
+        cls.results_north = Generation.objects.get_emission_intensity_data_for_region(
+            "north", datetime(2024, 12, 31, 0, 0, 0, tzinfo=UTC), end
         )[1:]
         cls.start_time = datetime(2025, 1, 1, 12, 0, 0, tzinfo=UTC)
 
@@ -77,14 +80,24 @@ class GenerationModelTestCase(DataTestCase):
             ["start", "Emissionsintensität Nord", "Emissionsintensität Deutschland"],
         )
         self.assertEqual(data[1][0], self.start_time)
-        self.assertIsInstance(data[1][1], float)
-        self.assertIsInstance(data[1][2], float)
+        self.assertEqual(data[1][1], 394.8)
+        self.assertEqual(data[1][2], 394.8)
 
     def test_get_emission_factors_nord_sued(self):
-        factors = Generation.objects.get_emission_factors_nord_sued(self.start_time)
-        self.assertIsInstance(factors.nord, (float, int))
-        self.assertIsInstance(factors.sued, (float, int))
-        self.assertIsInstance(factors.start, datetime)
+        start_time = self.start_time + timedelta(hours=1)
+        # Since get_emission_factors_nord_sued() offsets the start time by 1 hour, this ensures that we're testing the correct time.
+        factors = Generation.objects.get_emission_factors_nord_sued(start_time)
+        for i in self.results_north:
+            if i[0] == self.start_time:
+                north_value = i[1]
+                break
+        for i in self.results_south:
+            if i[0] == self.start_time:
+                south_value = i[1]
+                break
+        self.assertEqual(factors.nord, north_value)
+        self.assertEqual(factors.sued, south_value)
+        self.assertEqual(factors.start, self.start_time)
 
     def test_get_generation_data(self):
         start = self.start_time
@@ -127,7 +140,7 @@ class ZonalEmissionFactorTestCase(DataTestCase):
         """
         start = datetime(2025, 1, 1, 12, 0, 0, tzinfo=UTC)
         end = datetime(2025, 1, 1, 16, 0, 0, tzinfo=UTC)
-        for i in self.results:
+        for i in self.results_south:
             if i[0] > start and i[0] < end:
                 assert i[1] == 0
 
@@ -151,7 +164,7 @@ class ZonalEmissionFactorTestCase(DataTestCase):
         nat_start = res_end
         nat_end = datetime(2025, 1, 1, 18, 0, 0, tzinfo=UTC)
 
-        for i in self.results:
+        for i in self.results_south:
             if i[0] < res_start or (i[0] > nat_start and i[0] < nat_end):
                 assert i[1] == 394.8
 
@@ -167,6 +180,6 @@ class ZonalEmissionFactorTestCase(DataTestCase):
         """
         start = datetime(2025, 1, 1, 18, 0, 0, tzinfo=UTC)
         end = datetime(2025, 1, 1, 20, 0, 0, tzinfo=UTC)
-        for i in self.results:
+        for i in self.results_south:
             if i[0] > start and i[0] < end:
                 assert i[1] == 583.125
