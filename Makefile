@@ -10,13 +10,17 @@ deploy-dev:
 	$(eval BRANCH := $(shell git rev-parse --abbrev-ref HEAD))
 	git push --force eco-zone-dev ${BRANCH}:main
 
+deploy-production:
+	$(eval BRANCH := $(shell git rev-parse --abbrev-ref HEAD))
+	git push --force eco-zone-production ${BRANCH}:main
+
 
 # TEST #
 ########
 
 lint:
 	ruff check
-	ruff format
+	ruff format --check
 
 test:
 	pytest --disable-warnings ./tests
