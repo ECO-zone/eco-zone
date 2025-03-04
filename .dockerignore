@@ -1,4 +1,9 @@
 *.sqlite3
+*.sqlite3.*
+*.bak
 .env
 .venv/
 Dockerfile
+.pytest_cache/
+__pycache__/
+redispatch_2025-01-01--2025-01-02.csv
