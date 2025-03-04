@@ -1,0 +1,13 @@
+test:
+  only:
+    - main
+    - dev
+    - merge_requests
+  image: python:3.12.3-slim-bullseye
+  stage: test
+  before_script:
+    - apt update
+    - apt install -y --no-install-recommends make
+    - make pip
+  script:
+    - make test

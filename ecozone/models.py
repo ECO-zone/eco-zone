@@ -181,7 +181,9 @@ class PowerPlantManager(models.Manager):
                             _region_north_south = "south"
                         region_north_south = RegionNorthSouth(_region_north_south)
                     except Exception:
-                        logger.info(f"{name} has invalid north/south region '{_region_north_south}'")
+                        logger.info(
+                            f"{name} has invalid north/south region '{_region_north_south}'"
+                        )
                         region_north_south = None
                         pass
                 _region_dena = get_clean_value(row["Dena Regionen"])
@@ -189,18 +191,24 @@ class PowerPlantManager(models.Manager):
                 if not _region_dena:
                     region_dena = None
                 else:
-                    if len(_region_dena) == 2 and is_float(_region_dena[0]) and is_float(_region_dena[1]):
+                    if (
+                        len(_region_dena) == 2
+                        and is_float(_region_dena[0])
+                        and is_float(_region_dena[1])
+                    ):
                         region_dena = _region_dena
                     else:
                         logger.info(f"{name} has invalid dena region '{_region_dena}'")
                         region_dena = None
-                _is_renewable=get_clean_value(row["EE/nicht EE"])
+                _is_renewable = get_clean_value(row["EE/nicht EE"])
                 is_renewable: Optional[bool]
                 if not _is_renewable:
                     is_renewable = None
                 else:
                     if _is_renewable not in {"EE", "nicht EE"}:
-                        logger.info(f"{name} has invalid renewable status '{_is_renewable}'")
+                        logger.info(
+                            f"{name} has invalid renewable status '{_is_renewable}'"
+                        )
                         is_renewable = None
                     else:
                         if _is_renewable == "EE":
@@ -221,13 +229,19 @@ class PowerPlantManager(models.Manager):
                         region_north_south=region_north_south,
                         psr_type=psr_type,
                         is_renewable=is_renewable,
-                        is_heat_cogen=is_heat_cogen
+                        is_heat_cogen=is_heat_cogen,
                     )
                 )
             current_plants = {x.name: x for x in self.all()}
             plants_to_update = []
             plants_to_create = []
-            attrs = ["region_dena", "region_north_south", "is_renewable", "psr_type", "is_heat_cogen"]
+            attrs = [
+                "region_dena",
+                "region_north_south",
+                "is_renewable",
+                "psr_type",
+                "is_heat_cogen",
+            ]
             for plant_from_file in plants_from_file:
                 update = False
                 current_plant = current_plants.get(plant_from_file.name)
@@ -245,26 +259,30 @@ class PowerPlantManager(models.Manager):
             with transaction.atomic():
                 self.bulk_update(plants_to_update, attrs, batch_size=1000)
                 self.bulk_create(plants_to_create, batch_size=1000)
-            
+
             return len(plants_to_update)
 
     def get_regions_dena(self):
-        return PowerPlant.objects.filter(region_dena__isnull=False).values("region_dena").distinct().order_by("region_dena").values_list("region_dena", flat=True)
+        return (
+            PowerPlant.objects.filter(region_dena__isnull=False)
+            .values("region_dena")
+            .distinct()
+            .order_by("region_dena")
+            .values_list("region_dena", flat=True)
+        )
 
 
 class PowerPlant(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
     name = models.CharField(max_length=100)
     region_dena = models.CharField(
-        verbose_name="Region (dena)",
-        max_length=2,
-        null=True
+        verbose_name="Region (dena)", max_length=2, null=True
     )
     region_north_south = models.CharField(
         verbose_name="Region (Nord/Süd)",
         max_length=5,
         choices=RegionNorthSouth.choices,
-        null=True
+        null=True,
     )
     psr_type = models.CharField(
         verbose_name=("PSR type"),
@@ -273,13 +291,8 @@ class PowerPlant(models.Model):
         default=None,
         null=True,
     )
-    is_renewable = models.BooleanField(
-        verbose_name="EE Anlage",
-        null=True
-    )
-    is_heat_cogen = models.BooleanField(
-        null=True
-    )
+    is_renewable = models.BooleanField(verbose_name="EE Anlage", null=True)
+    is_heat_cogen = models.BooleanField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     objects = PowerPlantManager()
@@ -301,7 +314,9 @@ RegionDena = str
 
 class RedispatchManager(models.Manager):
 
-    def get_valid_regions_dena(self, start: Optional[datetime], end: Optional[datetime]):
+    def get_valid_regions_dena(
+        self, start: Optional[datetime], end: Optional[datetime]
+    ):
         timerange_query = Q()
         if start:
             timerange_query &= Q(start__gte=start)
@@ -320,27 +335,44 @@ class RedispatchManager(models.Manager):
 
         return records
 
-    def get_timeranges_res_work_reduce(self, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime], end: Optional[datetime]):
+    def get_timeranges_res_work_reduce(
+        self,
+        region: Union[RegionDena, RegionNorthSouth],
+        start: Optional[datetime],
+        end: Optional[datetime],
+    ):
         """Get the timeranges when there are RES redispatches with Wirkleistungseinspeisung reduzieren."""
         return self.get_redipatch_timeranges(
             direction="Wirkleistungseinspeisung reduzieren",
             is_renewable=True,
             region=region,
             start=start,
-            end=end
+            end=end,
         )
 
-    def get_timeranges_con_work_increase(self, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime], end: Optional[datetime]):
+    def get_timeranges_con_work_increase(
+        self,
+        region: Union[RegionDena, RegionNorthSouth],
+        start: Optional[datetime],
+        end: Optional[datetime],
+    ):
         """Get the timeranges when there are conventional redispatches with Wirkleistungseinspeisung erhöhen."""
         return self.get_redipatch_timeranges(
             direction="Wirkleistungseinspeisung erhöhen",
             is_renewable=False,
             region=region,
             start=start,
-            end=end
+            end=end,
         )
 
-    def get_redipatch_timeranges(self, direction, is_renewable: bool, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime], end: Optional[datetime]):
+    def get_redipatch_timeranges(
+        self,
+        direction,
+        is_renewable: bool,
+        region: Union[RegionDena, RegionNorthSouth],
+        start: Optional[datetime],
+        end: Optional[datetime],
+    ):
         timerange_query = Q()
         if start:
             timerange_query &= Q(start__gte=start)
@@ -382,6 +414,7 @@ class RedispatchManager(models.Manager):
                         timeranges.append([rstart, rend])
 
         return timeranges
+
 
 class Redispatch(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid4, editable=False)
@@ -447,8 +480,12 @@ class TimeseriesRedispatchManager(models.Manager):
             while start < end:
                 power_mw = redispatch_record.power_mid_mw
                 work_mwh = power_mw / 4  # NOTE: 15-min. res.
-                emissions = get_emissions(work_mwh, power_plant.psr_type, power_plant.is_heat_cogen)
-                emission_factor = emissions / work_mwh if work_mwh and emissions is not None else None
+                emissions = get_emissions(
+                    work_mwh, power_plant.psr_type, power_plant.is_heat_cogen
+                )
+                emission_factor = (
+                    emissions / work_mwh if work_mwh and emissions is not None else None
+                )
                 timeseries_records.append(
                     TimeseriesRedispatch(
                         start=start,
@@ -463,13 +500,21 @@ class TimeseriesRedispatchManager(models.Manager):
                     )
                 )
                 start = start + timedelta(minutes=15)
-        old_timeseries_records = {x.make_key(): x for x in self.filter(Q(start__gte=min(starts)) & Q(start__lt=max(ends))).all()}
+        old_timeseries_records = {
+            x.make_key(): x
+            for x in self.filter(
+                Q(start__gte=min(starts)) & Q(start__lt=max(ends))
+            ).all()
+        }
         recs_to_update = []
         recs_to_create = []
         for rec in timeseries_records:
             old_rec = old_timeseries_records.get(rec.make_key())
             if old_rec:
-                if old_rec.work_mwh != rec.work_mwh or old_rec.emission_factor != rec.emission_factor:
+                if (
+                    old_rec.work_mwh != rec.work_mwh
+                    or old_rec.emission_factor != rec.emission_factor
+                ):
                     old_rec.work_mwh = rec.work_mwh
                     old_rec.emission = rec.emissions
                     old_rec.emission_factor = rec.emission_factor
@@ -477,45 +522,57 @@ class TimeseriesRedispatchManager(models.Manager):
             else:
                 recs_to_create.append(rec)
         self.bulk_create(recs_to_create, batch_size=1000)
-        self.bulk_update(recs_to_update, ["work_mwh", "emissions", "emission_factor"], batch_size=1000)
+        self.bulk_update(
+            recs_to_update,
+            ["work_mwh", "emissions", "emission_factor"],
+            batch_size=1000,
+        )
 
         return {"start": min(starts), "end": max(ends)} if starts else None
-    
+
     def update_missing_emission_factors(self):
         missing = TimeseriesRedispatch.objects.filter(
             emission_factor__isnull=True,
             region_north_south="south",
             is_renewable=False,
-            direction="Wirkleistungseinspeisung erhöhen"
+            direction="Wirkleistungseinspeisung erhöhen",
         )
         to_update = []
         for x in missing:
             power_plant = x.redispatch.power_plant
             work_mwh = x.power_mid_mw / 4  # NOTE: 15-min. res.
-            emissions = get_emissions(work_mwh, power_plant.psr_type, power_plant.is_heat_cogen)
+            emissions = get_emissions(
+                work_mwh, power_plant.psr_type, power_plant.is_heat_cogen
+            )
             x.emissions = emissions
             x.emission_factor = emissions / work_mwh
             to_update.append(x)
-        
+
         self.bulk_update(to_update, ["emissions", "emission_factor"], batch_size=1000)
 
     def update_heat_cogen_emission_factors(self):
-        records = TimeseriesRedispatch.objects.filter(redispatch__power_plant__is_heat_cogen=True).all()
+        records = TimeseriesRedispatch.objects.filter(
+            redispatch__power_plant__is_heat_cogen=True
+        ).all()
         to_update = []
         for x in records:
             power_plant = x.redispatch.power_plant
             work_mwh = x.power_mid_mw / 4  # NOTE: 15-min. res.
-            emissions = get_emissions(work_mwh, power_plant.psr_type, power_plant.is_heat_cogen)
+            emissions = get_emissions(
+                work_mwh, power_plant.psr_type, power_plant.is_heat_cogen
+            )
             x.emissions = emissions
             x.emission_factor = emissions / work_mwh
             to_update.append(x)
         print(f"Updating {len(to_update)} records")
 
         self.bulk_update(to_update, ["emissions", "emission_factor"], batch_size=1000)
-       
+
     def get_timeseries_data(self, start: Optional[datetime], end: Optional[datetime]):
         if not start:
-            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
+            start = (timezone.now() - timedelta(days=365)).replace(
+                hour=0, minute=0, microsecond=0
+            )
         header = ["start", "power_mid_mw_decrease", "power_mid_mw_increase"]
         timerange_query = Q()
         if start:
@@ -554,23 +611,29 @@ class TimeseriesRedispatchManager(models.Manager):
             dummy_stamp = records[0][0] + timedelta(minutes=15)
             for r in records[1:]:
                 while r[0] != dummy_stamp:
-                    processed.append([
-                        dummy_stamp,
-                        0,
-                        0
-                    ])
+                    processed.append([dummy_stamp, 0, 0])
                     dummy_stamp = dummy_stamp + timedelta(minutes=15)
                 processed.append(r)
                 dummy_stamp = dummy_stamp + timedelta(minutes=15)
         else:
             processed = []
-        
+
         return [header] + processed
 
-    def get_timeseries_classified_redispatch_data(self, start: Optional[datetime], end: Optional[datetime]):
+    def get_timeseries_classified_redispatch_data(
+        self, start: Optional[datetime], end: Optional[datetime]
+    ):
         if not start:
-            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
-        header = ["start", "res_reduce_power_south", "res_reduce_power_north", "con_increase_power_south", "con_increase_power_north",]
+            start = (timezone.now() - timedelta(days=365)).replace(
+                hour=0, minute=0, microsecond=0
+            )
+        header = [
+            "start",
+            "res_reduce_power_south",
+            "res_reduce_power_north",
+            "con_increase_power_south",
+            "con_increase_power_north",
+        ]
         timerange_query = Q()
         if start:
             timerange_query &= Q(start__gte=start)
@@ -589,8 +652,8 @@ class TimeseriesRedispatchManager(models.Manager):
                         filter=Q(
                             direction="Wirkleistungseinspeisung reduzieren",
                             is_renewable=True,
-                            region_north_south="south"
-                        ),                        
+                            region_north_south="south",
+                        ),
                     ),
                     0.0,
                 )
@@ -602,8 +665,8 @@ class TimeseriesRedispatchManager(models.Manager):
                         filter=Q(
                             direction="Wirkleistungseinspeisung reduzieren",
                             is_renewable=True,
-                            region_north_south="north"
-                        ),                        
+                            region_north_south="north",
+                        ),
                     ),
                     0.0,
                 )
@@ -615,8 +678,8 @@ class TimeseriesRedispatchManager(models.Manager):
                         filter=Q(
                             direction="Wirkleistungseinspeisung erhöhen",
                             is_renewable=False,
-                            region_north_south="south"
-                        ),                        
+                            region_north_south="south",
+                        ),
                     ),
                     0.0,
                 )
@@ -628,8 +691,8 @@ class TimeseriesRedispatchManager(models.Manager):
                         filter=Q(
                             direction="Wirkleistungseinspeisung erhöhen",
                             is_renewable=False,
-                            region_north_south="north"
-                        ),                        
+                            region_north_south="north",
+                        ),
                     ),
                     0.0,
                 )
@@ -641,13 +704,15 @@ class TimeseriesRedispatchManager(models.Manager):
             dummy_stamp = records[0][0] + timedelta(minutes=15)
             for r in records[1:]:
                 while r[0] != dummy_stamp:
-                    processed.append([
-                        dummy_stamp,
-                        0,
-                        0,
-                        0,
-                        0,
-                    ])
+                    processed.append(
+                        [
+                            dummy_stamp,
+                            0,
+                            0,
+                            0,
+                            0,
+                        ]
+                    )
                     dummy_stamp = dummy_stamp + timedelta(minutes=15)
                 processed.append(r)
                 dummy_stamp = dummy_stamp + timedelta(minutes=15)
@@ -656,7 +721,12 @@ class TimeseriesRedispatchManager(models.Manager):
 
         return [header] + processed
 
-    def get_timeseries_renewable_status(self, region: RegionNorthSouth, start: Optional[datetime], end: Optional[datetime]):
+    def get_timeseries_renewable_status(
+        self,
+        region: RegionNorthSouth,
+        start: Optional[datetime],
+        end: Optional[datetime],
+    ):
         header = ["start", "renewable_factor"]
         timerange_query = Q()
         if start:
@@ -683,8 +753,10 @@ class TimeseriesRedispatchManager(models.Manager):
             .values_list(*header)
         )
         return [header] + list(records)
-    
-    def get_north_south_redispatch_data(self, start: Optional[datetime], end: Optional[datetime]):
+
+    def get_north_south_redispatch_data(
+        self, start: Optional[datetime], end: Optional[datetime]
+    ):
         timerange_query = Q()
         if start:
             timerange_query &= Q(start__gte=start)
@@ -697,28 +769,44 @@ class TimeseriesRedispatchManager(models.Manager):
             )
             .order_by("start")
             .annotate(
-                    con_ef_north=Coalesce(
-                        Sum("emissions",
-                            field="emissions*work_mwh",
-                            filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.NORTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
-                            default=0.0,
-                        ) / Sum(
-                            "work_mwh",
-                            filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.NORTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
-                            default=1.0,
-                        ),
-                        0.0,
+                con_ef_north=Coalesce(
+                    Sum(
+                        "emissions",
+                        field="emissions*work_mwh",
+                        filter=Q(direction="Wirkleistungseinspeisung erhöhen")
+                        & Q(region_north_south=RegionNorthSouth.NORTH)
+                        & Q(is_renewable=False)
+                        & Q(emission_factor__isnull=False),
+                        default=0.0,
                     )
+                    / Sum(
+                        "work_mwh",
+                        filter=Q(direction="Wirkleistungseinspeisung erhöhen")
+                        & Q(region_north_south=RegionNorthSouth.NORTH)
+                        & Q(is_renewable=False)
+                        & Q(emission_factor__isnull=False),
+                        default=1.0,
+                    ),
+                    0.0,
                 )
+            )
             .annotate(
                 con_ef_south=Coalesce(
-                    Sum("emissions",
+                    Sum(
+                        "emissions",
                         field="emissions*work_mwh",
-                        filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.SOUTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
+                        filter=Q(direction="Wirkleistungseinspeisung erhöhen")
+                        & Q(region_north_south=RegionNorthSouth.SOUTH)
+                        & Q(is_renewable=False)
+                        & Q(emission_factor__isnull=False),
                         default=0.0,
-                    ) / Sum(
+                    )
+                    / Sum(
                         "work_mwh",
-                        filter=Q(direction="Wirkleistungseinspeisung erhöhen") & Q(region_north_south=RegionNorthSouth.SOUTH) & Q(is_renewable=False) & Q(emission_factor__isnull=False),
+                        filter=Q(direction="Wirkleistungseinspeisung erhöhen")
+                        & Q(region_north_south=RegionNorthSouth.SOUTH)
+                        & Q(is_renewable=False)
+                        & Q(emission_factor__isnull=False),
                         default=1.0,
                     ),
                     0.0,
@@ -731,17 +819,22 @@ class TimeseriesRedispatchManager(models.Manager):
 
 class TimeseriesRedispatch(models.Model):
     """Note: Resolution is 15-minutes."""
+
     start = models.DateTimeField(null=False)
     direction = models.CharField(max_length=100, null=False)
     power_mid_mw = models.FloatField(null=False)
     work_mwh = models.FloatField(null=False)  # NOTE: Resolution is 15-minutes.
-    emissions = models.FloatField(null=True)  # Can't be calculated if the PSR type of the plant is unknown
-    emission_factor = models.FloatField(null=True)  # Can't be calculated if the PSR type of the plant is unknown
+    emissions = models.FloatField(
+        null=True
+    )  # Can't be calculated if the PSR type of the plant is unknown
+    emission_factor = models.FloatField(
+        null=True
+    )  # Can't be calculated if the PSR type of the plant is unknown
     region_north_south = models.CharField(
         verbose_name="Region (Nord/Süd)",
         max_length=5,
         choices=RegionNorthSouth.choices,
-        null=True
+        null=True,
     )
     is_renewable = models.BooleanField(null=True)
     redispatch = models.ForeignKey(Redispatch, on_delete=models.CASCADE)
@@ -803,29 +896,37 @@ RENEWABLE_PSR_TYPES = [
 ]
 
 
-CONVENTIONAL_PSR_TYPES = [x for x in PSR_TYPES_POST_2024 if x not in RENEWABLE_PSR_TYPES]
+CONVENTIONAL_PSR_TYPES = [
+    x for x in PSR_TYPES_POST_2024 if x not in RENEWABLE_PSR_TYPES
+]
 
 
 WIND_SOLAR_PSR_TYPES = [PsrType.B16, PsrType.B18, PsrType.B19]
 
 
-EMISSION_INTENSITY_EXPRESSION = reduce(add, [Coalesce(F(f"{x}_em"), 0.0) for x in PSR_TYPES_POST_2024]) / reduce(add, [Coalesce(F(f"{x}_work_mwh"), 1.0) for x in PSR_TYPES_POST_2024])
+EMISSION_INTENSITY_EXPRESSION = reduce(
+    add, [Coalesce(F(f"{x}_em"), 0.0) for x in PSR_TYPES_POST_2024]
+) / reduce(add, [Coalesce(F(f"{x}_work_mwh"), 1.0) for x in PSR_TYPES_POST_2024])
 
 
-WIND_SOLAR_RESIDUAL_EXPRESSION = reduce(add, [Coalesce(F(f"{x}_gen"), 0.0) for x in PSR_TYPES_POST_2024]) - reduce(add, [Coalesce(F(f"{x}_gen"), 0.0) for x in WIND_SOLAR_PSR_TYPES])
+WIND_SOLAR_RESIDUAL_EXPRESSION = reduce(
+    add, [Coalesce(F(f"{x}_gen"), 0.0) for x in PSR_TYPES_POST_2024]
+) - reduce(add, [Coalesce(F(f"{x}_gen"), 0.0) for x in WIND_SOLAR_PSR_TYPES])
 
 
-FORECAST_WIND_SOLAR_RESIDUAL_EXPRESSION = Coalesce(F("agg_gen"), 0.0) - reduce(add, [Coalesce(F(f"{x}_gen"), 0.0) for x in WIND_SOLAR_PSR_TYPES])
+FORECAST_WIND_SOLAR_RESIDUAL_EXPRESSION = Coalesce(F("agg_gen"), 0.0) - reduce(
+    add, [Coalesce(F(f"{x}_gen"), 0.0) for x in WIND_SOLAR_PSR_TYPES]
+)
 
 
 class GenerationManager(models.Manager):
     def update_wind_solar_residual(self, start):
         now = datetime.now(UTC)
         records = (
-                    self.filter(start__gte=start)
-                    .annotate(ws_residual_new=WIND_SOLAR_RESIDUAL_EXPRESSION)
-                    .all()
-                )
+            self.filter(start__gte=start)
+            .annotate(ws_residual_new=WIND_SOLAR_RESIDUAL_EXPRESSION)
+            .all()
+        )
         for record in records:
             record.ws_residual = record.ws_residual_new
             record.updated_at = now
@@ -835,11 +936,9 @@ class GenerationManager(models.Manager):
         now = datetime.now(UTC)
         records_to_create = []
         records_to_update = []
-        gen_records = {x.start: x for x in (
-            self.filter(start__gte=now)
-            .order_by("start")
-            .all()
-        )}
+        gen_records = {
+            x.start: x for x in (self.filter(start__gte=now).order_by("start").all())
+        }
         forecast_records = (
             Forecast.objects.filter(start__gte=now)
             .filter(agg_gen__isnull=False)
@@ -859,8 +958,15 @@ class GenerationManager(models.Manager):
                 gen_record = Generation(start=forecast_record.start)
                 update = False
             nearest_neighbor = (
-                self.filter(Q(start__gte=now-timedelta(days=30)) & Q(start__lte=now-timedelta(minutes=15)))
-                .annotate(diff_ws_factor=Func((F("ws_residual")-forecast_record.ws_residual), function="ABS"))
+                self.filter(
+                    Q(start__gte=now - timedelta(days=30))
+                    & Q(start__lte=now - timedelta(minutes=15))
+                )
+                .annotate(
+                    diff_ws_factor=Func(
+                        (F("ws_residual") - forecast_record.ws_residual), function="ABS"
+                    )
+                )
                 .order_by("diff_ws_factor")
                 .first()
             )
@@ -883,7 +989,7 @@ class GenerationManager(models.Manager):
                     setattr(gen_record, gen_field, gen_value)
                     setattr(gen_record, work_field, work_value)
                     setattr(gen_record, em_field, em_value)
-            
+
             if update:
                 records_to_update.append(gen_record)
             else:
@@ -894,21 +1000,28 @@ class GenerationManager(models.Manager):
             self.bulk_create(records_to_create, batch_size=1000)
             self.bulk_update(
                 records_to_update,
-                [f"{x}_gen" for x in PSR_TYPES_POST_2024] + [f"{x}_work_mwh" for x in PSR_TYPES_POST_2024] + [f"{x}_em" for x in PSR_TYPES_POST_2024] + ["updated_at"],
+                [f"{x}_gen" for x in PSR_TYPES_POST_2024]
+                + [f"{x}_work_mwh" for x in PSR_TYPES_POST_2024]
+                + [f"{x}_em" for x in PSR_TYPES_POST_2024]
+                + ["updated_at"],
                 batch_size=1000,
             )
 
-    def update_redispatch(self, start: Optional[datetime]=None, end: Optional[datetime]=None):
-        start = start if start else datetime(year=2022, month=12, day=31, hour=23, tzinfo=UTC)
+    def update_redispatch(
+        self, start: Optional[datetime] = None, end: Optional[datetime] = None
+    ):
+        start = (
+            start
+            if start
+            else datetime(year=2022, month=12, day=31, hour=23, tzinfo=UTC)
+        )
         now = datetime.now(UTC) + timedelta(days=7)
         end = end if end else now
-        gen_query = (
-                self.filter(
-                    Q(start__gte=start) & Q(start__lte=end)
-                )
-            )
+        gen_query = self.filter(Q(start__gte=start) & Q(start__lte=end))
         gen_records = {r.start: r for r in gen_query.all()}
-        red_records = TimeseriesRedispatch.objects.get_north_south_redispatch_data(start, end)
+        red_records = TimeseriesRedispatch.objects.get_north_south_redispatch_data(
+            start, end
+        )
         records_to_update = []
         for red_record in red_records:
             update = False
@@ -965,10 +1078,8 @@ class GenerationManager(models.Manager):
                 point = {"start": start, "value": int(item.text)}
                 points.append(point)
                 start += timedelta(minutes=15)
-            query = (
-                self.filter(
-                    Q(start__gte=points[0]["start"]) & Q(start__lte=points[-1]["start"])
-                )
+            query = self.filter(
+                Q(start__gte=points[0]["start"]) & Q(start__lte=points[-1]["start"])
             )
             records_to_check = {r.start: r for r in query.all()}
             records_to_create = []
@@ -988,12 +1099,14 @@ class GenerationManager(models.Manager):
                         records_to_update.append(old_record)
                 else:
                     records_to_create.append(
-                        self.model(**{
-                            "start": point["start"],
-                            f"{psr}_gen": power_mw,
-                            f"{psr}_work_mwh": work_mwh,
-                            f"{psr}_em": emissions,
-                        })
+                        self.model(
+                            **{
+                                "start": point["start"],
+                                f"{psr}_gen": power_mw,
+                                f"{psr}_work_mwh": work_mwh,
+                                f"{psr}_em": emissions,
+                            }
+                        )
                     )
             print("creating and updating")
             with transaction.atomic():
@@ -1009,7 +1122,9 @@ class GenerationManager(models.Manager):
         self, start: Optional[datetime], end: Optional[datetime]
     ):
         if not start:
-            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
+            start = (timezone.now() - timedelta(days=365)).replace(
+                hour=0, minute=0, microsecond=0
+            )
         header = ["start", "emission_intensity"]
         timerange_query = Q()
         if start:
@@ -1025,9 +1140,12 @@ class GenerationManager(models.Manager):
         )
 
         return [header] + list(records)
-    
+
     def get_emission_intensity_data_for_region(
-        self, region: Union[RegionDena, RegionNorthSouth], start: Optional[datetime]=None, end: Optional[datetime]=None
+        self,
+        region: Union[RegionDena, RegionNorthSouth],
+        start: Optional[datetime] = None,
+        end: Optional[datetime] = None,
     ):
         """
         For a given region:
@@ -1037,26 +1155,46 @@ class GenerationManager(models.Manager):
         show the emission intensity for just the conventional plants that are being redispatched in the given region.
         """
         if not start:
-            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
+            start = (timezone.now() - timedelta(days=365)).replace(
+                hour=0, minute=0, microsecond=0
+            )
         header = ["start", f"emission_intensity_{region}", "emission_intensity_germany"]
         target_region = region
-        other_region = RegionNorthSouth.NORTH if region == RegionNorthSouth.SOUTH else RegionNorthSouth.SOUTH
-        
+        other_region = (
+            RegionNorthSouth.NORTH
+            if region == RegionNorthSouth.SOUTH
+            else RegionNorthSouth.SOUTH
+        )
+
         generation_timerange_query = Q()
         if start:
             generation_timerange_query &= Q(start__gte=start)
         if end:
             generation_timerange_query &= Q(start__lt=end)
 
-        timeranges_res_work_reduce_in_target_region = Redispatch.objects.get_timeranges_res_work_reduce(target_region, start, end)
-        timeranges_res_work_reduce_in_other_region = Redispatch.objects.get_timeranges_res_work_reduce(other_region, start, end)
-        timeranges_con_work_increase_in_target_region = Redispatch.objects.get_timeranges_con_work_increase(target_region, start, end)
-        timeranges_con_work_increase_in_other_region = Redispatch.objects.get_timeranges_con_work_increase(other_region, start, end)
+        timeranges_res_work_reduce_in_target_region = (
+            Redispatch.objects.get_timeranges_res_work_reduce(target_region, start, end)
+        )
+        timeranges_res_work_reduce_in_other_region = (
+            Redispatch.objects.get_timeranges_res_work_reduce(other_region, start, end)
+        )
+        timeranges_con_work_increase_in_target_region = (
+            Redispatch.objects.get_timeranges_con_work_increase(
+                target_region, start, end
+            )
+        )
+        timeranges_con_work_increase_in_other_region = (
+            Redispatch.objects.get_timeranges_con_work_increase(
+                other_region, start, end
+            )
+        )
 
         if not timeranges_res_work_reduce_in_target_region:
             return [header] + []
+
         def make_timerange_query(timerange):
             return Q(Q(start__gte=timerange[0]) & Q(start__lt=timerange[1]))
+
         res_work_reduce_in_target_region = Q()
         for timerange in timeranges_res_work_reduce_in_target_region:
             res_work_reduce_in_target_region |= make_timerange_query(timerange)
@@ -1077,28 +1215,46 @@ class GenerationManager(models.Manager):
             )
             .order_by("start")
             .annotate(
-                **{f"emission_intensity_{region}": models.Case(
-                    models.When(res_work_reduce_in_target_region & ~con_work_increase_in_target_region, then=models.Value(0.0)),
-                    models.When(res_work_reduce_in_other_region & ~con_work_increase_in_other_region & Q(**{f"con_ef_{region}__gt": 0}), then=F(f"con_ef_{region}")),
-                    default=EMISSION_INTENSITY_EXPRESSION,
-                    output_field=models.FloatField()
-                )}
+                **{
+                    f"emission_intensity_{region}": models.Case(
+                        models.When(
+                            res_work_reduce_in_target_region
+                            & ~con_work_increase_in_target_region,
+                            then=models.Value(0.0),
+                        ),
+                        models.When(
+                            res_work_reduce_in_other_region
+                            & ~con_work_increase_in_other_region
+                            & Q(**{f"con_ef_{region}__gt": 0}),
+                            then=F(f"con_ef_{region}"),
+                        ),
+                        default=EMISSION_INTENSITY_EXPRESSION,
+                        output_field=models.FloatField(),
+                    )
+                }
             )
             .annotate(emission_intensity_germany=EMISSION_INTENSITY_EXPRESSION)
             .values_list(*header)
         )
 
-        return [["start", f"Emissionsintensität {RegionNorthSouth(region).label if region in RegionNorthSouth else 'dena ' + region}", "Emissionsintensität Deutschland"]] + list(records)
+        return [
+            [
+                "start",
+                f"Emissionsintensität {RegionNorthSouth(region).label if region in RegionNorthSouth else 'dena ' + region}",
+                "Emissionsintensität Deutschland",
+            ]
+        ] + list(records)
 
     def get_emission_factors_nord_sued(
-        self,
+        self, start: Optional[datetime] = None
     ) -> EmissionFactorsNordSued:
         """
         The emission factors will be the same if there is non-renewable redispatch in both zones
         _or_ if there is renewable dispatch in both zones. They will only differ if one and only
         one zone has renewable dispatch.
         """
-        start = timezone.now()
+        if not start:
+            start = timezone.now()
         minutes_correction: int
         if start.minute < 15:
             minutes_correction = 0
@@ -1108,9 +1264,13 @@ class GenerationManager(models.Manager):
             minutes_correction = 30
         else:
             minutes_correction = 45
-        start = start.replace(minute=minutes_correction, second=0, microsecond=0) - timedelta(hours=1)
+        start = start.replace(
+            minute=minutes_correction, second=0, microsecond=0
+        ) - timedelta(hours=1)
+
         def get_value(region):
-            has_renewable_redispatch = (TimeseriesRedispatch.objects.filter(start=start)
+            has_renewable_redispatch = (
+                TimeseriesRedispatch.objects.filter(start=start)
                 .filter(region_north_south=region)
                 .filter(direction="Wirkleistungseinspeisung reduzieren")
                 .filter(is_renewable=True)
@@ -1133,9 +1293,9 @@ class GenerationManager(models.Manager):
                     value = record["emissions_intensity"]
                 except Exception:
                     value = None
-            
+
             return value
-        
+
         nord = get_value(RegionNorthSouth.NORTH)
         sued = get_value(RegionNorthSouth.SOUTH)
 
@@ -1143,7 +1303,9 @@ class GenerationManager(models.Manager):
 
     def get_generation_data(self, start: Optional[datetime], end: Optional[datetime]):
         if not start:
-            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
+            start = (timezone.now() - timedelta(days=365)).replace(
+                hour=0, minute=0, microsecond=0
+            )
         header = ["start"] + [psr.value.upper() for psr in PSR_TYPES_POST_2024]
         values_list = ["start"] + [f"{psr}_gen" for psr in PSR_TYPES_POST_2024]
 
@@ -1152,17 +1314,16 @@ class GenerationManager(models.Manager):
             timerange_query &= Q(start__gte=start)
         if end:
             timerange_query &= Q(start__lt=end)
-        query = (
-            self.filter(timerange_query)
-            .order_by("start")
-        )
+        query = self.filter(timerange_query).order_by("start")
         records = query.values_list(*values_list)
 
         return [header] + list(records)
 
     def get_emissions_data(self, start: Optional[datetime], end: Optional[datetime]):
         if not start:
-            start = (timezone.now() - timedelta(days=365)).replace(hour=0, minute=0, microsecond=0)
+            start = (timezone.now() - timedelta(days=365)).replace(
+                hour=0, minute=0, microsecond=0
+            )
         header = ["start"] + [psr.value.upper() for psr in PSR_TYPES_POST_2024]
         values_list = ["start"] + [f"{psr}_em" for psr in PSR_TYPES_POST_2024]
         timerange_query = Q()
@@ -1170,10 +1331,7 @@ class GenerationManager(models.Manager):
             timerange_query &= Q(start__gte=start)
         if end:
             timerange_query &= Q(start__lt=end)
-        query = (
-            self.filter(timerange_query)
-            .order_by("start")
-        )
+        query = self.filter(timerange_query).order_by("start")
         records = query.values_list(*values_list)
 
         return [header] + list(records)
@@ -1207,7 +1365,7 @@ class Generation(models.Model):
     b11_work_mwh = models.FloatField(null=True)
     b12_work_mwh = models.FloatField(null=True)
     b14_work_mwh = models.FloatField(null=True)
-    b15_work_mwh= models.FloatField(null=True)
+    b15_work_mwh = models.FloatField(null=True)
     b16_work_mwh = models.FloatField(null=True)
     b17_work_mwh = models.FloatField(null=True)
     b18_work_mwh = models.FloatField(null=True)
@@ -1248,7 +1406,9 @@ class Generation(models.Model):
         ]
 
 
-def get_emissions(work_mwh: Optional[float], psr: PsrType, is_heat_cogen: Optional[bool]=None) -> Optional[float]:
+def get_emissions(
+    work_mwh: Optional[float], psr: PsrType, is_heat_cogen: Optional[bool] = None
+) -> Optional[float]:
     if work_mwh is None or psr is None:
         return None
 
@@ -1281,7 +1441,9 @@ class ForecastManager(models.Manager):
                     "./entsoe:Period/entsoe:resolution", name_spaces
                 ).text
                 if resolution != "PT15M":
-                    raise Exception(f"Got unexpected resolution {resolution} for {psr} in {control_area}")
+                    raise Exception(
+                        f"Got unexpected resolution {resolution} for {psr} in {control_area}"
+                    )
                 start = datetime.fromisoformat(
                     entry.find(
                         "./entsoe:Period/entsoe:timeInterval/entsoe:start", name_spaces
@@ -1294,10 +1456,9 @@ class ForecastManager(models.Manager):
                     points.append(point)
                     start += timedelta(minutes=15)
                 if points:
-                    query = (
-                        self.filter(
-                            Q(start__gte=points[0]["start"]) & Q(start__lte=points[-1]["start"])
-                        )
+                    query = self.filter(
+                        Q(start__gte=points[0]["start"])
+                        & Q(start__lte=points[-1]["start"])
                     )
                     records_to_check = {r.start: r for r in query.all()}
                     records_to_create = []
@@ -1319,11 +1480,13 @@ class ForecastManager(models.Manager):
                                     records_to_update.append(old_record)
                         else:
                             records_to_create.append(
-                                self.model(**{
-                                    "start": point["start"],
-                                    f"{psr}_gen": point["value"],
-                                    "forecast_type": forecast_type,
-                                })
+                                self.model(
+                                    **{
+                                        "start": point["start"],
+                                        f"{psr}_gen": point["value"],
+                                        "forecast_type": forecast_type,
+                                    }
+                                )
                             )
                     print("creating and updating")
                     with transaction.atomic():
@@ -1353,7 +1516,9 @@ class ForecastManager(models.Manager):
                     "./entsoe:Period/entsoe:resolution", name_spaces
                 ).text
                 if resolution != "PT60M":
-                    raise Exception(f"Got unexpected resolution {resolution} for {control_area}")
+                    raise Exception(
+                        f"Got unexpected resolution {resolution} for {control_area}"
+                    )
                 start = datetime.fromisoformat(
                     entry.find(
                         "./entsoe:Period/entsoe:timeInterval/entsoe:start", name_spaces
@@ -1367,10 +1532,9 @@ class ForecastManager(models.Manager):
                         points.append(point)
                         start += timedelta(minutes=15)
                 if points:
-                    query = (
-                        self.filter(
-                            Q(start__gte=points[0]["start"]) & Q(start__lte=points[-1]["start"])
-                        )
+                    query = self.filter(
+                        Q(start__gte=points[0]["start"])
+                        & Q(start__lte=points[-1]["start"])
                     )
                     records_to_check = {r.start: r for r in query.all()}
                     records_to_create = []
@@ -1405,10 +1569,10 @@ class ForecastManager(models.Manager):
     def update_wind_solar_residual(self, start):
         now = datetime.now(UTC)
         records = (
-                    self.filter(start__gte=start)
-                    .annotate(ws_residual_new=FORECAST_WIND_SOLAR_RESIDUAL_EXPRESSION)
-                    .all()
-                )
+            self.filter(start__gte=start)
+            .annotate(ws_residual_new=FORECAST_WIND_SOLAR_RESIDUAL_EXPRESSION)
+            .all()
+        )
         for record in records:
             record.ws_residual = record.ws_residual_new
             record.updated_at = now
@@ -1418,7 +1582,10 @@ class ForecastManager(models.Manager):
 class Forecast(models.Model):
     start = models.DateTimeField(null=False)
     forecast_type = models.CharField(
-        verbose_name=("Forecast type"), max_length=9, choices=ForecastType.choices, default=ForecastType.DAYAHEAD
+        verbose_name=("Forecast type"),
+        max_length=9,
+        choices=ForecastType.choices,
+        default=ForecastType.DAYAHEAD,
     )
     b16_gen = models.FloatField(null=True)
     b18_gen = models.FloatField(null=True)
@@ -1435,7 +1602,9 @@ class Forecast(models.Model):
         ]
         constraints = [
             models.UniqueConstraint(
-                fields=["start",],
+                fields=[
+                    "start",
+                ],
                 name="unique_forecast_record",
             )
         ]
