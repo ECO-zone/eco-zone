@@ -243,7 +243,7 @@ Um die realen Erzeugungsdaten zu ergänzen, verwenden wir einen Algorithmus, um 
  - Anschließend verwenden wir eine eindimensionale Suche nach dem nächsten Nachbarn, um den Punkt in den historischen Daten mit dem ähnlichsten Restgenerationswert zu finden.
  - Anschließend ermitteln wir das Verhältnis der Gesamtstromerzeugung zu diesem Zeitpunkt zur Erzeugung jeder einzelnen Quelle.
  - Abschließend wenden wir diese Verhältnisse auf den Gesamtprognosewert an, um eine geschätzte Erzeugungsprognose für jede der verbleibenden Quellen zu erhalten.
- 
+
 Auf diese Weise können wir geschätzte zukünftige Werte für die Erzeugung, die Emissionen und den deutschen Gesamtemissionsfaktor anzeigen. Da die von uns gesammelten Redispatch-Daten geplante zukünftige Redispatches enthalten, können wir auch geschätzte zukünftige Werte für die zonalen Emissionsfaktoren für den Norden und den Süden anzeigen, da diese sowohl auf den veröffentlichten Redispatch-Daten als auch auf den Erzeugungs- und Emissionsdaten basieren.
 
 ### Zeitrahmen der Prognosen
@@ -280,7 +280,7 @@ Bei der Berechnung der gesamten deutschen Emissionswerte je Quelle werden diese 
 
 Bei der Berechnung der zonalen Emissionsfaktoren werden die DIN-Emissionsfaktoren reduziert, wenn die Erzeugungsanlage eine Anlage der Kraft-Wärme-Kopplung ist. Der Multiplikator beträgt 0,625. Diese reduzierten Emissionsfaktoren (ursprünglicher Emissionsfaktor * 0,625) werden bei der Berechnung der Emissionen für eine bestimmte Zone im Falle eines konventionellen Energie-Redispatches verwendet (die Redispatch-Daten werden nach Erzeugungsanlagen aufgeschlüsselt, so dass neben der Energiequelle auch festgestellt werden kann, ob die Anlage zum Heizen genutzt wird). Bei der Berechnung der zonalen Emissionsfaktoren werden die DIN-Emissionsfaktoren
 verringert, wenn die Anlage zur Kraft-Wärmekopplung (KWK) genutzt wird. Der Abschlag erfolgt durch Multiplikation mit dem Faktor 0,625. Diese reduzierten Emissionsfaktoren (ursprünglicher Emissionsfaktor * 0,625) werden bei der Berechnung der Emissionen für eine bestimmte Zone im Falle eines konventionellen Energie-Redispatches verwendet (die Redispatch-Daten werden nach
-Erzeugungsanlagen aufgeschlüsselt, so dass neben der Energiequelle auch festgestellt werden kann, ob die Anlage über eine Wärmeauskopplung verfügt (KWK-Anlage)). Der Faktor 0,625 ergibt sich aus der Anwendung der sog. Wirkungsgradmethode unter Annahme typischer Stromkennzahlen und Wirkunggrade für KWK-Anlagen (https://www.umweltbundesamt.de/sites/default/files/medien/publikation/long/3476.pdf) 
+Erzeugungsanlagen aufgeschlüsselt, so dass neben der Energiequelle auch festgestellt werden kann, ob die Anlage über eine Wärmeauskopplung verfügt (KWK-Anlage)). Der Faktor 0,625 ergibt sich aus der Anwendung der sog. Wirkungsgradmethode unter Annahme typischer Stromkennzahlen und Wirkunggrade für KWK-Anlagen (https://www.umweltbundesamt.de/sites/default/files/medien/publikation/long/3476.pdf)
 
 ## Emissionen
 
@@ -308,7 +308,7 @@ Der zonale Emissionsfaktor wird auf Basis der konventionellen Redispatches in de
 - Es gibt _mindestens einen_ konventionellen Redispatch mit der Richtung „Wirkleistung erhöhen“ in der ausgewählten Zone.
 - Es gibt _keinen_ konventionellen Redispatch mit der Richtung „Wirkleistung erhöhen“ in der Gegenzone.
 - Es gibt _mindestens einen_ EE-Redispatch mit der Richtung „Wirkleistungseinspeisung reduzieren“ in der Gegenzone.
- 
+
 (Einzelheiten zur Berechnung des zonalen Emissionsfaktors finden Sie weiter unten.)
 
 In allen anderen Fällen wird der deutsche Emissionsfaktor angezeigt (siehe oben „Deutscher nationaler Emissionsfaktor“).
@@ -327,7 +327,7 @@ Der zonale Emissionsfaktor in der Nordzone beträgt am 23. Dezember 2024 von 10:
 	- OWP UW Dörpen-West Windenergie (Offshore-Anlage)
 	- OWP UW Emden-Ost Windenergie (Offshore-Anlage)
 	- OWP UW Büttel Windenergie (Offshore-Anlage)
- 
+
 Da beide Bedingungen erfüllt sind, müssen die Emissionsfaktoren für die einzelnen Redispatches nicht berücksichtigt werden und der zonale Emissionsfaktor für den Norden beträgt einfach 0 kgCO2/MWh.
 
 ### Beispiel: Der zonale Emissionsfaktor im Süden ist größer als der nationale Emissionsfaktor
@@ -339,38 +339,38 @@ Der zonale Emissionsfaktor in der Südzone ist am 23. Dezember 2024 von 10:00 bi
 3. Es gibt konventionelle Redispatches mit Richtung „Wirkleistung erhöhen“ in der Südzone. (Beachten Sie, dass einer einzelnen Anlage möglicherweise mehrere Redispatches zugeordnet sind.)
 	- Rheinhafen-Dampfkraftwerk Karlsruhe Block 8
 		- 60,9375 MWh (243,75 mittlere Leistung MW)
-		- Steinkohle 
-		- KWK-Anlage 
-		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage) 
-	- Rheinhafen-Dampfkraftwerk Karlsruhe Block 8 
-		- 111,215 MWh (444,86 mittlere Leistung MW) 
-		- Steinkohle 
-		- KWK-Anlage 
-		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage) 
-	- Großkraftwerk Mannheim Block 6 
-		- 20,9425 MWh (83,77 mittlere Leistung MW) 
-		- Steinkohle 
-		- KWK-Anlage 
-		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage) 
-	- Heizkraftwerk Altbach/Deizisau GT B 
-		- 14,75 MWh (59,0 mittlere Leistung MW) 
-		- Erdgas 
-		- KWK-Anlage 
-		- Emissionsfaktor 262,5 (420 Erdgas * 0,625 KWK-Anlage) 
-	- Heizkraftwerk Altbach/Deizisau GT C 
-		- 20,75 MWh (83,0 mittlere Leistung MW) 
-		- Erdgas 
-		- KWK-Anlage 
-		- Emissionsfaktor 262,5 kgCO2/MWh (420 kgCO2/MWh Erdgas * 0,625 KWK-Anlage) 
-	- Heizkraftwerk Altbach/Deizisau Block 2 
-		- 28,42 MWh (113,68 mittlere Leistung MW) 
-		- Steinkohle 
-		- KWK-Anlage 
-		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage) 
-	- Heizkraftwerk Altbach/Deizisau Block 2 
-		- 33,9275 MWh (135,71 mittlere Leistung MW) 
-		- Steinkohle 
-		- KWK-Anlage 
+		- Steinkohle
+		- KWK-Anlage
 		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage)
-	
+	- Rheinhafen-Dampfkraftwerk Karlsruhe Block 8
+		- 111,215 MWh (444,86 mittlere Leistung MW)
+		- Steinkohle
+		- KWK-Anlage
+		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage)
+	- Großkraftwerk Mannheim Block 6
+		- 20,9425 MWh (83,77 mittlere Leistung MW)
+		- Steinkohle
+		- KWK-Anlage
+		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage)
+	- Heizkraftwerk Altbach/Deizisau GT B
+		- 14,75 MWh (59,0 mittlere Leistung MW)
+		- Erdgas
+		- KWK-Anlage
+		- Emissionsfaktor 262,5 (420 Erdgas * 0,625 KWK-Anlage)
+	- Heizkraftwerk Altbach/Deizisau GT C
+		- 20,75 MWh (83,0 mittlere Leistung MW)
+		- Erdgas
+		- KWK-Anlage
+		- Emissionsfaktor 262,5 kgCO2/MWh (420 kgCO2/MWh Erdgas * 0,625 KWK-Anlage)
+	- Heizkraftwerk Altbach/Deizisau Block 2
+		- 28,42 MWh (113,68 mittlere Leistung MW)
+		- Steinkohle
+		- KWK-Anlage
+		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage)
+	- Heizkraftwerk Altbach/Deizisau Block 2
+		- 33,9275 MWh (135,71 mittlere Leistung MW)
+		- Steinkohle
+		- KWK-Anlage
+		- Emissionsfaktor 583,125 kgCO2/MWh (933 kgCO2/MWh Steinkohle * 0,625 KWK-Anlage)
+
  Der zonale Emissionsfaktor ist das gewichtete arithmetische Mittel der Emissionsfaktoren, gewichtet nach der Erzeugung pro Energiequelle: 544 kgCO2/MWh. Der deutsche nationale Emissionsfaktor für diesen Zeitraum beträgt 204,27 kgCO2/MWh.

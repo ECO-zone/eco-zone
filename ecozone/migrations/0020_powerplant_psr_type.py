@@ -6,13 +6,40 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0019_forecast_ws_residual'),
+        ("ecozone", "0019_forecast_ws_residual"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='powerplant',
-            name='psr_type',
-            field=models.CharField(choices=[('b01', 'Biomasse'), ('b02', 'Braunkohle'), ('b03', 'Fossil Coal-derived gas'), ('b04', 'Erdgas'), ('b05', 'Steinkohle'), ('b06', 'Mineralöl'), ('b07', 'Fossil Oil shale'), ('b08', 'Fossil Peat'), ('b09', 'Geothermie'), ('b10', 'Pumpspeicher'), ('b11', 'Wasserkraft (Laufwasser)'), ('b12', 'Wasserspeicher'), ('b13', 'Marine'), ('b14', 'Kernenergie'), ('b15', 'Sonstige Erneuerbare Energien'), ('b16', 'Photovoltaik'), ('b17', 'Abfall'), ('b18', 'Windenergie (Offshore-Anlage)'), ('b19', 'Windenergie (Onshore-Anlage)'), ('b20', 'Sonstige konventionelle Energien')], default=None, max_length=3, null=True, verbose_name='PSR type'),
+            model_name="powerplant",
+            name="psr_type",
+            field=models.CharField(
+                choices=[
+                    ("b01", "Biomasse"),
+                    ("b02", "Braunkohle"),
+                    ("b03", "Fossil Coal-derived gas"),
+                    ("b04", "Erdgas"),
+                    ("b05", "Steinkohle"),
+                    ("b06", "Mineralöl"),
+                    ("b07", "Fossil Oil shale"),
+                    ("b08", "Fossil Peat"),
+                    ("b09", "Geothermie"),
+                    ("b10", "Pumpspeicher"),
+                    ("b11", "Wasserkraft (Laufwasser)"),
+                    ("b12", "Wasserspeicher"),
+                    ("b13", "Marine"),
+                    ("b14", "Kernenergie"),
+                    ("b15", "Sonstige Erneuerbare Energien"),
+                    ("b16", "Photovoltaik"),
+                    ("b17", "Abfall"),
+                    ("b18", "Windenergie (Offshore-Anlage)"),
+                    ("b19", "Windenergie (Onshore-Anlage)"),
+                    ("b20", "Sonstige konventionelle Energien"),
+                ],
+                default=None,
+                max_length=3,
+                null=True,
+                verbose_name="PSR type",
+            ),
         ),
     ]

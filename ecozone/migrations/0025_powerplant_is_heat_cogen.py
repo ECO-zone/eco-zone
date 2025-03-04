@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0024_alter_timeseriesredispatch_emissions'),
+        ("ecozone", "0024_alter_timeseriesredispatch_emissions"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='powerplant',
-            name='is_heat_cogen',
+            model_name="powerplant",
+            name="is_heat_cogen",
             field=models.BooleanField(null=True),
         ),
     ]

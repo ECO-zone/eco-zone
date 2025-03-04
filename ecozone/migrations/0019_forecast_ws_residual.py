@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0018_rename_ws_redisual_generation_ws_residual'),
+        ("ecozone", "0018_rename_ws_redisual_generation_ws_residual"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='forecast',
-            name='ws_residual',
+            model_name="forecast",
+            name="ws_residual",
             field=models.FloatField(null=True),
         ),
     ]

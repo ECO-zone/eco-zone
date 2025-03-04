@@ -6,18 +6,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0015_forecast_forecast_unique_forecast_record'),
+        ("ecozone", "0015_forecast_forecast_unique_forecast_record"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='forecast',
-            name='agg_gen',
+            model_name="forecast",
+            name="agg_gen",
             field=models.FloatField(null=True),
         ),
         migrations.AlterField(
-            model_name='forecast',
-            name='forecast_type',
-            field=models.CharField(choices=[('day-ahead', 'Dayahead'), ('intraday', 'Intraday'), ('current', 'Current')], default='day-ahead', max_length=9, verbose_name='Forecast type'),
+            model_name="forecast",
+            name="forecast_type",
+            field=models.CharField(
+                choices=[
+                    ("day-ahead", "Dayahead"),
+                    ("intraday", "Intraday"),
+                    ("current", "Current"),
+                ],
+                default="day-ahead",
+                max_length=9,
+                verbose_name="Forecast type",
+            ),
         ),
     ]

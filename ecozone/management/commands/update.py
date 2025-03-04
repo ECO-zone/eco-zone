@@ -9,9 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = (
-        "Update the database using data from an internal source."
-    )
+    help = "Update the database using data from an internal source."
 
     def add_arguments(self, parser):
         parser.add_argument(

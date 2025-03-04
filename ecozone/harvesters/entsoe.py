@@ -6,7 +6,14 @@ from typing import List, Tuple
 
 from requests import Session
 
-from ecozone.models import ControlArea, ForecastType, PsrType, Generation, PSR_TYPES_POST_2024, Forecast
+from ecozone.models import (
+    ControlArea,
+    ForecastType,
+    PsrType,
+    Generation,
+    PSR_TYPES_POST_2024,
+    Forecast,
+)
 from ecozone.utils import round_date_to_quarter_hour
 
 
@@ -35,6 +42,7 @@ def get_last_start_date(psr: PsrType) -> datetime:
     else:
         return DEFAULT_START_DATE
 
+
 def harvest_psr_generation(historical: bool = False, **kwargs):
     for control_area in [ControlArea.GERMANY]:
         for psr_type in PSR_TYPES_POST_2024:
@@ -55,9 +63,7 @@ def harvest_psr_generation(historical: bool = False, **kwargs):
                     periods.append((start_date, end_date))
             else:
                 last_start_date = (
-                    DEFAULT_START_DATE
-                    if historical
-                    else get_last_start_date(psr_type)
+                    DEFAULT_START_DATE if historical else get_last_start_date(psr_type)
                 )
                 logger.info(
                     f"Last record for {psr_type.label} in {control_area.label} is from {last_start_date}"
@@ -138,9 +144,7 @@ def harvest_renewable_generation_forecast(forecast_type: ForecastType):
             except Exception:
                 logger.warning("Harvester error: unable to get ENTSO-E data.")
                 continue
-            Forecast.objects.import_records(
-                r.content, forecast_type
-            )
+            Forecast.objects.import_records(r.content, forecast_type)
             sleep(2)
         logger.info(f"Finished harvesting records in {control_area}")
     logger.info("Finished harvesting ENTSO-E generation records.")
@@ -153,9 +157,7 @@ def harvest_aggregate_generation_forecast():
             f"Harvesting aggregate generation forecast for {control_area.label}..."
         )
         start_date = round_date_to_quarter_hour(datetime.now(UTC))
-        logger.info(
-            f"Last record for {control_area.label} is from {start_date}"
-        )
+        logger.info(f"Last record for {control_area.label} is from {start_date}")
         end_date = start_date + timedelta(days=2)
         # Format datetimes according to ENTSO-E's strange requirements.
         # Set minutes to 0 because the ENTSO-E API requires a minutes value

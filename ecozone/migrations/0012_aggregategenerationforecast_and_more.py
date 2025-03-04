@@ -6,26 +6,55 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0011_powerplant_region_dena'),
+        ("ecozone", "0011_powerplant_region_dena"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AggregateGenerationForecast',
+            name="AggregateGenerationForecast",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start', models.DateTimeField()),
-                ('control_area', models.CharField(choices=[('10YDE-VE-------2', '50Hertz'), ('10YDE-RWENET---I', 'Amprion'), ('10YDE-EON------1', 'TenneT'), ('10YDE-ENBW-----N', 'TransnetBW')], max_length=16, verbose_name='Control area')),
-                ('power_mw', models.FloatField(null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("start", models.DateTimeField()),
+                (
+                    "control_area",
+                    models.CharField(
+                        choices=[
+                            ("10YDE-VE-------2", "50Hertz"),
+                            ("10YDE-RWENET---I", "Amprion"),
+                            ("10YDE-EON------1", "TenneT"),
+                            ("10YDE-ENBW-----N", "TransnetBW"),
+                        ],
+                        max_length=16,
+                        verbose_name="Control area",
+                    ),
+                ),
+                ("power_mw", models.FloatField(null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'indexes': [models.Index(fields=['start', 'control_area'], name='ecozone_agg_start_61746d_idx'), models.Index(fields=['start'], name='ecozone_agg_start_e00526_idx')],
+                "indexes": [
+                    models.Index(
+                        fields=["start", "control_area"],
+                        name="ecozone_agg_start_61746d_idx",
+                    ),
+                    models.Index(fields=["start"], name="ecozone_agg_start_e00526_idx"),
+                ],
             },
         ),
         migrations.AddConstraint(
-            model_name='aggregategenerationforecast',
-            constraint=models.UniqueConstraint(fields=('start', 'control_area'), name='unique_aggregated_generation_forecast_record'),
+            model_name="aggregategenerationforecast",
+            constraint=models.UniqueConstraint(
+                fields=("start", "control_area"),
+                name="unique_aggregated_generation_forecast_record",
+            ),
         ),
     ]

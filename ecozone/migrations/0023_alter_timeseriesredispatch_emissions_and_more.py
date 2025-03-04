@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0022_delete_aggregategenerationforecast_and_more'),
+        ("ecozone", "0022_delete_aggregategenerationforecast_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='timeseriesredispatch',
-            name='emissions',
+            model_name="timeseriesredispatch",
+            name="emissions",
             field=models.FloatField(),
         ),
         migrations.AlterField(
-            model_name='timeseriesredispatch',
-            name='work_mwh',
+            model_name="timeseriesredispatch",
+            name="work_mwh",
             field=models.FloatField(),
         ),
     ]

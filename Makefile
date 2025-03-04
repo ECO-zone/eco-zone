@@ -14,6 +14,9 @@ deploy-dev:
 # TEST #
 ########
 
+lint:
+	pre-commit run --all-files
+
 test:
 	pytest --disable-warnings ./tests
 

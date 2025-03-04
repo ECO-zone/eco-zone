@@ -3,7 +3,11 @@ import sys
 
 from django.core.management.base import BaseCommand
 
-from ecozone.harvesters.entsoe import harvest_aggregate_generation_forecast, harvest_psr_generation, harvest_renewable_generation_forecast
+from ecozone.harvesters.entsoe import (
+    harvest_aggregate_generation_forecast,
+    harvest_psr_generation,
+    harvest_renewable_generation_forecast,
+)
 from ecozone.harvesters.netztrasparenz import harvest_redispatch
 from ecozone.models import ForecastType
 
@@ -21,7 +25,10 @@ class Command(BaseCommand):
             "data_type", nargs=1, type=str, help="The type of data to be harvested."
         )
         parser.add_argument(
-            "--forecast_type", nargs=1, type=str, help="The type of forecast to be harvested."
+            "--forecast_type",
+            nargs=1,
+            type=str,
+            help="The type of forecast to be harvested.",
         )
         parser.add_argument(
             "--historical",
@@ -45,7 +52,9 @@ class Command(BaseCommand):
                 case "psr":
                     self.stdout.write(f"Harvesting {data_type}.")
                     if historical:
-                        self.stdout.write("Historical data will be updated if necessary.")
+                        self.stdout.write(
+                            "Historical data will be updated if necessary."
+                        )
                     results = harvest_psr_generation(historical)
                     self.stdout.write(
                         self.style.SUCCESS(
@@ -56,7 +65,9 @@ class Command(BaseCommand):
                     try:
                         forecast_type = ForecastType(options["forecast_type"][0])
                     except Exception:
-                        self.stderr("forecast_type is required when harvesting renewable_forecast.")
+                        self.stderr(
+                            "forecast_type is required when harvesting renewable_forecast."
+                        )
                         sys.exit(1)
                     self.stdout.write(f"Harvesting {data_type}.")
                     results = harvest_renewable_generation_forecast(forecast_type)
@@ -72,7 +83,7 @@ class Command(BaseCommand):
                         self.style.SUCCESS(
                             f"Harvested {results} renewable generation forecast records."
                         )
-                    )     
+                    )
                 case _:
                     self.stderr.write(
                         self.style.ERROR(

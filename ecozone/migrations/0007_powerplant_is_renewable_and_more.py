@@ -6,18 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0006_psrgeneration_emissions'),
+        ("ecozone", "0006_psrgeneration_emissions"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='powerplant',
-            name='is_renewable',
-            field=models.BooleanField(null=True, verbose_name='EE Anlage'),
+            model_name="powerplant",
+            name="is_renewable",
+            field=models.BooleanField(null=True, verbose_name="EE Anlage"),
         ),
         migrations.AddField(
-            model_name='powerplant',
-            name='region_north_south',
-            field=models.CharField(choices=[('north', 'Nord'), ('south', 'Süd')], max_length=5, null=True, verbose_name='Region (Nord/Süd)'),
+            model_name="powerplant",
+            name="region_north_south",
+            field=models.CharField(
+                choices=[("north", "Nord"), ("south", "Süd")],
+                max_length=5,
+                null=True,
+                verbose_name="Region (Nord/Süd)",
+            ),
         ),
     ]

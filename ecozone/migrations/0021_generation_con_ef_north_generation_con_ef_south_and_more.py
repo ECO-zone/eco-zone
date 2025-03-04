@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0020_powerplant_psr_type'),
+        ("ecozone", "0020_powerplant_psr_type"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='generation',
-            name='con_ef_north',
+            model_name="generation",
+            name="con_ef_north",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='con_ef_south',
+            model_name="generation",
+            name="con_ef_south",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='timeseriesredispatch',
-            name='emission_factor',
+            model_name="timeseriesredispatch",
+            name="emission_factor",
             field=models.FloatField(null=True),
         ),
     ]

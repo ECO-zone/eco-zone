@@ -6,12 +6,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0009_add_zone_info_to_timeseries'),
+        ("ecozone", "0009_add_zone_info_to_timeseries"),
     ]
 
     operations = [
         migrations.AddIndex(
-            model_name='psrgeneration',
-            index=models.Index(fields=['start'], name='ecozone_psr_start_9c1dfd_idx'),
+            model_name="psrgeneration",
+            index=models.Index(fields=["start"], name="ecozone_psr_start_9c1dfd_idx"),
         ),
     ]

@@ -27,5 +27,8 @@ jobs:
           apt install -y --no-install-recommends make
           make pip
 
+      - name: Lint code
+        run: make lint
+
       - name: Run tests
         run: make test

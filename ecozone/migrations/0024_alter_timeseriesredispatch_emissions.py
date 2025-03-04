@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0023_alter_timeseriesredispatch_emissions_and_more'),
+        ("ecozone", "0023_alter_timeseriesredispatch_emissions_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='timeseriesredispatch',
-            name='emissions',
+            model_name="timeseriesredispatch",
+            name="emissions",
             field=models.FloatField(null=True),
         ),
     ]

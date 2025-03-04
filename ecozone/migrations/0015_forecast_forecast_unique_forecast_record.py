@@ -6,28 +6,54 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0014_generation_delete_renewablegenerationforecastmanager_and_more'),
+        (
+            "ecozone",
+            "0014_generation_delete_renewablegenerationforecastmanager_and_more",
+        ),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Forecast',
+            name="Forecast",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start', models.DateTimeField()),
-                ('forecast_type', models.CharField(choices=[('day-ahead', 'Dayahead'), ('intraday', 'Intraday'), ('current', 'Current')], max_length=9, verbose_name='Forecast type')),
-                ('b16_gen', models.FloatField(null=True)),
-                ('b18_gen', models.FloatField(null=True)),
-                ('b19_gen', models.FloatField(null=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("start", models.DateTimeField()),
+                (
+                    "forecast_type",
+                    models.CharField(
+                        choices=[
+                            ("day-ahead", "Dayahead"),
+                            ("intraday", "Intraday"),
+                            ("current", "Current"),
+                        ],
+                        max_length=9,
+                        verbose_name="Forecast type",
+                    ),
+                ),
+                ("b16_gen", models.FloatField(null=True)),
+                ("b18_gen", models.FloatField(null=True)),
+                ("b19_gen", models.FloatField(null=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
             ],
             options={
-                'indexes': [models.Index(fields=['start'], name='ecozone_for_start_ac147b_idx')],
+                "indexes": [
+                    models.Index(fields=["start"], name="ecozone_for_start_ac147b_idx")
+                ],
             },
         ),
         migrations.AddConstraint(
-            model_name='forecast',
-            constraint=models.UniqueConstraint(fields=('start',), name='unique_forecast_record'),
+            model_name="forecast",
+            constraint=models.UniqueConstraint(
+                fields=("start",), name="unique_forecast_record"
+            ),
         ),
     ]

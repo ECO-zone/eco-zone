@@ -423,7 +423,7 @@ async function makeMap() {
     });
     document.getElementById("emissions-intensity-start-nord").innerText = timestamp;
     document.getElementById("emissions-intensity-start-sued").innerText = timestamp;
-  }  
+  }
 }
 
 makeMap();

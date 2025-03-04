@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0017_generation_ws_redisual'),
+        ("ecozone", "0017_generation_ws_redisual"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='generation',
-            old_name='ws_redisual',
-            new_name='ws_residual',
+            model_name="generation",
+            old_name="ws_redisual",
+            new_name="ws_residual",
         ),
     ]

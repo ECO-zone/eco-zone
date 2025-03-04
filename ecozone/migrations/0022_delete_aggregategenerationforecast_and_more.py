@@ -6,107 +6,107 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ecozone', '0021_generation_con_ef_north_generation_con_ef_south_and_more'),
+        ("ecozone", "0021_generation_con_ef_north_generation_con_ef_south_and_more"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='AggregateGenerationForecast',
+            name="AggregateGenerationForecast",
         ),
         migrations.DeleteModel(
-            name='PSRGeneration',
+            name="PSRGeneration",
         ),
         migrations.DeleteModel(
-            name='RenewableGenerationForecast',
+            name="RenewableGenerationForecast",
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b01_work_mwh',
+            model_name="generation",
+            name="b01_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b02_work_mwh',
+            model_name="generation",
+            name="b02_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b04_work_mwh',
+            model_name="generation",
+            name="b04_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b05_work_mwh',
+            model_name="generation",
+            name="b05_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b06_work_mwh',
+            model_name="generation",
+            name="b06_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b09_work_mwh',
+            model_name="generation",
+            name="b09_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b10_work_mwh',
+            model_name="generation",
+            name="b10_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b11_work_mwh',
+            model_name="generation",
+            name="b11_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b12_work_mwh',
+            model_name="generation",
+            name="b12_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b14_work_mwh',
+            model_name="generation",
+            name="b14_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b15_work_mwh',
+            model_name="generation",
+            name="b15_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b16_work_mwh',
+            model_name="generation",
+            name="b16_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b17_work_mwh',
+            model_name="generation",
+            name="b17_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b18_work_mwh',
+            model_name="generation",
+            name="b18_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b19_work_mwh',
+            model_name="generation",
+            name="b19_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='generation',
-            name='b20_work_mwh',
+            model_name="generation",
+            name="b20_work_mwh",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='timeseriesredispatch',
-            name='emissions',
+            model_name="timeseriesredispatch",
+            name="emissions",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='timeseriesredispatch',
-            name='work_mwh',
+            model_name="timeseriesredispatch",
+            name="work_mwh",
             field=models.FloatField(null=True),
         ),
     ]

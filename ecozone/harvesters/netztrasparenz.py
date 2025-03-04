@@ -40,7 +40,7 @@ def from_date_and_time_to_utc_datetime(date: str, time: str) -> datetime:
     return datetime.strptime(f"{date}{time}Z", "%d.%m.%Y%H:%M%z")
 
 
-def harvest_redispatch(file: Optional[str]=None) -> int:
+def harvest_redispatch(file: Optional[str] = None) -> int:
     if not file:
         CLIENT_ID = get_env_var("NETZTRANZPARENZ_CLIENT_ID")
         CLIENT_SECRET = get_env_var("NETZTRANZPARENZ_CLIENT_SECRET")
@@ -80,10 +80,20 @@ def harvest_redispatch(file: Optional[str]=None) -> int:
             )
             record["reason"] = row["GRUND_DER_MASSNAHME"]
             direction = row["RICHTUNG"]
-            record["direction"] = "Wirkleistungseinspeisung erhöhen" if direction.startswith("Wirkleistungseinspeisung erh") else direction
-            record["power_mid_mw"] = from_de_format_to_float(row["MITTLERE_LEISTUNG_MW"])
-            record["power_max_mw"] = from_de_format_to_float(row["MAXIMALE_LEISTUNG_MW"])
-            record["work_total_mwh"] = from_de_format_to_float(row["GESAMTE_ARBEIT_MWH"])
+            record["direction"] = (
+                "Wirkleistungseinspeisung erhöhen"
+                if direction.startswith("Wirkleistungseinspeisung erh")
+                else direction
+            )
+            record["power_mid_mw"] = from_de_format_to_float(
+                row["MITTLERE_LEISTUNG_MW"]
+            )
+            record["power_max_mw"] = from_de_format_to_float(
+                row["MAXIMALE_LEISTUNG_MW"]
+            )
+            record["work_total_mwh"] = from_de_format_to_float(
+                row["GESAMTE_ARBEIT_MWH"]
+            )
             tso_s_name = row["ANWEISENDER_UENB"]
             tso_s = current_tsos.get(tso_s_name)
             if not tso_s:
@@ -113,9 +123,13 @@ def harvest_redispatch(file: Optional[str]=None) -> int:
             sleep(2)
         else:
             break
-  
+
     records_from_server.sort(key=lambda x: x.start)
-    records_to_check = Redispatch.objects.filter(start__gte=records_from_server[0].start).order_by("start").all()
+    records_to_check = (
+        Redispatch.objects.filter(start__gte=records_from_server[0].start)
+        .order_by("start")
+        .all()
+    )
     record_check_set = {x.make_record_comparison_str(): x for x in records_to_check}
 
     records_to_create = []
@@ -131,13 +145,17 @@ def harvest_redispatch(file: Optional[str]=None) -> int:
             records_to_create.append(record)
             record_check_set[record_comparison_str] = record
 
-    new_and_existing_records_set = {x.id for x in records_to_create} | {x.id for x in existing_records}
+    new_and_existing_records_set = {x.id for x in records_to_create} | {
+        x.id for x in existing_records
+    }
 
-    records_to_delete = [x for x in records_to_check if x.id not in new_and_existing_records_set]
+    records_to_delete = [
+        x for x in records_to_check if x.id not in new_and_existing_records_set
+    ]
 
-    print('ready to start updating db')
-    print(f'records to create: {len(records_to_create)}')
-    print(f'records to delete: {len(records_to_delete)}')
+    print("ready to start updating db")
+    print(f"records to create: {len(records_to_create)}")
+    print(f"records to delete: {len(records_to_delete)}")
 
     with transaction.atomic():
         for x in records_to_delete:
