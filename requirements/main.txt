@@ -10,30 +10,30 @@ asgiref==3.8.1
     # via
     #   -c ./requirements/prod.txt
     #   django
-asttokens==2.4.1
+asttokens==3.0.0
     # via stack-data
-certifi==2024.6.2
+certifi==2025.1.31
     # via
     #   -c ./requirements/prod.txt
     #   requests
-charset-normalizer==3.3.2
+charset-normalizer==3.4.1
     # via requests
-decorator==5.1.1
+decorator==5.2.1
     # via ipython
-django==5.0.6
+django==5.1.6
     # via
     #   -c ./requirements/prod.txt
     #   -r ./requirements/main.in
     #   django-ninja
 django-ninja==1.1.0
     # via -r ./requirements/main.in
-executing==2.0.1
+executing==2.2.0
     # via stack-data
-idna==3.7
+idna==3.10
     # via requests
 ipython==8.24.0
     # via -r ./requirements/main.in
-jedi==0.19.1
+jedi==0.19.2
     # via ipython
 matplotlib-inline==0.1.7
     # via ipython
@@ -45,17 +45,17 @@ parso==0.8.4
     # via jedi
 pexpect==4.9.0
     # via ipython
-prompt-toolkit==3.0.45
+prompt-toolkit==3.0.50
     # via ipython
 ptyprocess==0.7.0
     # via pexpect
-pure-eval==0.2.2
+pure-eval==0.2.3
     # via stack-data
-pydantic==2.7.3
+pydantic==2.10.6
     # via django-ninja
-pydantic-core==2.18.4
+pydantic-core==2.27.2
     # via pydantic
-pygments==2.18.0
+pygments==2.19.1
     # via ipython
 requests==2.32.2
     # via
@@ -63,9 +63,7 @@ requests==2.32.2
     #   requests-oauthlib
 requests-oauthlib==2.0.0
     # via -r ./requirements/main.in
-six==1.16.0
-    # via asttokens
-sqlparse==0.5.0
+sqlparse==0.5.3
     # via
     #   -c ./requirements/prod.txt
     #   django
@@ -75,12 +73,12 @@ traitlets==5.14.3
     # via
     #   ipython
     #   matplotlib-inline
-typing-extensions==4.12.0
+typing-extensions==4.12.2
     # via
     #   -c ./requirements/prod.txt
     #   pydantic
     #   pydantic-core
-urllib3==2.2.1
+urllib3==2.3.0
     # via
     #   -c ./requirements/prod.txt
     #   requests

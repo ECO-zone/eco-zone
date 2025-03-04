@@ -15,7 +15,8 @@ deploy-dev:
 ########
 
 lint:
-	pre-commit run --all-files
+	ruff check
+	ruff format
 
 test:
 	pytest --disable-warnings ./tests

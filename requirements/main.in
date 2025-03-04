@@ -1,5 +1,5 @@
 -c prod.txt
-django==5.0.6
+django==5.1.6
 django-ninja==1.1.0
 ipython==8.24.0
 oauthlib==3.2.2
