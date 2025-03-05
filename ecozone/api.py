@@ -24,7 +24,7 @@ class RedispatchData(Schema):
         "power_mid_mw_decrease",
         "power_mid_mw_increase",
     )
-    rows: List[Tuple[datetime, float, float]] = (
+    rows: List[Tuple[datetime, Optional[float], Optional[float]]] = (
         (datetime.fromisoformat("2025-01-01T00:00:00Z"), 4634.030000000001, 3981.6),
     )
 
@@ -46,13 +46,17 @@ class ClassifiedRedispatchData(Schema):
         "con_increase_power_south",
         "con_increase_power_north",
     )
-    rows: List[Tuple[datetime, float, float, float, float]] = (
+    rows: List[
+        Tuple[
+            datetime, Optional[float], Optional[float], Optional[float], Optional[float]
+        ]
+    ] = (
         (
             datetime.fromisoformat("2025-01-01T00:00:00Z"),
-            0,
+            0.0,
             200.86,
             1426.9299999999998,
-            0,
+            0.0,
         ),
     )
 
@@ -70,7 +74,7 @@ def get_timeseries_classified_redispatch(
 
 class NationalEmissionIntensityData(Schema):
     header: Tuple[str, str] = ("start", "emission_intensity")
-    rows: List[Tuple[datetime, float]] = (
+    rows: List[Tuple[datetime, Optional[float]]] = (
         (datetime.fromisoformat("2025-01-14T00:00:00Z"), 390.24490576535226),
     )
 
@@ -90,7 +94,7 @@ class ZonalEmissionIntensityData(Schema):
         "emission_intensity_north",
         "emission_intensity",
     )
-    rows: List[Tuple[datetime, float, float]] = (
+    rows: List[Tuple[datetime, Optional[float], Optional[float]]] = (
         (datetime.fromisoformat("2025-01-14T00:00:00Z"), 390.24490576535226, 150.0),
     )
 
@@ -133,40 +137,40 @@ class GenerationData(Schema):
     rows: List[
         Tuple[
             datetime,
-            int,
-            int,
-            int,
-            int,
-            int,
-            int,
-            int,
-            int,
-            int,
-            int,
-            int,
-            int,
-            int,
-            int,
-            int,
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
         ]
     ] = (
         (
             datetime.fromisoformat("2025-01-14T00:00:00Z"),
-            4350,
-            9701,
-            10685,
-            5735,
-            378,
-            27,
-            138,
-            1420,
-            153,
-            79,
-            0,
-            671,
-            6298,
-            17635,
-            246,
+            4350.0,
+            9701.0,
+            10685.0,
+            5735.0,
+            378.0,
+            27.0,
+            138.0,
+            1420.0,
+            153.0,
+            79.0,
+            0.0,
+            671.0,
+            6298.0,
+            17635.0,
+            246.0,
         ),
     )
 
@@ -204,40 +208,40 @@ class EmissionData(Schema):
     rows: List[
         Tuple[
             datetime,
-            float,
-            float,
-            float,
-            float,
-            float,
-            float,
-            float,
-            float,
-            float,
-            float,
-            float,
-            float,
-            float,
-            float,
-            float,
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
+            Optional[float],
         ]
     ] = (
         (
             datetime.fromisoformat("2025-01-14T00:00:00Z"),
             133762.5,
             2607143.75,
-            1121925,
+            1121925.0,
             1337688.75,
-            103761,
+            103761.0,
             33.75,
             172.5,
-            1065,
+            1065.0,
             114.75,
             98.75,
-            0,
+            0.0,
             184189.5,
             14170.5,
             39678.75,
-            67527,
+            67527.0,
         ),
     )
 
