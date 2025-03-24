@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta, UTC
-
+from pathlib import Path
 
 from django.test import TestCase
 
 from ecozone.harvesters.netztrasparenz import harvest_redispatch
 from ecozone.models import (
     get_emissions,
+    Forecast,
     Generation,
     PowerPlant,
     PsrType,
@@ -183,3 +184,49 @@ class ZonalEmissionFactorTestCase(DataTestCase):
         for i in self.results_south:
             if i[0] > start and i[0] < end:
                 assert i[1] == 583.125
+
+
+class AggregateGenerationForecast60MinuteResolutionTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        path = (
+            Path(__file__).parent.parent.parent
+            / "queries"
+            / "entsoe"
+            / "aggregate_generation_forecast"
+            / "60_min_res"
+            / "data.xml"
+        )
+        with open(path, "r") as f:
+            xml = f.read()
+        Forecast.objects.import_aggregate_records(xml)
+
+    def test_96_records_are_created(self):
+        assert Forecast.objects.count() == 96
+
+    def test_values_are_converted_to_15_minute_resolution_correctly(self):
+        assert Forecast.objects.order_by("start")[3].agg_gen == 41884
+        assert Forecast.objects.order_by("start").last().agg_gen == 42304
+
+
+class AggregateGenerationForecast15MinuteResolutionTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        path = (
+            Path(__file__).parent.parent.parent
+            / "queries"
+            / "entsoe"
+            / "aggregate_generation_forecast"
+            / "15_min_res"
+            / "data.xml"
+        )
+        with open(path, "r") as f:
+            xml = f.read()
+        Forecast.objects.import_aggregate_records(xml)
+
+    def test_96_records_are_created(self):
+        assert Forecast.objects.count() == 96
+
+    def test_values_are_imported_correctly(self):
+        assert Forecast.objects.order_by("start")[3].agg_gen == 54910
+        assert Forecast.objects.order_by("start").last().agg_gen == 50395

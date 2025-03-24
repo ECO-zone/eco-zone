@@ -1,0 +1,16 @@
+# Get aggregate generation forecast
+
+@documentType = A71
+@processType = A01
+@in_Domain = 10Y1001A1001A83F
+@periodStart = 202503182300
+@periodEnd = 202503212300
+@securityToken = {{$dotenv ENTSOE_SECURITY_TOKEN}}
+
+GET https://web-api.tp.entsoe.eu/api
+    ?documentType={{documentType}}
+    &processType={{processType}}
+    &in_Domain={{in_Domain}}
+    &periodStart={{periodStart}}
+    &periodEnd={{periodEnd}}
+    &securityToken={{securityToken}}

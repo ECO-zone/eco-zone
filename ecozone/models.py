@@ -559,7 +559,7 @@ class TimeseriesRedispatchManager(models.Manager):
             x.emissions = emissions
             x.emission_factor = emissions / work_mwh
             to_update.append(x)
-        print(f"Updating {len(to_update)} records")
+        logger.info(f"Updating {len(to_update)} records")
 
         self.bulk_update(to_update, ["emissions", "emission_factor"], batch_size=1000)
 
@@ -990,7 +990,7 @@ class GenerationManager(models.Manager):
             else:
                 records_to_create.append(gen_record)
 
-        print("creating and updating")
+        logger.info("creating and updating")
         with transaction.atomic():
             self.bulk_create(records_to_create, batch_size=1000)
             self.bulk_update(
@@ -1033,7 +1033,7 @@ class GenerationManager(models.Manager):
                 if update:
                     gen_record.updated_at = now
                     records_to_update.append(gen_record)
-        print("updating")
+        logger.info("updating")
         with transaction.atomic():
             self.bulk_update(
                 records_to_update,
@@ -1042,7 +1042,7 @@ class GenerationManager(models.Manager):
             )
 
     def import_records(self, xml):
-        print("Starting import")
+        logger.info("Starting import")
         name_spaces = {
             "entsoe": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"
         }
@@ -1103,7 +1103,7 @@ class GenerationManager(models.Manager):
                             }
                         )
                     )
-            print("creating and updating")
+            logger.info("creating and updating")
             with transaction.atomic():
                 self.bulk_create(records_to_create, batch_size=1000)
                 self.bulk_update(
@@ -1404,7 +1404,7 @@ def get_emissions(
 
 class ForecastManager(models.Manager):
     def import_records(self, xml, forecast_type: ForecastType):
-        print("Starting import")
+        logger.info("Starting import")
         try:
             name_spaces = {
                 "entsoe": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"
@@ -1471,7 +1471,7 @@ class ForecastManager(models.Manager):
                                     }
                                 )
                             )
-                    print("creating and updating")
+                    logger.info("creating and updating")
                     with transaction.atomic():
                         self.bulk_create(records_to_create, batch_size=1000)
                         self.bulk_update(
@@ -1484,7 +1484,7 @@ class ForecastManager(models.Manager):
             logger.exception(str(e))
 
     def import_aggregate_records(self, xml):
-        print("Starting import")
+        logger.info("Starting import")
         try:
             name_spaces = {
                 "entsoe": "urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0"
@@ -1498,10 +1498,6 @@ class ForecastManager(models.Manager):
                 resolution = entry.find(
                     "./entsoe:Period/entsoe:resolution", name_spaces
                 ).text
-                if resolution != "PT60M":
-                    raise Exception(
-                        f"Got unexpected resolution {resolution} for {control_area}"
-                    )
                 start = datetime.fromisoformat(
                     entry.find(
                         "./entsoe:Period/entsoe:timeInterval/entsoe:start", name_spaces
@@ -1510,10 +1506,20 @@ class ForecastManager(models.Manager):
                 for item in entry.findall(
                     "./entsoe:Period/entsoe:Point/entsoe:quantity", name_spaces
                 ):
-                    for _ in range(4):
+                    if resolution == "PT15M":
                         point = {"start": start, "value": int(item.text)}
                         points.append(point)
                         start += timedelta(minutes=15)
+                    elif resolution == "PT60M":
+                        # Convert the 60-minute resolution to 15-minute resolution
+                        for _ in range(4):
+                            point = {"start": start, "value": int(item.text)}
+                            points.append(point)
+                            start += timedelta(minutes=15)
+                    else:
+                        raise Exception(
+                            f"Got unexpected resolution {resolution} for {control_area}"
+                        )
                 if points:
                     query = self.filter(
                         Q(start__gte=points[0]["start"])
@@ -1537,7 +1543,7 @@ class ForecastManager(models.Manager):
                                     agg_gen=point["value"],
                                 )
                             )
-                    print("creating and updating")
+                    logger.info("creating and updating")
                     with transaction.atomic():
                         self.bulk_create(records_to_create, batch_size=1000)
                         self.bulk_update(
