@@ -8,3 +8,8 @@ warn_unreachable = true
 follow_imports = "skip"
 disable_error_code = "import-untyped"
 ignore_missing_imports = true
+
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
