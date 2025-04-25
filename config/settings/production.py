@@ -8,7 +8,7 @@ from .base import *  # noqa: F403
 from .base import BASE_DIR, GIT_REV, SENTRY_DSN_BACKEND, SENTRY_ENVIRONMENT
 
 
-SECRET_KEY = os.environ.get("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY", "")
 if not SECRET_KEY:
     raise Exception("Environment variable 'SECRET_KEY' must be set")
 
